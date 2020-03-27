@@ -19,6 +19,7 @@ to your use-case:
 
  - [`@debugr/core`] - Boring, but necessary
  - [`@debugr/express`] - Express request & response logger
+ - [`@debugr/apollo`] - Apollo Server request logger
  - [`@debugr/typeorm`] - TypeORM SQL logger
  - [`@debugr/http-formatter`] - HTTP request & response formatter
  - [`@debugr/sql-formatter`] - SQL query formatter
@@ -167,6 +168,7 @@ The `Logger` instance obtained from `debug.createLogger()` has the following met
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
 [`@debugr/express`]: ./packages/express
+[`@debugr/apollo`]: ./packages/apollo
 [`@debugr/typeorm`]: ./packages/typeorm
 [`@debugr/http-formatter`]: ./packages/http-formatter
 [`@debugr/sql-formatter`]: ./packages/sql-formatter
