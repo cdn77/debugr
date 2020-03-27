@@ -22,5 +22,5 @@ export { Logger } from './logger';
 export type LoggerInterface = Logger;
 export const LoggerInterface = Logger;
 export { Plugins, PluginManager, FormatterPlugin, Plugin } from './plugins';
-export { GcOptions, LogEntry, LogEntryQueue, QueueManager, QueueWriter } from './queues';
+export { GcOptions, LogEntry, LogEntryQueue, QueueManager, Writer } from './queues';
 export { Options, LogLevel } from './types';

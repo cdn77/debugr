@@ -16,3 +16,5 @@ export enum LogLevel {
   WARNING = 3,
   ERROR = 4,
 }
+
+export type With<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;

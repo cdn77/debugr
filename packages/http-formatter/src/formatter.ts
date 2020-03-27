@@ -5,7 +5,7 @@ export class HttpFormatter implements FormatterPlugin {
   readonly id: string = 'http';
 
   getEntryLabel(entry: LogEntry): string {
-    return entry.data?.type === 'request' ? 'HTTP request' : 'HTTP response';
+    return entry.data!.type === 'request' ? 'HTTP request' : 'HTTP response';
   }
 
   formatEntry(entry: LogEntry): string {

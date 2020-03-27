@@ -2,11 +2,19 @@ import { vsprintf } from 'printj';
 import * as v8 from 'v8';
 import { EventDispatcher } from '../events';
 import { PluginId } from '../plugins';
+import { Formatter } from '../formatter';
+import { Writer } from './writer';
 import { generateIdentifier } from '../bootstrap/utils';
+import { identifyQueue } from './utils';
 import { LogEntry, LogEntryQueue, QueueManagerOptions } from './types';
+import { With } from '../types';
 
 export class QueueManager {
   private readonly eventDispatcher: EventDispatcher;
+
+  private readonly formatter: Formatter;
+
+  private readonly writer: Writer;
 
   private readonly options: QueueManagerOptions;
 
@@ -14,8 +22,15 @@ export class QueueManager {
 
   private readonly queues: Record<string, LogEntryQueue>;
 
-  constructor(eventDispatcher: EventDispatcher, options: QueueManagerOptions) {
+  constructor(
+    eventDispatcher: EventDispatcher,
+    formatter: Formatter,
+    writer: Writer,
+    options: QueueManagerOptions,
+  ) {
     this.eventDispatcher = eventDispatcher;
+    this.formatter = formatter;
+    this.writer = writer;
     this.options = options;
     this.queues = {};
     this.gcTmr = setInterval(() => this.gc(), this.options.gc.interval * 1000);
@@ -70,14 +85,8 @@ export class QueueManager {
     queue.entries.push(entry);
     queue.lastTs = ts;
 
-    if (level >= this.options.threshold) {
-      if (queue.firstOverThreshold === undefined) {
-        queue.firstOverThreshold = entryId;
-      }
-
-      if (queue.write === undefined) {
-        queue.write = true;
-      }
+    if (level >= this.options.threshold && queue.firstOverThreshold === undefined) {
+      queue.firstOverThreshold = entryId;
     }
   }
 
@@ -98,6 +107,8 @@ export class QueueManager {
     if (tag in this.queues) {
       if (this.queues[tag].id !== undefined) {
         throw new Error('Queue already has an ID');
+      } else if (!/^[a-z0-9-/]+$/i.test(id)) {
+        throw new Error('Invalid queue ID, must conform to "^[a-z0-9-/]+$"');
       }
 
       this.queues[tag].id = id;
@@ -120,12 +131,24 @@ export class QueueManager {
     if (tag in this.queues) {
       const queue = this.queues[tag];
       delete this.queues[tag];
+      Promise.resolve().then(() => this.doFlushQueue(queue, forceWrite));
+    }
+  }
 
-      this.eventDispatcher.emit('queue.flush', queue);
+  private async doFlushQueue(queue: LogEntryQueue, forceWrite: boolean = false): Promise<void> {
+    if (queue.id === undefined) {
+      queue.id = identifyQueue(queue);
+    }
 
-      if (forceWrite || queue.write) {
-        this.eventDispatcher.emit('queue.write', queue);
-      }
+    this.eventDispatcher.emit('queue.flush', queue as With<LogEntryQueue, 'id'>);
+
+    if (queue.write === undefined) {
+      queue.write = queue.firstOverThreshold !== undefined;
+    }
+
+    if (forceWrite || queue.write) {
+      const content = this.formatter.format(queue);
+      await this.writer.write(queue.ts, queue.id, content);
     }
   }
 

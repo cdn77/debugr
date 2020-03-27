@@ -26,6 +26,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:cleanup": "../../.run build:cleanup",
     "build:compile": "../../.run build:compile",

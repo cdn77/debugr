@@ -1,7 +1,7 @@
 import { LogEntry, LogEntryQueue } from '../queues';
+import { With } from '../types';
 
 export interface Events {
   'queue.push': (entry: LogEntry, queue: LogEntryQueue) => void;
-  'queue.flush': (queue: LogEntryQueue) => void;
-  'queue.write': (queue: LogEntryQueue) => void;
+  'queue.flush': (queue: With<LogEntryQueue, 'id'>) => void;
 }

@@ -1,7 +1,7 @@
 import { EventDispatcher } from '../events';
 import { Formatter } from '../formatter';
 import { PluginManager } from '../plugins';
-import { QueueManager, QueueWriter } from '../queues';
+import { QueueManager, Writer } from '../queues';
 import { Logger } from '../logger';
 import { FactoryMap } from '../di';
 import { FullOptions, Services } from './types';
@@ -14,11 +14,18 @@ export const defaultFactories: FactoryMap<Services, FullOptions> = {
   logger: di => new Logger(di.get('queueManager')),
   pluginManager: di => new PluginManager(di),
   queueManager: di =>
-    new QueueManager(di.get('eventDispatcher'), {
+    new QueueManager(di.get('eventDispatcher'), di.get('formatter'), di.get('writer'), {
       threshold: di.options.threshold,
       cloneData: di.options.cloneData,
       gc: di.options.gc,
     }),
-  queueWriter: di => new QueueWriter(di.options.logDir),
-  debugr: di => new Debugr(di),
+  writer: di =>
+    new Writer(di.get('eventDispatcher'), di.options.logDir, di.options.writeDuplicates),
+  debugr: di =>
+    new Debugr(
+      di.get('eventDispatcher'),
+      di.get('pluginManager'),
+      di.createFactory('logger'),
+      di.options.plugins,
+    ),
 };

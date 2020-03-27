@@ -9,7 +9,7 @@ export class GraphQLFormatter implements FormatterPlugin {
 
   formatEntry(entry: LogEntry): string {
     if (!entry.data || !entry.data.query) {
-      throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
+      throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }
 
     const parts: string[] = [];

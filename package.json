@@ -35,7 +35,8 @@
     "build": "lerna run build",
     "lint": "lerna run lint",
     "preversion": "lerna run preversion",
-    "postinstall": "lerna bootstrap"
+    "postinstall": "lerna bootstrap",
+    "release": "lerna publish from-package"
   },
   "husky": {
     "hooks": {

@@ -1,7 +1,7 @@
 import { EventDispatcher } from '../events';
 import { Formatter } from '../formatter';
 import { PluginManager } from '../plugins';
-import { FullGcOptions, QueueManager, QueueWriter } from '../queues';
+import { FullGcOptions, QueueManager, Writer } from '../queues';
 import { Container } from '../di';
 import { Logger } from '../logger';
 import { Debugr } from './debugr';
@@ -14,7 +14,7 @@ export interface Services {
   logger: Logger;
   pluginManager: PluginManager;
   queueManager: QueueManager;
-  queueWriter: QueueWriter;
+  writer: Writer;
   debugr: Debugr;
 }
 

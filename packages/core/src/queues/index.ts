@@ -1,4 +1,4 @@
 export { QueueManager } from './manager';
-export { QueueWriter } from './writer';
-export { findDefiningEntry, identify } from './utils';
+export { Writer } from './writer';
+export { findDefiningEntry } from './utils';
 export * from './types';

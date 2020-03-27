@@ -9,7 +9,6 @@ and obtaining plugins from the `PluginManager` and for attaching event listeners
 on the internal `EventDispatcher`.
 
 ### Methods
-
  - `registerPlugins(plugin: Plugin[]): void`
 
    Shortcut for batch registration of multiple plugins. See `registerPlugin()`.
