@@ -59,13 +59,13 @@ This will produce a dump file in the log directory that will look something like
 
 ![an example dump file]
 
-The way this tool is designed, *nothing* is logged at the time you call `logger.log()` or
+The way this tool is designed, **nothing** is logged at the time you call `logger.log()` or
 any of the shortcuts; instead, when you call `logger.flush()`, Debugr will check if at least
 one of the entries in the logger instance exceeded a (configurable) threshold. If there is
 at least one such entry, the logger will be flushed into an uniquely-named file in the log
 directory.
 
-Of course, if you want a specific task logged _always_, you can do so: just call
+Of course, if you want a specific task logged *always*, you can do so: just call
 `logger.markForWriting()` sometime between creating it and calling `logger.flush()`.
 Conversely, if your code can determine that a particular task doesn't need to be logged
 no matter how much things went wrong you can call `logger.markAsIgnored()`.
@@ -111,7 +111,7 @@ The `Logger` instance obtained from `debug.createLogger()` has the following met
    so see its documentation to check what is possible.
 
    The `data` argument can contain any arbitrary data you wish to include in your dump.
-   However: by default only a _reference_ to the passed object is stored - meaning that
+   However: by default only a *reference* to the passed object is stored - meaning that
    the dump will contain a snapshot of the data at the moment `logger.flush()` is called.
    This should usually be okay; but if for some reason you need to you can turn on data
    cloning by setting the `cloneData` option to `true` when calling `debugr()`. If this

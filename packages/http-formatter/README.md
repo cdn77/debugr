@@ -1,7 +1,7 @@
 HTTP request and response formatter plugin for Debugr
 =====================================================
 
-*Plugin ID:* `http`
+**Plugin ID:** `http`
 
 This is a formatter plugin, which means that when Debugr is creating
 a dump file for a given logger, this plugin will be used for any entries
@@ -17,14 +17,34 @@ configure it yourself as it will be done automatically if it is needed.
 ## Required entry data
 
 ```typescript
-type RequestData = {
+export type RequestData = {
   type: 'request';
   method: string;
   uri: string;
   headers: Record<string, number | string | string[] | undefined>;
   ip?: string;
   body?: string;
-  bodyLength: number;
+  bodyLength?: number;
+  lengthMismatch: boolean;
+};
+
+export type ResponseData = {
+  type: 'response';
+  status: number;
+  message: string;
+  headers: Record<string, number | string | string[] | undefined>;
+  body?: string;
+  bodyLength?: number;
   lengthMismatch: boolean;
 };
 ```
+
+### Notes:
+ - The `headers` property is type-compatible with both `IncomingHttpHeaders`
+   and `OutgoingHttpHeaders` from the native `http` module, so you can usually
+   pass them in directly.
+ - The `bodyLength` property should be set to the *actual* length of the body
+   (not derived from the `Content-Length` header). Obviously its purpose is
+   to have access to the actual body length even if the body itself isn't captured.
+ - The `lengthMismatch` property should indicate that the *actual* length of the
+   body didn't match the `Content-Length` header.

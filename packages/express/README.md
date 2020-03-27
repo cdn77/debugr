@@ -74,8 +74,8 @@ The `captureBody` option controls whether or not the request or response body
 will be captured in the debug log. It can be set in many ways, so it bears
 explaining in more detail:
  - A `boolean` simply means what `boolean` usually means - `captureBody: true`
-   will capture the body _always_. This is usually slightly overkill. Typically
-   you'll use this to _disable_ capturing the raw request body if you're sure
+   will capture the body *always*. This is usually slightly overkill. Typically
+   you'll use this to *disable* capturing the raw request body if you're sure
    you don't ever care about it - e.g. if you log the decoded body by another plugin.
  - A `number` means "max size in bytes" - the body will be captured if its size
    is at most this value.
