@@ -97,8 +97,8 @@ of course, configurable.
 
 The `Logger` instance obtained from `debug.createLogger()` has the following methods:
 
- - `log(level: number, data: Record<string, any>): void`
-   `log(level: number, message: string, data?: Record<string, any>): void`
+ - `log(level: number, data: Record<string, any>): void`  
+   `log(level: number, message: string, data?: Record<string, any>): void`  
    `log(level: number, message: string, params?: any[], data?: Record<string, any>): void`
 
    This method pushes an arbitrary entry onto the logger's queue. There are four default
@@ -118,26 +118,26 @@ The `Logger` instance obtained from `debug.createLogger()` has the following met
    V8 serialize / deserialize functions, which should be reasonably fast and supports
    complicated things like cyclic references and so on.
 
- - `debug(data: Record<string, any>): void`
-   `debug(message: string, data?: Record<string, any>): void`
+ - `debug(data: Record<string, any>): void`  
+   `debug(message: string, data?: Record<string, any>): void`  
    `debug(message: string, params?: any[], data?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.DEBUG, ...)`.
 
- - `info(data: Record<string, any>): void`
-   `info(message: string, data?: Record<string, any>): void`
+ - `info(data: Record<string, any>): void`  
+   `info(message: string, data?: Record<string, any>): void`  
    `info(message: string, params?: any[], data?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.INFO, ...)`.
 
- - `warning(data: Record<string, any>): void`
-   `warning(message: string, data?: Record<string, any>): void`
+ - `warning(data: Record<string, any>): void`  
+   `warning(message: string, data?: Record<string, any>): void`  
    `warning(message: string, params?: any[], data?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.WARNING, ...)`.
 
- - `error(data: Record<string, any>): void`
-   `error(message: string, data?: Record<string, any>): void`
+ - `error(data: Record<string, any>): void`  
+   `error(message: string, data?: Record<string, any>): void`  
    `error(message: string, params?: any[], data?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.ERROR, ...)`.
