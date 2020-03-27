@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+BASE="$( cd "$( dirname "$0" )" && pwd )"
+PATH="${BASE}/node_modules/.bin:$PATH"
+
+case "$1" in
+  build:cleanup)
+    rimraf 'dist/*'
+    ;;
+  build:compile)
+    rollup -c "${BASE}/rollup.config.js"
+    ;;
+  build:declarations)
+    dts-bundle-generator --config "${BASE}/.dtsconfig.js"
+    ;;
+  build:prettify)
+    prettier --config "${BASE}/.prettierrc" --write 'dist/*.d.ts' 'dist/*.js'
+    ;;
+  build:main)
+    run-p build:compile build:declarations
+    ;;
+  build)
+    run-s build:cleanup build:main build:prettify
+    ;;
+  lint)
+    eslint -c "${BASE}/.eslint.build.rc" 'src/**/*.ts'
+    ;;
+  release)
+    run-s lint build
+    ;;
+esac

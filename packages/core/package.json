@@ -1,0 +1,36 @@
+{
+  "name": "@debugr/core",
+  "version": "1.0.0",
+  "description": "Advanced application logger",
+  "author": {
+    "name": "Dan Kadera",
+    "email": "dan.kadera@cdn77.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "printj": "1.2.2"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "build": {
+    "src": "src/index.ts",
+    "externals": ["crypto", "events", "fs", "path", "printj", "v8", "util"]
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:cleanup": "../../.run build:cleanup",
+    "build:compile": "../../.run build:compile",
+    "build:declarations": "../../.run build:declarations",
+    "build:prettify": "../../.run build:prettify",
+    "build:main": "../../.run build:main",
+    "build": "../../.run build",
+    "lint": "../../.run lint",
+    "preversion": "../../.run release"
+  }
+}

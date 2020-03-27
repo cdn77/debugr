@@ -1,0 +1,42 @@
+{
+  "extends": [
+    "airbnb-typescript/base",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "project": "../../tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/no-unused-expressions": ["error", { "allowShortCircuit": true }],
+    "@typescript-eslint/no-throw-literal": "off",
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": false,
+        "typedefs": false
+      }
+    ],
+    "class-methods-use-this": "off",
+    "default-case": "off",
+    "import/export": "off",
+    "import/no-cycle": "off",
+    "import/prefer-default-export": "off",
+    "lines-between-class-members": ["off"],
+    "max-classes-per-file": "off",
+    "no-console": "off",
+    "no-constant-condition": "off",
+    "no-else-return": "off",
+    "no-multi-assign": "off",
+    "no-nested-ternary": "off",
+    "no-param-reassign": ["error", { "props": false }],
+    "no-plusplus": "off",
+    "no-redeclare": "off",
+    "no-restricted-syntax": "off",
+    "no-return-assign": "off",
+    "no-shadow": "off",
+    "prefer-destructuring": "off",
+    "spaced-comment": ["error", "always", { "markers": ["/"] }]
+  }
+}

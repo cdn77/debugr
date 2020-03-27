@@ -1,0 +1,46 @@
+{
+  "name": "@debugr/express",
+  "version": "1.0.0",
+  "description": "Express.js plugin for Advanced application logger",
+  "author": {
+    "name": "Dan Kadera",
+    "email": "dan.kadera@cdn77.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "@debugr/http-formatter": "^1.0"
+  },
+  "devDependencies": {
+    "@debugr/core": "^1.0",
+    "@types/express": "4.17.3",
+    "express": "4.17.1"
+  },
+  "peerDependencies": {
+    "@debugr/core": "^1.0",
+    "express": "4.17.1"
+  },
+  "src": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "build": {
+    "src": "src/index.ts",
+    "externals": ["@debugr/core", "@debugr/http-formatter", "stream", "express"]
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:cleanup": "../../.run build:cleanup",
+    "build:compile": "../../.run build:compile",
+    "build:declarations": "../../.run build:declarations",
+    "build:prettify": "../../.run build:prettify",
+    "build:main": "../../.run build:main",
+    "build": "../../.run build",
+    "lint": "../../.run lint",
+    "preversion": "../../.run release"
+  }
+}
