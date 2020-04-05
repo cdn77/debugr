@@ -21,7 +21,7 @@ export async function captureResponseBody(response: Response): Promise<string> {
   };
 
   response.end = (chunk: any, encoding?: any, cb?: any) => {
-    if (typeof chunk !== 'function') {
+    if (chunk && typeof chunk !== 'function') {
       buffer += chunk.toString();
     }
 
