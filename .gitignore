@@ -1,4 +1,3 @@
 /node_modules/
 /packages/*/node_modules/
 /packages/*/dist/
-/packages/*/package-lock.json
