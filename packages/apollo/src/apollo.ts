@@ -33,6 +33,11 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
   requestDidStart({ context }: GraphQLRequestContext): GraphQLRequestListener {
     const logger: Logger = context.logger || this.createLogger();
     const options = this.options;
+    const flush = !context.logger;
+
+    if (!context.logger) {
+      context.logger = logger;
+    }
 
     return {
       didResolveOperation({ request, operation, operationName }): void {
@@ -60,8 +65,8 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
           });
         }
       },
-      willSendResponse({ context }): void {
-        if (!context.logger) {
+      willSendResponse(): void {
+        if (flush) {
           logger.flush();
         }
       },
