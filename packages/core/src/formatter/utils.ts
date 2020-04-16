@@ -66,19 +66,31 @@ export function formatData(data: any): string {
     } else if (typeof value === 'string') {
       return value.indexOf('\n') > -1 ? `|\n${indent(value)}` : value;
     } else if (Array.isArray(value)) {
-      return value
-        .map(v => `- ${isObject(v) ? indent(formatValue(v)).trimLeft() : formatValue(v)}`)
-        .join('\n');
+      return !value.length
+        ? '[]'
+        : value
+            .map(v => {
+              const o = formatValue(v);
+              return `- ${o.indexOf('\n') > -1 ? indent(o).trimLeft() : o}`;
+            })
+            .join('\n');
     } else if (typeof value === 'function') {
       return value.name
         ? `function ${value.name}(${value.length})`
         : `anonymous function(${value.length})`;
+    } else if (typeof value.toJSON === 'function') {
+      return formatValue(value.toJSON());
     } else {
-      return Object.entries(value)
-        .map(
-          ([k, v]) => `${k}:${isObject(v) ? `\n${indent(formatValue(v))}` : ` ${formatValue(v)}`}`,
-        )
-        .join('\n');
+      const pairs = Object.entries(value);
+
+      return !pairs.length
+        ? '{}'
+        : pairs
+            .map(([k, v]) => {
+              const o = formatValue(v);
+              return `${k}:${o.indexOf('\n') > -1 ? `\n${indent(o)}` : ` ${o}`}`;
+            })
+            .join('\n');
     }
   }
 

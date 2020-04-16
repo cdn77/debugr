@@ -1,6 +1,6 @@
 {
   "name": "@debugr/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -18,7 +18,15 @@
   "types": "dist/index.d.ts",
   "build": {
     "src": "src/index.ts",
-    "externals": ["crypto", "events", "fs", "path", "printj", "v8", "util"]
+    "externals": [
+      "crypto",
+      "events",
+      "fs",
+      "path",
+      "printj",
+      "v8",
+      "util"
+    ]
   },
   "files": [
     "dist"
