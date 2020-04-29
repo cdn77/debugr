@@ -5,7 +5,6 @@ export function normalizeOptions(options: Options): FullOptions {
   return {
     threshold: LogLevel.ERROR,
     cloneData: false,
-    writeDuplicates: false,
     plugins: [],
     ...options,
     gc: {

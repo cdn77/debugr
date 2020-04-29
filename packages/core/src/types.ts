@@ -5,7 +5,6 @@ export type Options = {
   logDir: string;
   threshold?: number;
   cloneData?: boolean;
-  writeDuplicates?: boolean;
   gc?: GcOptions;
   plugins?: Plugin[];
 };

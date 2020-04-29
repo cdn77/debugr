@@ -19,8 +19,7 @@ export const defaultFactories: FactoryMap<Services, FullOptions> = {
       cloneData: di.options.cloneData,
       gc: di.options.gc,
     }),
-  writer: di =>
-    new Writer(di.get('eventDispatcher'), di.options.logDir, di.options.writeDuplicates),
+  writer: di => new Writer(di.options.logDir),
   debugr: di =>
     new Debugr(
       di.get('eventDispatcher'),
