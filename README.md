@@ -165,6 +165,20 @@ The `Logger` instance obtained from `debug.createLogger()` has the following met
    logged or if the logger has been marked for writing.
 
 
+## Development
+
+To release a new version of a package, run the following command in the package
+directory:
+
+```bash
+npm --no-git-tag-version version <major|minor|patch>
+```
+
+Ensure the working directory is clean before running the command, ie. commit
+all your changes before running this. Next, push the new commits to the repository;
+any packages with updated version in `package.json` will be automatically published
+to NPM.
+
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
 [`@debugr/express`]: ./packages/express

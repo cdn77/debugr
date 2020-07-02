@@ -6,6 +6,8 @@ import { defaultFactories } from './defaultFactories';
 
 export { Services } from './types';
 
+export { Debugr };
+
 export function debugr(options: Options): Debugr {
   const container = new Container(normalizeOptions(options), defaultFactories);
   return container.get('debugr');

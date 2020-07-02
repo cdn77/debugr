@@ -1,6 +1,6 @@
 import { Logger } from './logger';
 
-export { Services, debugr } from './bootstrap';
+export { Services, Debugr, debugr } from './bootstrap';
 export { Container, ContainerAware, Factory } from './di';
 export { Events, EventDispatcher } from './events';
 export {
