@@ -171,13 +171,12 @@ To release a new version of a package, run the following command in the package
 directory:
 
 ```bash
-npm --no-git-tag-version version <major|minor|patch>
+npm --no-git-tag-version --force version <major|minor|patch>
 ```
 
-Ensure the working directory is clean before running the command, ie. commit
-all your changes before running this. Next, push the new commits to the repository;
-any packages with updated version in `package.json` will be automatically published
-to NPM.
+Next, commit your changnes and push the new commits to the repository;
+any packages with updated version in `package.json` will be automatically
+published to NPM.
 
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
