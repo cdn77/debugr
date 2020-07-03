@@ -10,6 +10,26 @@ export function injectQueryLogger(em: EntityManager, logger: LoggerInterface): v
   }
 }
 
+export function cleanupQueryLogger(em: EntityManager): void {
+  if (em.queryRunner) {
+    delete em.queryRunner.data[LOGGER_TAG];
+  }
+}
+
+export function withQueryLogger<T>(
+  logger: LoggerInterface,
+  callback: (em: EntityManager) => Promise<T>,
+) {
+  return async (em: EntityManager) => {
+    try {
+      injectQueryLogger(em, logger);
+      return await callback(em);
+    } finally {
+      cleanupQueryLogger(em);
+    }
+  };
+}
+
 const levelMap = {
   log: LoggerInterface.INFO,
   info: LoggerInterface.INFO,
