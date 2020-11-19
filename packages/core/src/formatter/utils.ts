@@ -13,19 +13,17 @@ const entityMap = {
 };
 
 export function escapeHtml(str: string): string {
-  return `${str}`.replace(/[&<>"']/g, c => entityMap[c]);
+  return `${str}`.replace(/[&<>"']/g, (c) => entityMap[c]);
 }
 
 export function indent(str: string, level: number = 1): string {
-  const indent: string = Array(level)
-    .fill('  ')
-    .join('');
+  const indent: string = Array(level).fill('  ').join('');
   return unindent(str).replace(/^(?!$)/gm, indent);
 }
 
 export function unindent(str: string): string {
   const indents = [...str.matchAll(/^[ ]+(?!$)/gm)]
-    .map(indent => indent[0])
+    .map((indent) => indent[0])
     .sort((a, b) => a.length - b.length);
   const pattern = indents.length ? `^(?:\\s+$|${indents[0]})` : '^\\s+$';
   return str.replace(new RegExp(pattern, 'mg'), '');
@@ -69,9 +67,9 @@ export function formatData(data: any): string {
       return !value.length
         ? '[]'
         : value
-            .map(v => {
+            .map((v) => {
               const o = formatValue(v);
-              return `- ${o.indexOf('\n') > -1 ? indent(o).trimLeft() : o}`;
+              return `- ${isObject(v) || isMultiline(o) ? indent(o).trimLeft() : o}`;
             })
             .join('\n');
     } else if (typeof value === 'function') {
@@ -88,7 +86,7 @@ export function formatData(data: any): string {
         : pairs
             .map(([k, v]) => {
               const o = formatValue(v);
-              return `${k}:${o.indexOf('\n') > -1 ? `\n${indent(o)}` : ` ${o}`}`;
+              return `${k}:${isObject(v) || isMultiline(o) ? `\n${indent(o)}` : ` ${o}`}`;
             })
             .join('\n');
     }
@@ -100,6 +98,10 @@ export function formatData(data: any): string {
 
   function isObject(value: any): value is object {
     return typeof value === 'object' && value !== null;
+  }
+
+  function isMultiline(value: string): boolean {
+    return value.includes('\n');
   }
 }
 

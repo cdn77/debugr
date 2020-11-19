@@ -87,7 +87,7 @@ function normalizeTypePattern(str: string | string[]): RegExp | false {
   }
 
   const types = Array.isArray(str) ? str : str.split(/\s*,\s*|\s+/g);
-  const patterns = types.map(type =>
+  const patterns = types.map((type) =>
     type
       .toLowerCase()
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -111,7 +111,7 @@ function normalizeHeaderPattern(headers?: string[]): RegExp | undefined {
     return undefined;
   }
 
-  const patterns = headers.map(header => header.replace(/[.*+?^${}()|[\]\\]/g, '$&'));
+  const patterns = headers.map((header) => header.replace(/[.*+?^${}()|[\]\\]/g, '$&'));
   return new RegExp(`^(?:${patterns.join('|')})$`, 'i');
 }
 

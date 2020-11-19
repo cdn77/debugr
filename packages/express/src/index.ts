@@ -8,6 +8,7 @@ export function expressLogger(options?: Options): ExpressLogger {
   return new ExpressLogger(options);
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export type __dummy__ = Logger;
 
 declare module '@debugr/core' {

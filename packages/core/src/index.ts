@@ -20,6 +20,7 @@ export {
 } from './formatter';
 export { Logger } from './logger';
 export type LoggerInterface = Logger;
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LoggerInterface = Logger;
 export { Plugins, PluginManager, FormatterPlugin, Plugin } from './plugins';
 export { GcOptions, LogEntry, LogEntryQueue, QueueManager, Writer } from './queues';

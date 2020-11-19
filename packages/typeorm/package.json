@@ -1,6 +1,6 @@
 {
   "name": "@debugr/typeorm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TypeORM plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -15,11 +15,11 @@
   },
   "devDependencies": {
     "@debugr/core": "^1.0",
-    "typeorm": "0.2.24"
+    "typeorm": "^0.2.29"
   },
   "peerDependencies": {
     "@debugr/core": "^1.0",
-    "typeorm": "^0.2"
+    "typeorm": "^0.2.29"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

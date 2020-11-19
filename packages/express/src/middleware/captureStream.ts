@@ -5,8 +5,8 @@ export function captureRequestBody(
   cb: (err: any | null, body?: string) => void,
 ): void {
   let buffer: string = '';
-  request.prependListener('data', chunk => (buffer += chunk.toString()));
-  request.once('error', err => cb(err));
+  request.prependListener('data', (chunk) => (buffer += chunk.toString()));
+  request.once('error', (err) => cb(err));
   request.once('end', () => cb(null, buffer));
 }
 

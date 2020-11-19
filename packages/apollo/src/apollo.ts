@@ -46,7 +46,7 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
             query: request.query,
             variables: request.variables,
             operation:
-              [operation?.operation, operationName].filter(v => !!v).join(' ') || undefined,
+              [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
           });
         }
       },

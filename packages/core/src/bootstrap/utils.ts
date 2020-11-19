@@ -19,11 +19,7 @@ export function generateIdentifier(registry: Record<string, any>): string {
   let id: string;
 
   do {
-    id =
-      Date.now().toString(16) +
-      Math.random()
-        .toString(16)
-        .substring(2, 6);
+    id = Date.now().toString(16) + Math.random().toString(16).substring(2, 6);
   } while (id in registry);
 
   return id;
