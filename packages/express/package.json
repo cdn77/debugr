@@ -1,6 +1,6 @@
 {
   "name": "@debugr/express",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Express.js plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -28,7 +28,12 @@
   "types": "dist/index.d.ts",
   "build": {
     "src": "src/index.ts",
-    "externals": ["@debugr/core", "@debugr/http-formatter", "stream", "express"]
+    "externals": [
+      "@debugr/core",
+      "@debugr/http-formatter",
+      "stream",
+      "express"
+    ]
   },
   "files": [
     "dist"

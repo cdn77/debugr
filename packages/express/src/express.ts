@@ -31,7 +31,7 @@ export class ExpressLogger implements ContainerAware, Plugin {
     return (req, res, next) => {
       const logger = (req.logger = this.createLogger());
       logHttpRequest(logger, this.options, req);
-      logHttpResponse(logger, this.options, res).then(() => logger.flush());
+      logHttpResponse(logger, this.options, res).finally(() => logger.flush());
       next();
     };
   }

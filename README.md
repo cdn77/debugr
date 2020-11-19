@@ -174,7 +174,7 @@ directory:
 npm --no-git-tag-version --force version <major|minor|patch>
 ```
 
-Next, commit your changnes and push the new commits to the repository;
+Next, commit your changes and push the new commits to the repository;
 any packages with updated version in `package.json` will be automatically
 published to NPM.
 
