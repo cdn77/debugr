@@ -79,6 +79,10 @@ export class Logger {
     this.queueManager.setQueueId(this.tag, id);
   }
 
+  setThreshold(threshold: number): void {
+    this.queueManager.setQueueThreshold(this.tag, threshold);
+  }
+
   markForWriting(): void {
     this.queueManager.markQueueForWriting(this.tag);
   }

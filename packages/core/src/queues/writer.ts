@@ -12,7 +12,7 @@ export class Writer {
     this.outputDir = outputDir;
   }
 
-  async write(ts: number, id: string, content: string): Promise<void> {
+  async write(ts: number, id: string, content: string): Promise<string> {
     const file = this.formatPath(ts, id);
 
     await mkdir(path.dirname(file), {
@@ -21,6 +21,7 @@ export class Writer {
     });
 
     await writeFile(file, content);
+    return `file://${file}`;
   }
 
   private formatPath(ts: number, id: string): string {

@@ -85,7 +85,9 @@ export class QueueManager {
     queue.entries.push(entry);
     queue.lastTs = ts;
 
-    if (level >= this.options.threshold && queue.firstOverThreshold === undefined) {
+    const threshold = queue.threshold !== undefined ? queue.threshold : this.options.threshold;
+
+    if (level >= threshold && queue.firstOverThreshold === undefined) {
       queue.firstOverThreshold = entryId;
     }
   }
@@ -112,6 +114,12 @@ export class QueueManager {
       }
 
       this.queues[tag].id = id;
+    }
+  }
+
+  setQueueThreshold(tag: string, threshold: number): void {
+    if (tag in this.queues) {
+      this.queues[tag].threshold = threshold;
     }
   }
 
@@ -148,7 +156,8 @@ export class QueueManager {
 
     if (forceWrite || queue.write) {
       const content = this.formatter.format(queue);
-      await this.writer.write(queue.ts, queue.id, content);
+      const url = await this.writer.write(queue.ts, queue.id, content);
+      this.eventDispatcher.emit('queue.write', url);
     }
   }
 

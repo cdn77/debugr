@@ -25,6 +25,7 @@ export type LogEntryQueue = {
   id?: string;
   entries: LogEntry[];
   write?: boolean;
+  threshold?: number;
   firstOverThreshold?: number;
   ts: number;
   lastTs: number;
