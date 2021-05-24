@@ -16,7 +16,7 @@ export class Writer {
     const file = this.formatPath(ts, id);
 
     await mkdir(path.dirname(file), {
-      mode: 0o755,
+      mode: '0750',
       recursive: true,
     });
 
