@@ -11,7 +11,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@master
         with:
-          node-version: 12.0.0
+          node-version: '12'
       - name: Checkout repository
         uses: actions/checkout@master
       - name: Install dependencies
