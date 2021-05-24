@@ -1,5 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import * as path from 'path';
 
 // eslint-disable-next-line import/no-dynamic-require
@@ -12,7 +12,15 @@ const tsOpts = {
 const babelOpts = {
   babelrc: false,
   presets: [['@babel/preset-env', { targets: { node: '12' } }]],
+  plugins: ['@babel/plugin-transform-runtime'],
+  babelHelpers: 'runtime',
 };
+
+const external = [/@babel\/runtime/, /@debugr\//];
+
+if (pkg.build.externals) {
+  external.push(...pkg.build.externals);
+}
 
 export default [
   {
@@ -20,7 +28,7 @@ export default [
 
     plugins: [typescript(tsOpts), babel(babelOpts)],
 
-    external: pkg.build.externals,
+    external,
 
     output: {
       file: pkg.main,
@@ -33,7 +41,7 @@ export default [
 
     plugins: [typescript(tsOpts)],
 
-    external: pkg.build.externals,
+    external,
 
     output: {
       file: pkg.module,

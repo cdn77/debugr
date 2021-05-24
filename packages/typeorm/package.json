@@ -1,6 +1,6 @@
 {
   "name": "@debugr/typeorm",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "TypeORM plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -27,9 +27,8 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "@debugr/core",
-      "@debugr/sql-formatter",
-      "typeorm"
+      "typeorm",
+      "node"
     ]
   },
   "files": [

@@ -1,6 +1,6 @@
 {
   "name": "@debugr/apollo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Apollo server plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -30,10 +30,9 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "@debugr/core",
-      "@debugr/graphql-formatter",
       "apollo-server-plugin-base",
-      "apollo-server-types"
+      "apollo-server-types",
+      "long"
     ]
   },
   "files": [
