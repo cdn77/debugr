@@ -4,7 +4,7 @@ export interface Plugins {
   [id: string]: Plugin;
 }
 
-export type PluginId = Exclude<keyof Plugins, number>;
+export type PluginId = Exclude<keyof Plugins, number | symbol>;
 
 export interface Plugin {
   readonly id: string;

@@ -1,6 +1,6 @@
 {
   "name": "@debugr/typeorm",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "TypeORM plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",

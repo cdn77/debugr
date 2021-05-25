@@ -1,6 +1,6 @@
 import { QueueManager } from './queues';
 import { LogLevel } from './types';
-// import { PluginId } from './plugins';
+import { PluginId } from './plugins';
 
 export class Logger {
   private readonly queueManager: QueueManager;
@@ -47,7 +47,6 @@ export class Logger {
   log(level: number, data: Record<string, any>): void;
   log(level: number, message: string, data?: Record<string, any>): void;
   log(level: number, message: string, params?: any[], data?: Record<string, any>): void;
-  /*
   log(plugin: PluginId, level: number, data: Record<string, any>): void;
   log(plugin: PluginId, level: number, message: string, data?: Record<string, any>): void;
   log(
@@ -57,7 +56,6 @@ export class Logger {
     params?: any[],
     data?: Record<string, any>,
   ): void;
-  */
   log(
     pluginOrLevel: any,
     levelOrMessage: any,
