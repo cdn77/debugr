@@ -23,7 +23,7 @@ export class HtmlFormatter extends Formatter {
     let previous: LogEntry | undefined;
 
     for (const entry of entries) {
-      chunks.push(...this.formatEntry(entry, previous?.ts));
+      chunks.push(...this.format(entry, previous?.ts));
       previous = entry;
     }
 
