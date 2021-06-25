@@ -12,12 +12,14 @@ export interface Plugin {
 
 export interface FormatterPlugin extends Plugin {
   getEntryLabel(entry: LogEntry): string;
-  formatEntry(entry: LogEntry): string;
+  formatHtmlEntry(entry: LogEntry): string;
+  formatConsoleEntry(entry: LogEntry): string;
 }
 
 export function isFormatterPlugin(plugin: Plugin): plugin is FormatterPlugin {
   return (
     typeof (plugin as any).getEntryLabel === 'function' &&
-    typeof (plugin as any).formatEntry === 'function'
+    typeof (plugin as any).formatHtmlEntry === 'function' &&
+    typeof (plugin as any).formatConsoleEntry === 'function'
   );
 }

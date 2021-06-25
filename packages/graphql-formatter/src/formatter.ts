@@ -7,7 +7,7 @@ export class GraphQLFormatter implements FormatterPlugin {
     return 'GraphQL request';
   }
 
-  formatEntry(entry: LogEntry): string {
+  formatHtmlEntry(entry: LogEntry): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }
@@ -40,5 +40,25 @@ export class GraphQLFormatter implements FormatterPlugin {
     }
 
     return parts.join('');
+  }
+
+  formatConsoleEntry(entry: LogEntry): string {
+    if (!entry.data || !entry.data.query) {
+      throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
+    }
+
+    const parts: string[] = [];
+
+    if (entry.data.operation) {
+      parts.push(`Operation: ${entry.data.operation}`);
+    }
+
+    parts.push('Query:', entry.data.query);
+
+    if (!isEmpty(entry.data.variables)) {
+      parts.push('Variables:', formatData(entry.data.variables));
+    }
+
+    return parts.join('\n');
   }
 }

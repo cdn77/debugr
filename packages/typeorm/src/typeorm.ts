@@ -1,31 +1,6 @@
-import { EntityManager, Logger as LoggerInterface, QueryRunner } from 'typeorm';
+import { Logger as LoggerInterface } from 'typeorm';
 import { Container, ContainerAware, Logger, Plugin } from '@debugr/core';
 import { SqlFormatter } from '@debugr/sql-formatter';
-
-const LOGGER_TAG = '@@ORM_LOGGER@@';
-
-export function injectQueryLogger(em: EntityManager, logger: Logger): void {
-  if (em.queryRunner) {
-    em.queryRunner.data[LOGGER_TAG] = logger;
-  }
-}
-
-export function cleanupQueryLogger(em: EntityManager): void {
-  if (em.queryRunner) {
-    delete em.queryRunner.data[LOGGER_TAG];
-  }
-}
-
-export function withQueryLogger<T>(logger: Logger, callback: (em: EntityManager) => Promise<T>) {
-  return async (em: EntityManager) => {
-    try {
-      injectQueryLogger(em, logger);
-      return await callback(em);
-    } finally {
-      cleanupQueryLogger(em);
-    }
-  };
-}
 
 const levelMap = {
   log: Logger.INFO,
@@ -36,7 +11,10 @@ const levelMap = {
 export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
   readonly id: string = 'typeorm';
 
+  private logger: Logger;
+
   injectContainer(container: Container): void {
+    this.logger = container.get('logger');
     const pluginManager = container.get('pluginManager');
 
     if (!pluginManager.has('sql')) {
@@ -44,23 +22,23 @@ export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
     }
   }
 
-  log(level: 'log' | 'info' | 'warn', message: any, queryRunner?: QueryRunner): void {
-    this.tryLog(levelMap[level], queryRunner, message);
+  log(level: 'log' | 'info' | 'warn', message: any): void {
+    this.logger.log(levelMap[level], message);
   }
 
-  logMigration(message: string, queryRunner?: QueryRunner): void {
-    this.tryLog(Logger.DEBUG, queryRunner, message);
+  logMigration(message: string): void {
+    this.logger.log(Logger.DEBUG, message);
   }
 
-  logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): void {
-    this.tryLog(Logger.DEBUG, queryRunner, {
+  logQuery(query: string, parameters?: any[]): void {
+    this.logger.log('sql', Logger.DEBUG, {
       query,
       parameters,
     });
   }
 
-  logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): void {
-    this.tryLog(Logger.ERROR, queryRunner, {
+  logQueryError(error: string, query: string, parameters?: any[]): void {
+    this.logger.log('sql', Logger.ERROR, {
       query,
       parameters,
       error,
@@ -68,44 +46,15 @@ export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
     });
   }
 
-  logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): void {
-    this.tryLog(Logger.WARNING, queryRunner, 'Slow query', {
+  logQuerySlow(time: number, query: string, parameters?: any[]): void {
+    this.logger.log('sql', Logger.WARNING, 'Slow query', {
       query,
       parameters,
       time,
     });
   }
 
-  logSchemaBuild(message: string, queryRunner?: QueryRunner): void {
-    this.tryLog(Logger.DEBUG, queryRunner, message);
-  }
-
-  private tryLog(
-    level: number,
-    queryRunner: QueryRunner | undefined,
-    data: Record<string, any>,
-  ): void;
-  private tryLog(
-    level: number,
-    queryRunner: QueryRunner | undefined,
-    message: string,
-    data?: Record<string, any>,
-  ): void;
-  private tryLog(
-    level: number,
-    queryRunner: QueryRunner | undefined,
-    messageOrData: any,
-    data?: any,
-  ): void {
-    const logger: Logger | undefined =
-      queryRunner && queryRunner.data && queryRunner.data[LOGGER_TAG];
-
-    if (logger) {
-      if (typeof messageOrData === 'string') {
-        logger.log(level, messageOrData, data);
-      } else {
-        logger.log('sql', level, messageOrData, data);
-      }
-    }
+  logSchemaBuild(message: string): void {
+    this.logger.log(Logger.DEBUG, message);
   }
 }

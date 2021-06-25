@@ -1,47 +1,52 @@
-import { QueueManager } from './queues';
-import { LogLevel } from './types';
-import { PluginId } from './plugins';
+import { AsyncLocalStorage } from 'async_hooks';
+import { QueueManager } from '../queues';
+import { LogLevel } from '../types';
+import { PluginId } from '../plugins';
+import { LoggerInterface } from './loggerInterface';
 
-export class Logger {
+export class Logger implements LoggerInterface {
   private readonly queueManager: QueueManager;
 
-  private readonly tag: string;
+  private readonly globalLogger?: LoggerInterface;
 
-  constructor(queueManager: QueueManager) {
+  private readonly context: AsyncLocalStorage<string>;
+
+  constructor(queueManager: QueueManager, globalLogger?: LoggerInterface) {
     this.queueManager = queueManager;
-    this.tag = this.queueManager.createQueue();
+    this.globalLogger = globalLogger;
+    this.context = new AsyncLocalStorage();
   }
 
-  getTag(): string {
-    return this.tag;
+  fork(callback: () => any): void {
+    this.context.run(this.queueManager.createQueue(), callback);
   }
 
   debug(data: Record<string, any>): void;
   debug(message: string, data?: Record<string, any>): void;
   debug(message: string, params?: any[], data?: Record<string, any>): void;
   debug(message: any, params?: any[], data?: Record<string, any>): void {
-    this.queueManager.log(this.tag, Logger.DEBUG, message, params, data);
+    this.log(Logger.DEBUG, message, params, data);
   }
 
   info(data: Record<string, any>): void;
   info(message: string, data?: Record<string, any>): void;
   info(message: string, params?: any[], data?: Record<string, any>): void;
   info(message: any, params?: any[], data?: Record<string, any>): void {
-    this.queueManager.log(this.tag, Logger.INFO, message, params, data);
+    this.log(Logger.INFO, message, params, data);
   }
 
   warning(data: Record<string, any>): void;
   warning(message: string, data?: Record<string, any>): void;
   warning(message: string, params?: any[], data?: Record<string, any>): void;
   warning(message: any, params?: any[], data?: Record<string, any>): void {
-    this.queueManager.log(this.tag, Logger.WARNING, message, params, data);
+    this.log(Logger.WARNING, message, params, data);
   }
 
   error(data: Record<string, any>): void;
   error(message: string, data?: Record<string, any>): void;
   error(message: string, params?: any[], data?: Record<string, any>): void;
   error(message: any, params?: any[], data?: Record<string, any>): void {
-    this.queueManager.log(this.tag, Logger.ERROR, message, params, data);
+    this.log(Logger.ERROR, message, params, data);
   }
 
   log(level: number, data: Record<string, any>): void;
@@ -63,34 +68,51 @@ export class Logger {
     paramsOrData?: any[],
     maybeData?: Record<string, any>,
   ): void {
-    this.queueManager.log(
-      this.tag,
-      pluginOrLevel,
-      levelOrMessage,
-      messageOrParams,
-      paramsOrData,
-      maybeData,
-    );
+    const tag = this.context.getStore();
+
+    if (tag) {
+      this.queueManager.log(
+        tag,
+        pluginOrLevel,
+        levelOrMessage,
+        messageOrParams,
+        paramsOrData,
+        maybeData,
+      );
+    } else if (this.globalLogger) {
+      this.globalLogger.log(
+        pluginOrLevel,
+        levelOrMessage,
+        messageOrParams,
+        paramsOrData,
+        maybeData,
+      );
+    }
   }
 
   setId(id: string): void {
-    this.queueManager.setQueueId(this.tag, id);
+    const tag = this.context.getStore();
+    tag && this.queueManager.setQueueId(tag, id);
   }
 
   setThreshold(threshold: number): void {
-    this.queueManager.setQueueThreshold(this.tag, threshold);
+    const tag = this.context.getStore();
+    tag && this.queueManager.setQueueThreshold(tag, threshold);
   }
 
   markForWriting(): void {
-    this.queueManager.markQueueForWriting(this.tag);
+    const tag = this.context.getStore();
+    tag && this.queueManager.markQueueForWriting(tag);
   }
 
   markAsIgnored(): void {
-    this.queueManager.markQueueIgnored(this.tag);
+    const tag = this.context.getStore();
+    tag && this.queueManager.markQueueIgnored(tag);
   }
 
   flush(): void {
-    this.queueManager.flushQueue(this.tag);
+    const tag = this.context.getStore();
+    tag && this.queueManager.flushQueue(tag);
   }
 }
 

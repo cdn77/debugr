@@ -45,4 +45,8 @@ export class Container<O extends {} = {}, S extends ServiceMap = ServiceMap> {
       throw new Error(`Unknown service: '${id}'`);
     }
   }
+
+  createAccessor<ID extends ServiceId<S>>(id: ID): Factory<Service<S, ID>> {
+    return () => this.get(id);
+  }
 }

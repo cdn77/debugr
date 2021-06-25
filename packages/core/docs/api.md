@@ -43,9 +43,9 @@ on the internal `EventDispatcher`.
 
    Shortcut for batch listener registration. See `on()`.
 
- - `createLogger(): Logger`
+ - `getLogger(): Logger`
 
-   Creates a new `Logger` instance.
+   Gets a `Logger` instance.
 
 ## All of the other classes
 

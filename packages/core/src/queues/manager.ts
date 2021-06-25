@@ -1,8 +1,8 @@
-import { vsprintf } from 'printj';
 import * as v8 from 'v8';
 import { EventDispatcher } from '../events';
 import { PluginId } from '../plugins';
-import { Formatter } from '../formatter';
+import { HtmlFormatter } from '../formatter';
+import { normalizeLogArgs } from '../utils';
 import { Writer } from './writer';
 import { generateIdentifier } from '../bootstrap/utils';
 import { identifyQueue } from './utils';
@@ -12,7 +12,7 @@ import { With } from '../types';
 export class QueueManager {
   private readonly eventDispatcher: EventDispatcher;
 
-  private readonly formatter: Formatter;
+  private readonly formatter: HtmlFormatter;
 
   private readonly writer: Writer;
 
@@ -24,7 +24,7 @@ export class QueueManager {
 
   constructor(
     eventDispatcher: EventDispatcher,
-    formatter: Formatter,
+    formatter: HtmlFormatter,
     writer: Writer,
     options: QueueManagerOptions,
   ) {
@@ -155,7 +155,7 @@ export class QueueManager {
     }
 
     if (forceWrite || queue.write) {
-      const content = this.formatter.format(queue);
+      const content = this.formatter.formatQueue(queue);
       const url = await this.writer.write(queue.ts, queue.id, content);
       this.eventDispatcher.emit('queue.write', url);
     }
@@ -170,36 +170,5 @@ export class QueueManager {
         this.flushQueue(tag);
       }
     }
-  }
-}
-
-type LogArgs =
-  | [string | number, any]
-  | [string | number, any, any]
-  | [string | number, any, any, any]
-  | [string | number, any, any, any, any];
-
-function normalizeLogArgs([a, b, c, d, e]: LogArgs): [
-  PluginId | undefined,
-  number,
-  string | undefined,
-  Record<string, any> | undefined,
-] {
-  const [plugin, level, messageOrDataOrError, paramsOrData, maybeData] =
-    typeof a === 'string' ? [a, b, c, d, e] : [undefined, a, b, c, d];
-
-  if (messageOrDataOrError instanceof Error) {
-    const message = `${messageOrDataOrError.name}: ${messageOrDataOrError.message}`;
-    const data = typeof paramsOrData === 'object' ? paramsOrData : {};
-    data.stack = messageOrDataOrError.stack;
-    return [plugin, level, message, data];
-  } else if (typeof messageOrDataOrError === 'string') {
-    const message = Array.isArray(paramsOrData)
-      ? vsprintf(messageOrDataOrError, paramsOrData)
-      : messageOrDataOrError;
-    const data = Array.isArray(paramsOrData) ? maybeData : paramsOrData;
-    return [plugin, level, message, data];
-  } else {
-    return [plugin, level, undefined, messageOrDataOrError];
   }
 }

@@ -13,7 +13,7 @@ declare module '@debugr/core' {
     graphql: GraphQLFormatter;
   }
 
-  export interface Logger {
+  export interface LoggerInterface {
     log(plugin: 'graphql', level: number, data: GraphQLData): void;
   }
 }

@@ -8,17 +8,17 @@ export class Debugr {
 
   private readonly pluginManager: PluginManager;
 
-  readonly createLogger: Factory<Logger>;
+  readonly getLogger: Factory<Logger>;
 
   constructor(
     eventDispatcher: EventDispatcher,
     pluginManager: PluginManager,
-    loggerFactory: Factory<Logger>,
+    loggerAccessor: Factory<Logger>,
     plugins: Plugin[],
   ) {
     this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
-    this.createLogger = loggerFactory;
+    this.getLogger = loggerAccessor;
 
     this.registerPlugins(plugins);
   }

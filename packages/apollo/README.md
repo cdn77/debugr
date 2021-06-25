@@ -2,11 +2,6 @@ Apollo Server plugin for Debugr
 ===============================
 
 This plugin provides GraphQL request logging for Apollo Server.
-It either reuses an existing logger instance from the request context
-or creates a new one and attaches it back to the context; either way
-you'll have a logger instance available in resolvers and middlewares.
-If the logger instance is created by this plugin then it is also
-flushed when the response is sent.
 
 ## Installation
 
@@ -62,14 +57,6 @@ const server = new ApolloServer({
   plugins: [
     debug.getPlugin('apollo'),
   ],
-
-  // in your context factory reattach the request logger
-  // to the GraphQL context to reuse it
-  context: (request: express.Request) => {
-    return {
-      logger: request.logger,
-    };
-  },
 });
 
 app.use(debugr.getPlugin('express').createRequestHandler());

@@ -25,7 +25,7 @@ to your use-case:
  - [`@debugr/sql-formatter`] - SQL query formatter
  - [`@debugr/graphql-formatter`] - GraphQL query formatter
 
-Note that formatter plugins are usually installed and configured automatically with packages that
+Note that formatter plugins are installed and configured automatically with packages that
 generate data they can consume, e.g. the Express logger plugin will install and autoconfigure
 the HTTP formatter plugin.
 
@@ -41,8 +41,14 @@ const debug = debugr({
   logDir: __dirname + '/log',
 });
 
-// At the start of a task you create a logger for the task:
-const logger: Logger = debug.createLogger();
+// The Logger instance is global and can be injected wherever you need...
+const logger: Logger = debug.getLogger();
+
+// ... but to make Debugr aware of the execution context of your task,
+// you need to fork the logger at the beginning of the task:
+logger.fork(() => {
+    // execute your task here
+});
 
 // At any point inside your task you can write into the logger:
 logger.debug('A debug message');
@@ -59,10 +65,28 @@ This will produce a dump file in the log directory that will look something like
 
 ![an example dump file]
 
+### Wait, what the fork..?
+
+Debugr internally uses an `AsyncLocalStorage` from the [Async Hooks] NodeJS module
+which allows it to keep track of asynchronous execution without the need to explicitly
+pass around a logger object. The `logger.fork()` method only generates a unique
+identifier, stores it in the internal `AsyncLocalStorage` instance and then runs
+the callback you provided, but inside that callback and any asynchronous calls made from
+within it the logger can now retrieve the identifier and use it to figure out where
+each message belongs.
+
+### But how about code outside a forked job?
+
+Outside a forked asynchronous execution context Debugr will log into the console,
+as would any other logger. This means that you can use Debugr everywhere in your
+app and only worry about forking in a couple of places.
+
+### Okay, back to logging inside forked jobs...
+
 The way this tool is designed, **nothing** is logged at the time you call `logger.log()` or
 any of the shortcuts; instead, when you call `logger.flush()`, Debugr will check if at least
 one of the entries in the logger instance exceeded a (configurable) threshold. If there is
-at least one such entry, the logger will be flushed into an uniquely-named file in the log
+at least one such entry, the logger will be flushed into a uniquely-named file in the log
 directory.
 
 Of course, if you want a specific task logged *always*, you can do so: just call
@@ -72,7 +96,7 @@ no matter how much things went wrong you can call `logger.markAsIgnored()`.
 
 The format of the name of the files written in the log directory is `{timestamp}--{id}.html`.
 `{timestamp}` is `YYYY-MM-DD-HH-II-SS` in UTC; `{id}` here represents an identifier
-of the logger instance. By default this identifier is generated from the log entry
+of the logger instance. By default, this identifier is generated from the log entry
 which caused the logger to be marked for writing; in some scenarios you may want to set it
 yourself, which you can do by means of `logger.setId()`.
 
@@ -81,6 +105,9 @@ Debugr will eventually realise something is amiss and flush the logger automatic
 provided the Node.js process didn't yet exit. This is called garbage collection and is,
 of course, configurable.
 
+Outside forked jobs all messages which exceed the threshold are logged to the console
+immediately; there is no need to call `logger.flush()`.
+
 ### `debugr` options
 
 | Option            | Type       | Default        | Description                                                                  |
@@ -88,7 +115,6 @@ of course, configurable.
 | `logDir`          | `string`   |                | Root directory for generated logs; this is the only required option          |
 | `threshold`       | `number`   | `Logger.ERROR` | The minimum level a log entry must have to mark a logger for writing         |
 | `cloneData`       | `boolean`  | `false`        | Clone data of log entries using V8 serialize / deserialize                   |
-| `writeDuplicates` | `boolean`  | `false`        | Write dumps even if another dump with the same ID already exists             |
 | `gc`              | `object`   |                | Garbage collection options:                                                  |
 | `gc.interval`     | `number`   | `60`           | How often GC will be run, in seconds                                         |
 | `gc.threshold`    | `number`   | `300`          | How long since a logger has last been touched before GC should auto-flush it |
@@ -187,4 +213,5 @@ published to NPM.
 [`@debugr/sql-formatter`]: ./packages/sql-formatter
 [`@debugr/graphql-formatter`]: ./packages/graphql-formatter
 [an example dump file]: ./example.png
+[Async Hooks]: https://nodejs.org/api/async_hooks.html
 [`printj`]: https://www.npmjs.com/package/printj

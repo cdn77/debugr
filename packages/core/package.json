@@ -1,6 +1,6 @@
 {
   "name": "@debugr/core",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "description": "Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,7 +11,8 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "printj": "1.2.2"
+    "chalk": "^4.1.1",
+    "printj": "^1.2.2"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -19,6 +20,8 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
+      "async_hooks",
+      "chalk",
       "crypto",
       "events",
       "fs",

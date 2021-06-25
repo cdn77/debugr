@@ -2,8 +2,8 @@ Express plugin for Debugr
 =========================
 
 This plugin provides Debugr middleware for the Express web server.
-With this middleware a new `Logger` instance will automatically be
-created for each HTTP request that Express handles; additionally
+With this middleware the Debugr logger will automatically be
+forked for each HTTP request that Express handles; additionally
 both the HTTP request and the response from your app will be logged
 and the logger will be automatically flushed when the response is sent.
 If the HTTP response code is >= 500 (or >= 400 if the `e4xx` option is set)
@@ -70,7 +70,7 @@ keys as the first argument:
 
 ### `captureBody`
 
-The `captureBody` option controls whether or not the request or response body
+The `captureBody` option controls whether the request or response body
 will be captured in the debug log. It can be set in many ways, so it bears
 explaining in more detail:
  - A `boolean` simply means what `boolean` usually means - `captureBody: true`

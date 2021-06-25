@@ -1,4 +1,4 @@
-import { Container, ContainerAware, Factory, Plugin, Logger } from '@debugr/core';
+import { Container, ContainerAware, Plugin, Logger } from '@debugr/core';
 import { HttpFormatter } from '@debugr/http-formatter';
 import { Handler, ErrorRequestHandler } from 'express';
 import { NormalizedOptions, Options } from './types';
@@ -11,14 +11,14 @@ export class ExpressLogger implements ContainerAware, Plugin {
 
   private readonly options: NormalizedOptions;
 
-  private createLogger: Factory<Logger>;
+  private logger: Logger;
 
   constructor(options?: Options) {
     this.options = normalizeOptions(options);
   }
 
   injectContainer(container: Container): void {
-    this.createLogger = container.createFactory('logger');
+    this.logger = container.get('logger');
 
     const pluginManager = container.get('pluginManager');
 
@@ -29,19 +29,17 @@ export class ExpressLogger implements ContainerAware, Plugin {
 
   createRequestHandler(): Handler {
     return (req, res, next) => {
-      const logger = (req.logger = this.createLogger());
-      logHttpRequest(logger, this.options, req);
-      logHttpResponse(logger, this.options, res).finally(() => logger.flush());
-      next();
+      this.logger.fork(() => {
+        logHttpRequest(this.logger, this.options, req);
+        logHttpResponse(this.logger, this.options, res).finally(() => this.logger.flush());
+        next();
+      });
     };
   }
 
   createErrorHandler(): ErrorRequestHandler {
     return (err, req, res, next) => {
-      if (req.logger) {
-        req.logger.log(Logger.ERROR, err);
-      }
-
+      this.logger.log(Logger.ERROR, err);
       next(err);
     };
   }

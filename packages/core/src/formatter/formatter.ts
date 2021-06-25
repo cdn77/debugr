@@ -1,11 +1,8 @@
-import { isFormatterPlugin, PluginManager } from '../plugins';
-import { findDefiningEntry, LogEntry, LogEntryQueue } from '../queues';
-import { extractEntryTitle, formatDate, formatDefaultContent } from './utils';
-import { FormatterTemplateMap } from './types';
+import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
+import { LogEntry } from '../queues';
 import { LogLevel } from '../types';
-import * as templates from './templates';
 
-export class Formatter {
+export abstract class Formatter {
   readonly levelMap: Record<number, string> = {
     [-1]: 'internal',
     [LogLevel.DEBUG]: 'debug',
@@ -14,70 +11,41 @@ export class Formatter {
     [LogLevel.ERROR]: 'error',
   };
 
-  readonly templates: FormatterTemplateMap = templates;
-
-  private readonly pluginManager: PluginManager;
+  protected readonly pluginManager: PluginManager;
 
   constructor(pluginManager: PluginManager) {
     this.pluginManager = pluginManager;
   }
 
-  format(queue: LogEntryQueue): string {
-    const definingEntry = findDefiningEntry(queue);
+  protected abstract formatEntry(
+    entry: LogEntry,
+    previousTs?: number,
+    plugin?: FormatterPlugin,
+  ): string;
 
-    return this.templates.layout(
-      this.levelMap[definingEntry.level] || 'unknown',
-      extractEntryTitle(definingEntry, this.levelMap),
-      this.formatEntries(queue.entries),
-    );
-  }
+  protected abstract formatError(e: Error, message: string): string;
 
-  private formatEntries(entries: LogEntry[]): string {
-    const chunks: string[] = [];
-    let previous: LogEntry | undefined;
-
-    for (const entry of entries) {
+  *format(entry: LogEntry, previousTs?: number): Generator<string> {
+    try {
+      yield this.tryFormatEntry(entry, previousTs);
+    } catch (e) {
       try {
-        chunks.push(this.formatEntry(entry, previous));
-      } catch (e) {
-        try {
-          const content = this.formatEntry(entry, previous, true);
-          chunks.push(
-            this.formatError(e, 'An error occurred while formatting the next log entry:'),
-          );
-          chunks.push(content);
-        } catch (e2) {
-          chunks.push(this.formatError(e, 'Error formatting log entry:'));
-        }
+        const content = this.tryFormatEntry(entry, previousTs, true);
+        yield this.formatError(e, 'An error occurred while formatting the next log entry:');
+        yield content;
+      } catch (e2) {
+        yield this.formatError(e, 'Error formatting log entry:');
       }
-
-      previous = entry;
     }
-
-    return chunks.join('\n');
   }
 
-  private formatError(e: Error, message: string): string {
-    return this.templates.entry(
-      '',
-      'internal',
-      '',
-      formatDefaultContent(`${message} ${e.message}`, { stack: e.stack }),
-    );
-  }
-
-  private formatEntry(entry: LogEntry, previous?: LogEntry, noPlugin: boolean = false): string {
+  private tryFormatEntry(entry: LogEntry, previousTs?: number, noPlugin: boolean = false): string {
     const plugin = !noPlugin && entry.plugin ? this.pluginManager.get(entry.plugin) : undefined;
 
     if (plugin && !isFormatterPlugin(plugin)) {
       throw new Error(`Invalid plugin: ${entry.plugin} is not a Formatter plugin`);
     }
 
-    return this.templates.entry(
-      formatDate(entry.ts, previous?.ts),
-      this.levelMap[entry.level] || 'unknown',
-      plugin ? plugin.getEntryLabel(entry) : '',
-      plugin ? plugin.formatEntry(entry) : formatDefaultContent(entry.message, entry.data),
-    );
+    return this.formatEntry(entry, previousTs, plugin);
   }
 }

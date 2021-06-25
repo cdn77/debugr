@@ -3,12 +3,11 @@ export { Container, ContainerAware, Factory } from './di';
 export { Events, EventDispatcher } from './events';
 export {
   Formatter,
-  FormatterTemplateMap,
+  HtmlFormatter,
+  ConsoleFormatter,
   LayoutTemplate,
   EntryTemplate,
-  formatDate,
   formatData,
-  formatStack,
   escapeHtml,
   indent,
   unindent,
@@ -16,7 +15,7 @@ export {
   pad,
   pad3,
 } from './formatter';
-export { Logger } from './logger';
+export { Logger, ConsoleLogger, LoggerInterface } from './logger';
 export { Plugins, PluginManager, FormatterPlugin, Plugin } from './plugins';
 export { GcOptions, LogEntry, LogEntryQueue, QueueManager, Writer } from './queues';
 export { Options, LogLevel } from './types';

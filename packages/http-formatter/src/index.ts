@@ -13,7 +13,7 @@ declare module '@debugr/core' {
     http: HttpFormatter;
   }
 
-  export interface Logger {
+  export interface LoggerInterface {
     log(plugin: 'http', level: number, data: RequestData | ResponseData): void;
   }
 }

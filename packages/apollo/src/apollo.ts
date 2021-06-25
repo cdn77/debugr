@@ -1,9 +1,5 @@
-import {
-  ApolloServerPlugin,
-  GraphQLRequestContext,
-  GraphQLRequestListener,
-} from 'apollo-server-plugin-base';
-import { Container, ContainerAware, Factory, Logger, Plugin } from '@debugr/core';
+import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
+import { Container, ContainerAware, Logger, Plugin } from '@debugr/core';
 import { GraphQLFormatter } from '@debugr/graphql-formatter';
 import { FullOptions, Options } from './types';
 
@@ -12,7 +8,9 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
 
   private readonly options: FullOptions;
 
-  private createLogger: Factory<Logger>;
+  private logger: Logger;
+
+  private autoFlush: boolean;
 
   constructor(options?: Options) {
     this.options = {
@@ -21,23 +19,20 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
   }
 
   injectContainer(container: Container): void {
-    this.createLogger = container.createFactory('logger');
-
     const pluginManager = container.get('pluginManager');
+
+    this.logger = container.get('logger');
+    this.autoFlush = !pluginManager.has('express');
 
     if (!pluginManager.has('graphql')) {
       pluginManager.register(new GraphQLFormatter());
     }
   }
 
-  requestDidStart({ context }: GraphQLRequestContext): GraphQLRequestListener {
-    const logger: Logger = context.logger || this.createLogger();
+  requestDidStart(): GraphQLRequestListener {
+    const logger = this.logger;
     const options = this.options;
-    const flush = !context.logger;
-
-    if (!context.logger) {
-      context.logger = logger;
-    }
+    const flush = this.autoFlush;
 
     return {
       didResolveOperation({ request, operation, operationName }): void {
