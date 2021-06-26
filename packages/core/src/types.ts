@@ -9,6 +9,7 @@ export type Options = {
 
 export type GlobalOptions = {
   threshold?: number;
+  writeTimestamp?: boolean;
 };
 
 export type ForkOptions = {

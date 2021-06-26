@@ -10,7 +10,8 @@ import { Debugr } from './debugr';
 export const defaultFactories: FactoryMap<Services, FullOptions> = {
   container: (di) => di,
   eventDispatcher: () => new EventDispatcher(),
-  consoleFormatter: (di) => new ConsoleFormatter(di.get('pluginManager')),
+  consoleFormatter: (di) =>
+    new ConsoleFormatter(di.get('pluginManager'), di.options.global.writeTimestamp),
   htmlFormatter: (di) => new HtmlFormatter(di.get('pluginManager')),
   logger: (di) => new Logger(di.get('queueManager'), di.get('consoleLogger')),
   consoleLogger: (di) => new ConsoleLogger(di.get('consoleFormatter'), di.options.global.threshold),

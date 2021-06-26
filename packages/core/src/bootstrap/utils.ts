@@ -9,6 +9,7 @@ export function normalizeOptions({ global = {}, fork, plugins = [] }: Options): 
   return {
     global: {
       threshold: LogLevel.INFO,
+      writeTimestamp: true,
       ...global,
     },
     fork: {

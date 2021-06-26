@@ -1,4 +1,5 @@
 import { escapeHtml, formatData, isEmpty, FormatterPlugin, LogEntry } from '@debugr/core';
+import { dim, gray } from 'chalk';
 import { formatQuery, formatQueryTime } from './utils';
 
 export class SqlFormatter implements FormatterPlugin {
@@ -72,7 +73,7 @@ export class SqlFormatter implements FormatterPlugin {
       parts.push(entry.message);
     }
 
-    parts.push(formatQuery(entry.data.query));
+    parts.push(dim(entry.data.query));
 
     if (
       entry.data.parameters &&
@@ -80,7 +81,7 @@ export class SqlFormatter implements FormatterPlugin {
         ? entry.data.parameters.length
         : !isEmpty(entry.data.parameters))
     ) {
-      parts.push('Parameters:', formatData(entry.data.parameters));
+      parts.push('Parameters:', dim(formatData(entry.data.parameters)));
     }
 
     if (typeof entry.data.error === 'string') {
@@ -90,7 +91,7 @@ export class SqlFormatter implements FormatterPlugin {
     const details: string[] = [];
 
     if (typeof entry.data.time === 'number') {
-      details.push(formatQueryTime(entry.data.time));
+      details.push(`time: ${formatQueryTime(entry.data.time)}`);
     }
 
     if (typeof entry.data.affectedRows === 'number') {
@@ -102,7 +103,7 @@ export class SqlFormatter implements FormatterPlugin {
     }
 
     if (details.length) {
-      parts.push(details.join(' | '));
+      parts.push(gray(`(${details.join(' | ')})`));
     }
 
     return parts.join('\n');

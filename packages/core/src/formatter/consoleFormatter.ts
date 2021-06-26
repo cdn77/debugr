@@ -1,16 +1,23 @@
 import { dim, gray, yellow, red, white, blue } from 'chalk';
-import { FormatterPlugin } from '../plugins';
+import { FormatterPlugin, PluginManager } from '../plugins';
 import { LogEntry } from '../queues';
 import { Formatter } from './formatter';
 import { formatData } from './utils';
 
 export class ConsoleFormatter extends Formatter {
+  private readonly writeTimestamp: boolean;
+
+  constructor(pluginManager: PluginManager, writeTimestamp: boolean = true) {
+    super(pluginManager);
+    this.writeTimestamp = writeTimestamp;
+  }
+
   protected formatEntry(entry: LogEntry, previousTs?: number, plugin?: FormatterPlugin): string {
     return formatEntry(
       this.levelMap[entry.level] || 'unknown',
       plugin ? plugin.formatConsoleEntry(entry) : formatDefaultContent(entry.message, entry.data),
       plugin && plugin.getEntryLabel(entry),
-      entry.ts,
+      this.writeTimestamp ? entry.ts : false,
     );
   }
 
@@ -18,6 +25,8 @@ export class ConsoleFormatter extends Formatter {
     return formatEntry(
       'internal',
       formatDefaultContent(`${message} ${e.message}`, { stack: e.stack }),
+      undefined,
+      this.writeTimestamp ? undefined : false,
     );
   }
 }
@@ -30,10 +39,9 @@ const colorMap: Record<string, (str: string) => string> = {
   error: red,
 };
 
-function formatEntry(level: string, content: string, label?: string, ts?: number): string {
-  const date = ts ? `[${new Date(ts).toISOString()}]` : '[------------------------]';
+function formatEntry(level: string, content: string, label?: string, ts?: number | false): string {
   const levelColor = colorMap[level] || ((s: string) => s);
-  const prefix = `${dim(date)} ${levelColor(level)} `;
+  const prefix = `${formatDate(ts)}${levelColor(level)} `;
   const indent = new Array(prefix.length + 1).join(' ');
   const lines = content.split(/\n/g);
 
@@ -42,6 +50,14 @@ function formatEntry(level: string, content: string, label?: string, ts?: number
   }
 
   return `${prefix}${lines.join(`\n${indent}`)}`;
+}
+
+function formatDate(ts?: number | false): string {
+  if (ts === false) {
+    return '';
+  }
+
+  return `${dim(ts ? `[${new Date(ts).toISOString()}]` : '[------------------------]')} `;
 }
 
 function formatDefaultContent(message?: string, data?: Record<string, any>): string {

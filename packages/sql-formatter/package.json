@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sql-formatter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "SQL formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -37,5 +37,8 @@
     "build": "../../.run build",
     "lint": "../../.run lint",
     "preversion": "../../.run release"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1"
   }
 }
