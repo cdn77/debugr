@@ -110,15 +110,18 @@ immediately; there is no need to call `logger.flush()`.
 
 ### `debugr` options
 
-| Option            | Type       | Default        | Description                                                                  |
-| ----------------- | ---------- | -------------- | ---------------------------------------------------------------------------- |
-| `logDir`          | `string`   |                | Root directory for generated logs; this is the only required option          |
-| `threshold`       | `number`   | `Logger.ERROR` | The minimum level a log entry must have to mark a logger for writing         |
-| `cloneData`       | `boolean`  | `false`        | Clone data of log entries using V8 serialize / deserialize                   |
-| `gc`              | `object`   |                | Garbage collection options:                                                  |
-| `gc.interval`     | `number`   | `60`           | How often GC will be run, in seconds                                         |
-| `gc.threshold`    | `number`   | `300`          | How long since a logger has last been touched before GC should auto-flush it |
-| `plugins`         | `Plugin[]` |                | An array of plugins                                                          |
+| Option              | Type       | Default        | Description                                                                  |
+| ------------------- | ---------- | -------------- | ---------------------------------------------------------------------------- |
+| `global`            | `object`   |                | Options for global console logger (outside forked jobs)                      |
+| `global.threshold`  | `number`   | `Logger.INFO`  | The minimum level a log entry must have to be written to the console         |
+| `fork`              | `object`   |                | Options for forked job logger (the one that generates HTML dumps)            |
+| `fork.logDir`       | `string`   |                | Root directory for generated logs; this is the only required option          |
+| `fork.threshold`    | `number`   | `Logger.ERROR` | The minimum level a log entry must have to mark a job queue for writing      |
+| `fork.cloneData`    | `boolean`  | `false`        | Clone data of log entries using V8 serialize / deserialize                   |
+| `fork.gc`           | `object`   |                | Garbage collection options:                                                  |
+| `fork.gc.interval`  | `number`   | `60`           | How often GC will be run, in seconds                                         |
+| `fork.gc.threshold` | `number`   | `300`          | How long since a logger has last been touched before GC should auto-flush it |
+| `plugins`           | `Plugin[]` |                | An array of plugins                                                          |
 
 ### `Logger` API
 

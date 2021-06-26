@@ -5,7 +5,7 @@ import { FullGcOptions, QueueManager, Writer } from '../queues';
 import { Container } from '../di';
 import { ConsoleLogger, Logger } from '../logger';
 import { Debugr } from './debugr';
-import { Options } from '../types';
+import { ForkOptions, GlobalOptions, Options } from '../types';
 
 export interface Services {
   container: Container;
@@ -20,4 +20,9 @@ export interface Services {
   debugr: Debugr;
 }
 
-export type FullOptions = Readonly<Required<Omit<Options, 'gc'>> & { gc: FullGcOptions }>;
+export type FullOptions = Readonly<
+  Required<Pick<Options, 'plugins'>> & {
+    global: Readonly<Required<GlobalOptions>>;
+    fork: Readonly<Required<Omit<ForkOptions, 'gc'>> & { gc: FullGcOptions }>;
+  }
+>;

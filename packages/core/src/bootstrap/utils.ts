@@ -1,17 +1,27 @@
 import { LogLevel, Options } from '../types';
 import { FullOptions } from './types';
 
-export function normalizeOptions(options: Options): FullOptions {
+export function normalizeOptions({ global = {}, fork, plugins = [] }: Options): FullOptions {
+  if (!fork || !fork.logDir) {
+    throw new Error('Missing required option "fork.logDir"');
+  }
+
   return {
-    threshold: LogLevel.ERROR,
-    cloneData: false,
-    plugins: [],
-    ...options,
-    gc: {
-      interval: 60,
-      threshold: 300,
-      ...(options.gc || {}),
+    global: {
+      threshold: LogLevel.INFO,
+      ...global,
     },
+    fork: {
+      threshold: LogLevel.ERROR,
+      cloneData: false,
+      ...fork,
+      gc: {
+        interval: 60,
+        threshold: 300,
+        ...(fork.gc || {}),
+      },
+    },
+    plugins,
   };
 }
 

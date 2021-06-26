@@ -2,11 +2,20 @@ import { GcOptions } from './queues';
 import { Plugin } from './plugins';
 
 export type Options = {
+  global?: GlobalOptions;
+  fork?: ForkOptions;
+  plugins?: Plugin[];
+};
+
+export type GlobalOptions = {
+  threshold?: number;
+};
+
+export type ForkOptions = {
   logDir: string;
   threshold?: number;
   cloneData?: boolean;
   gc?: GcOptions;
-  plugins?: Plugin[];
 };
 
 export enum LogLevel {

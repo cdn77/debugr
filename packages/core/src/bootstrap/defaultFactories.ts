@@ -13,15 +13,15 @@ export const defaultFactories: FactoryMap<Services, FullOptions> = {
   consoleFormatter: (di) => new ConsoleFormatter(di.get('pluginManager')),
   htmlFormatter: (di) => new HtmlFormatter(di.get('pluginManager')),
   logger: (di) => new Logger(di.get('queueManager'), di.get('consoleLogger')),
-  consoleLogger: (di) => new ConsoleLogger(di.get('consoleFormatter'), di.options.threshold),
+  consoleLogger: (di) => new ConsoleLogger(di.get('consoleFormatter'), di.options.global.threshold),
   pluginManager: (di) => new PluginManager(di),
   queueManager: (di) =>
     new QueueManager(di.get('eventDispatcher'), di.get('htmlFormatter'), di.get('writer'), {
-      threshold: di.options.threshold,
-      cloneData: di.options.cloneData,
-      gc: di.options.gc,
+      threshold: di.options.fork.threshold,
+      cloneData: di.options.fork.cloneData,
+      gc: di.options.fork.gc,
     }),
-  writer: (di) => new Writer(di.options.logDir),
+  writer: (di) => new Writer(di.options.fork.logDir),
   debugr: (di) =>
     new Debugr(
       di.get('eventDispatcher'),
