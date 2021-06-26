@@ -2,7 +2,7 @@ import { dim, gray, yellow, red, white, blue } from 'chalk';
 import { FormatterPlugin, PluginManager } from '../plugins';
 import { LogEntry } from '../queues';
 import { Formatter } from './formatter';
-import { formatData } from './utils';
+import { formatData, isEmpty } from './utils';
 
 export class ConsoleFormatter extends Formatter {
   private readonly writeTimestamp: boolean;
@@ -68,7 +68,7 @@ function formatDefaultContent(message?: string, data?: Record<string, any>): str
     parts.push(message);
   }
 
-  if (otherData) {
+  if (!isEmpty(otherData)) {
     parts.push('Data:', formatData(otherData));
   }
 
