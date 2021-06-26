@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sql-formatter",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "SQL formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -20,7 +20,10 @@
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "build": {
-    "src": "src/index.ts"
+    "src": "src/index.ts",
+    "externals": [
+      "chalk"
+    ]
   },
   "files": [
     "dist"
