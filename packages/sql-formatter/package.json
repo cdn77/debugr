@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sql-formatter",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "SQL formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -9,6 +9,9 @@
   "license": "MIT",
   "engines": {
     "node": ">=12.0"
+  },
+  "dependencies": {
+    "ansi-colors": "^4.1.1"
   },
   "devDependencies": {
     "@debugr/core": "^2.0"
@@ -22,7 +25,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "chalk"
+      "ansi-colors"
     ]
   },
   "files": [
@@ -40,8 +43,5 @@
     "build": "../../.run build",
     "lint": "../../.run lint",
     "preversion": "../../.run release"
-  },
-  "dependencies": {
-    "chalk": "^4.1.1"
   }
 }

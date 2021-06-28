@@ -1,5 +1,5 @@
 import { escapeHtml, formatData, isEmpty, FormatterPlugin, LogEntry } from '@debugr/core';
-import { dim, gray } from 'chalk';
+import { dim } from 'ansi-colors';
 import { formatQuery, formatQueryTime } from './utils';
 
 export class SqlFormatter implements FormatterPlugin {
@@ -103,7 +103,7 @@ export class SqlFormatter implements FormatterPlugin {
     }
 
     if (details.length) {
-      parts.push(gray(`(${details.join(' | ')})`));
+      parts.push(dim(`(${details.join(' | ')})`));
     }
 
     return parts.join('\n');

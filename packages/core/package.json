@@ -1,6 +1,6 @@
 {
   "name": "@debugr/core",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,7 +11,7 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "chalk": "^4.1.1",
+    "ansi-colors": "^4.1.1",
     "printj": "^1.2.2"
   },
   "main": "dist/index.js",
@@ -20,8 +20,8 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
+      "ansi-colors",
       "async_hooks",
-      "chalk",
       "crypto",
       "events",
       "fs",

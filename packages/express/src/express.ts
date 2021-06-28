@@ -29,7 +29,7 @@ export class ExpressLogger implements ContainerAware, Plugin {
 
   createRequestHandler(): Handler {
     return (req, res, next) => {
-      this.logger.fork(() => {
+      this.logger.ensureFork(() => {
         logHttpRequest(this.logger, this.options, req);
         logHttpResponse(this.logger, this.options, res).finally(() => this.logger.flush());
         next();

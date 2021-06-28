@@ -1,3 +1,4 @@
+import { dim, yellow } from 'ansi-colors';
 import { OutgoingHttpHeaders } from 'http';
 import { formatHeadersMap, formatLength } from '../utils';
 
@@ -11,17 +12,17 @@ export function request(
 ): string {
   const parts: string[] = [
     `${method.toUpperCase()} ${decodeURIComponent(uri)}`,
-    formatHeadersMap(headers),
+    dim(formatHeadersMap(headers)),
     '',
   ];
 
   if (ip) {
-    parts.push(`Client IP: ${ip}`);
+    parts.push(dim(`Client IP: ${ip}`));
   }
 
   if (bodyLength !== undefined) {
-    const suffix = lengthMismatch ? `; content-length mismatch!` : '';
-    parts.push(`Body: ${formatLength(bodyLength)}${suffix}`);
+    const suffix = lengthMismatch ? yellow('; content-length mismatch!') : '';
+    parts.push(dim(`Body: ${formatLength(bodyLength)}${suffix}`));
   }
 
   return parts.join('\n').trim();

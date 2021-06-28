@@ -1,4 +1,4 @@
-import { dim, gray, yellow, red, white, blue } from 'chalk';
+import { dim, gray, yellow, red, white, blue } from 'ansi-colors';
 import { FormatterPlugin, PluginManager } from '../plugins';
 import { LogEntry } from '../queues';
 import { Formatter } from './formatter';
@@ -69,11 +69,11 @@ function formatDefaultContent(message?: string, data?: Record<string, any>): str
   }
 
   if (!isEmpty(otherData)) {
-    parts.push('Data:', formatData(otherData));
+    parts.push('Data:', dim(formatData(otherData)));
   }
 
   if (stack) {
-    parts.push('Stack trace:', stack);
+    parts.push('Stack trace:', dim(stack));
   }
 
   return parts.join('\n');
