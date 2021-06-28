@@ -1,6 +1,6 @@
 {
   "name": "@debugr/http-formatter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "HTTP request and response formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
