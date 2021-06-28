@@ -17,7 +17,30 @@ export class Logger implements LoggerInterface {
     this.context = new AsyncLocalStorage();
   }
 
-  fork(callback: () => any): void {
+  ensureFork(callback: () => any): void {
+    const tag = this.context.getStore();
+
+    if (tag) {
+      callback();
+    } else {
+      this.fork(callback);
+    }
+  }
+
+  fork(callback: () => any): void;
+  fork(force: true, callback: () => any): void;
+  fork(callbackOrForce: boolean | (() => any), maybeCallback?: () => any): void {
+    const [callback, force] =
+      typeof callbackOrForce === 'boolean'
+        ? [maybeCallback!, callbackOrForce]
+        : [callbackOrForce, false];
+
+    const tag = this.context.getStore();
+
+    if (tag && !force) {
+      throw new Error('Logger is already forked');
+    }
+
     this.context.run(this.queueManager.createQueue(), callback);
   }
 
