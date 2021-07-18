@@ -49,7 +49,7 @@ function formatEntry(level: string, content: string, label?: string, ts?: number
     lines.unshift(label);
   }
 
-  return `${prefix}${wrapLines(lines, process.stdout.columns - indent.length).join(`\n${indent}`)}`;
+  return `${prefix}${lines.join(`\n${indent}`)}`;
 }
 
 function formatDate(ts?: number | false): string {
@@ -58,17 +58,6 @@ function formatDate(ts?: number | false): string {
   }
 
   return `${dim(ts ? `[${new Date(ts).toISOString()}]` : '[------------------------]')} `;
-}
-
-function wrapLines(lines: string[], maxLength: number): string[] {
-  const pattern = new RegExp(
-    `(?:\\S(?:.{0,${maxLength}}\\S)?(?:\\s+|$)|(?:\\S{${maxLength}}))`,
-    'g',
-  );
-
-  return lines.flatMap((line) =>
-    line.length > maxLength ? line.replace(pattern, '$&\n').trimEnd().split(/\n/g) : line,
-  );
 }
 
 function formatDefaultContent(message?: string, data?: Record<string, any>): string {
