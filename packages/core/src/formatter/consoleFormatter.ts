@@ -1,4 +1,4 @@
-import { dim, gray, yellow, red, white, blue } from 'ansi-colors';
+import { dim, gray, yellow, red, white, blue, unstyle } from 'ansi-colors';
 import { FormatterPlugin, PluginManager } from '../plugins';
 import { LogEntry } from '../queues';
 import { Formatter } from './formatter';
@@ -42,14 +42,14 @@ const colorMap: Record<string, (str: string) => string> = {
 function formatEntry(level: string, content: string, label?: string, ts?: number | false): string {
   const levelColor = colorMap[level] || ((s: string) => s);
   const prefix = `${formatDate(ts)}${levelColor(level)} `;
-  const indent = new Array(prefix.length + 1).join(' ');
+  const indent = new Array(unstyle(prefix).length + 1).join(' ');
   const lines = content.split(/\n/g);
 
   if (label) {
     lines.unshift(label);
   }
 
-  return `${prefix}${lines.join(`\n${indent}`)}`;
+  return `${prefix}${wrapLines(lines, process.stdout.columns - indent.length).join(`\n${indent}`)}`;
 }
 
 function formatDate(ts?: number | false): string {
@@ -58,6 +58,17 @@ function formatDate(ts?: number | false): string {
   }
 
   return `${dim(ts ? `[${new Date(ts).toISOString()}]` : '[------------------------]')} `;
+}
+
+function wrapLines(lines: string[], maxLength: number): string[] {
+  const pattern = new RegExp(
+    `(?:\\S(?:.{0,${maxLength}}\\S)?(?:\\s+|$)|(?:\\S{${maxLength}}))`,
+    'g',
+  );
+
+  return lines.flatMap((line) =>
+    line.length > maxLength ? line.replace(pattern, '$&\n').trimEnd().split(/\n/g) : line,
+  );
 }
 
 function formatDefaultContent(message?: string, data?: Record<string, any>): string {

@@ -7,6 +7,14 @@ export class GraphQLFormatter implements FormatterPlugin {
     return 'GraphQL request';
   }
 
+  getEntryTitle(entry: LogEntry): string {
+    if (!entry.data || !entry.data.query) {
+      throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
+    }
+
+    return entry.data.operation || entry.data.query.replace(/{[\s\S]*$/, '').trim();
+  }
+
   formatHtmlEntry(entry: LogEntry): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');

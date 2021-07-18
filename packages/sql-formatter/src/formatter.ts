@@ -1,12 +1,26 @@
 import { escapeHtml, formatData, isEmpty, FormatterPlugin, LogEntry } from '@debugr/core';
 import { dim } from 'ansi-colors';
-import { formatQuery, formatQueryTime } from './utils';
+import { formatQueryTime } from './utils';
 
 export class SqlFormatter implements FormatterPlugin {
   readonly id: string = 'sql';
 
   getEntryLabel(): string {
     return 'SQL query';
+  }
+
+  getEntryTitle(entry: LogEntry): string {
+    if (!entry.data || !entry.data.query) {
+      throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
+    }
+
+    if (entry.message) {
+      return entry.message;
+    } else if (typeof entry.data.error === 'string') {
+      return entry.data.error;
+    } else {
+      return entry.data.query;
+    }
   }
 
   formatHtmlEntry(entry: LogEntry): string {
@@ -20,7 +34,7 @@ export class SqlFormatter implements FormatterPlugin {
       parts.push(`<p>${escapeHtml(entry.message)}</p>`);
     }
 
-    parts.push(`<pre><code class="sql">${escapeHtml(formatQuery(entry.data.query))}</code></pre>`);
+    parts.push(`<pre><code class="sql">${escapeHtml(entry.data.query)}</code></pre>`);
 
     if (
       entry.data.parameters &&

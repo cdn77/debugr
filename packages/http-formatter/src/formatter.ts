@@ -15,6 +15,17 @@ export class HttpFormatter implements FormatterPlugin {
     throw new Error('This entry cannot be formatted by the HttpFormatter plugin');
   }
 
+  getEntryTitle(entry: LogEntry): string {
+    switch (entry.data?.type) {
+      case 'request':
+        return `${entry.data.method} ${entry.data.uri}`;
+      case 'response':
+        return `HTTP ${entry.data.status} ${entry.data.message}`;
+    }
+
+    throw new Error('This entry cannot be formatted by the HttpFormatter plugin');
+  }
+
   formatHtmlEntry(entry: LogEntry): string {
     switch (entry.data?.type) {
       case 'request':

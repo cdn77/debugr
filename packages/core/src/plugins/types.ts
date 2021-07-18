@@ -12,6 +12,7 @@ export interface Plugin {
 
 export interface FormatterPlugin extends Plugin {
   getEntryLabel(entry: LogEntry): string;
+  getEntryTitle(entry: LogEntry): string;
   formatHtmlEntry(entry: LogEntry): string;
   formatConsoleEntry(entry: LogEntry): string;
 }

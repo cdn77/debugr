@@ -1,4 +1,4 @@
-import { FormatterPlugin } from '../plugins';
+import { FormatterPlugin, isFormatterPlugin } from '../plugins';
 import { findDefiningEntry, LogEntry, LogEntryQueue } from '../queues';
 import { Formatter } from './formatter';
 import { FormatterTemplateMap } from './types';
@@ -13,7 +13,7 @@ export class HtmlFormatter extends Formatter {
 
     return this.templates.layout(
       this.levelMap[definingEntry.level] || 'unknown',
-      extractEntryTitle(definingEntry, this.levelMap),
+      this.getEntryTitle(definingEntry),
       this.formatEntries(queue.entries),
     );
   }
@@ -28,6 +28,22 @@ export class HtmlFormatter extends Formatter {
     }
 
     return chunks.join('\n');
+  }
+
+  private getEntryTitle(entry: LogEntry): string {
+    try {
+      const plugin = entry.plugin ? this.pluginManager.get(entry.plugin) : undefined;
+
+      if (plugin && !isFormatterPlugin(plugin)) {
+        throw new Error(`Invalid plugin: ${entry.plugin} is not a Formatter plugin`);
+      }
+
+      return plugin
+        ? plugin.getEntryTitle(entry)
+        : entry.message || `Unknown ${this.levelMap[entry.level] || 'unknown'}`;
+    } catch (e) {
+      return entry.message || `Unknown ${this.levelMap[entry.level] || 'unknown'}`;
+    }
   }
 
   protected formatEntry(entry: LogEntry, previousTs?: number, plugin?: FormatterPlugin): string {
@@ -46,14 +62,6 @@ export class HtmlFormatter extends Formatter {
       '',
       formatDefaultContent(`${message} ${e.message}`, { stack: e.stack }),
     );
-  }
-}
-
-function extractEntryTitle(entry: LogEntry, levelMap: Record<number, string>): string {
-  if (entry.message) {
-    return entry.message;
-  } else {
-    return `Unknown ${levelMap[entry.level]}`;
   }
 }
 
