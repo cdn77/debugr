@@ -37,7 +37,7 @@
     "lint": "lerna run lint",
     "prepare": "husky install",
     "preversion": "lerna run preversion",
-    "postinstall": "lerna bootstrap",
+    "postinstall": "lerna bootstrap --no-ci",
     "release": "lerna publish from-package"
   },
   "lint-staged": {
