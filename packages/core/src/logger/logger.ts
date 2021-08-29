@@ -17,19 +17,19 @@ export class Logger implements LoggerInterface {
     this.context = new AsyncLocalStorage();
   }
 
-  ensureFork(callback: () => any): void {
+  ensureFork<R>(callback: () => R): R {
     const tag = this.context.getStore();
 
     if (tag) {
-      callback();
+      return callback();
     } else {
-      this.fork(callback);
+      return this.fork(callback);
     }
   }
 
-  fork(callback: () => any): void;
-  fork(force: true, callback: () => any): void;
-  fork(callbackOrForce: boolean | (() => any), maybeCallback?: () => any): void {
+  fork<R>(callback: () => R): R;
+  fork<R>(force: true, callback: () => R): R;
+  fork<R>(callbackOrForce: boolean | (() => R), maybeCallback?: () => R): R {
     const [callback, force] =
       typeof callbackOrForce === 'boolean'
         ? [maybeCallback!, callbackOrForce]
@@ -41,7 +41,7 @@ export class Logger implements LoggerInterface {
       throw new Error('Logger is already forked');
     }
 
-    this.context.run(this.queueManager.createQueue(), callback);
+    return this.context.run(this.queueManager.createQueue(), callback);
   }
 
   debug(data: Record<string, any>): void;
