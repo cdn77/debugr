@@ -44,10 +44,6 @@ export class Logger implements LoggerInterface {
     return this.context.run(this.queueManager.createQueue(), callback);
   }
 
-  forkInline(): void {
-    this.context.enterWith(this.queueManager.createQueue());
-  }
-
   debug(data: Record<string, any>): void;
   debug(message: string, data?: Record<string, any>): void;
   debug(message: string, params?: any[], data?: Record<string, any>): void;

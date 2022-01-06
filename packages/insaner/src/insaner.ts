@@ -1,6 +1,6 @@
 import { Container, ContainerAware, Logger, LogLevel, Plugin } from '@debugr/core';
 import { HttpFormatter } from '@debugr/http-formatter';
-import { HttpForcedResponse, HttpRequest, HttpResponse } from 'insaner';
+import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'insaner';
 import { NormalizedOptions, Options } from './types';
 import { filterHeaders, normalizeOptions } from './utils';
 
@@ -25,10 +25,14 @@ export class InsanerLogger implements ContainerAware, Plugin {
     }
   }
 
+  createMiddlewareHandler() {
+    return async (next: MiddlewareNext) => {
+      await this.logger.fork(next);
+    };
+  }
+
   createRequestHandler() {
     return (request: HttpRequest) => {
-      this.logger.forkInline();
-
       this.logger.log('http', this.options.level, {
         type: 'request',
         method: request.method,
