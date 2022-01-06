@@ -61,6 +61,8 @@ export class InsanerLogger implements ContainerAware, Plugin {
         message: '',
         headers: filterHeaders(response.headers, this.options.response.excludeHeaders),
       });
+
+      this.logger.flush();
     };
   }
 }
