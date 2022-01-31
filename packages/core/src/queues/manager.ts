@@ -167,7 +167,7 @@ export class QueueManager {
     for (const [tag, queue] of Object.entries(this.queues)) {
       if (queue.lastTs < threshold) {
         this.log(tag, -1, 'Queue was flushed by GC');
-        this.flushQueue(tag);
+        this.flushQueue(tag, true);
       }
     }
   }

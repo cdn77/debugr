@@ -123,14 +123,14 @@ export class Logger implements LoggerInterface {
     tag && this.queueManager.setQueueThreshold(tag, threshold);
   }
 
-  markForWriting(): void {
+  markForWriting(force: boolean = false): void {
     const tag = this.context.getStore();
-    tag && this.queueManager.markQueueForWriting(tag);
+    tag && this.queueManager.markQueueForWriting(tag, force);
   }
 
-  markAsIgnored(): void {
+  markAsIgnored(force: boolean = false): void {
     const tag = this.context.getStore();
-    tag && this.queueManager.markQueueIgnored(tag);
+    tag && this.queueManager.markQueueIgnored(tag, force);
   }
 
   flush(): void {
