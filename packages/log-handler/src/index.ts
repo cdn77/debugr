@@ -1,3 +1,6 @@
-export * from './console';
-export * from './elastic';
-export * from './html';
+export { ConsoleFormatter, ConsoleLogger } from './console';
+export { QueueManager, Writer } from './html';
+
+declare module '@debugr/core' {
+  //
+}

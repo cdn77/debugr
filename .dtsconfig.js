@@ -9,6 +9,7 @@ const importedLibraries = [
   '@debugr/apollo',
   '@debugr/express',
   '@debugr/typeorm',
+  '@debugr/log-handler',
 ];
 
 if (pkg.build.externals) {

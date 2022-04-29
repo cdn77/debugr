@@ -215,6 +215,7 @@ published to NPM.
 [`@debugr/http-formatter`]: ./packages/http-formatter
 [`@debugr/sql-formatter`]: ./packages/sql-formatter
 [`@debugr/graphql-formatter`]: ./packages/graphql-formatter
+[`@debugr/log-handler`]: ./packages/log-handler
 [an example dump file]: ./example.png
 [Async Hooks]: https://nodejs.org/api/async_hooks.html
 [`printj`]: https://www.npmjs.com/package/printj

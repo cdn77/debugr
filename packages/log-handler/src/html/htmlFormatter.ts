@@ -4,8 +4,12 @@ import {
   FormatterPlugin,
   isFormatterPlugin,
   LogEntry,
+  escapeHtml,
+  isEmpty,
+  formatData,
+  pad,
+  pad3,
 } from '@debugr/core';
-import { escapeHtml, isEmpty, formatData, pad, pad3 } from '@debugr/core/src/formatter/utils';
 import * as templates from './templates';
 import { LogEntryQueue } from './types';
 import { findDefiningEntry } from './utils';

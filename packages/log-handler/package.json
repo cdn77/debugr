@@ -11,26 +11,28 @@
     "node": ">=12.0"
   },
   "dependencies": {
+    "@debugr/core": "^2.0",
     "@debugr/http-formatter": "^2.0",
     "ansi-colors": "^4.1.1",
     "node-uuid": "^1.4.8"
   },
   "devDependencies": {
-    "@debugr/core": "^2.0",
     "@types/node-uuid": "0.0.29"
   },
-  "peerDependencies": {
-    "@debugr/core": "^2.0"
-  },
-  "src": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "stream",
-      "express"
+      "ansi-colors",
+      "node-uuid",
+      "crypto",
+      "async_hooks",
+      "events",
+      "fs",
+      "path",
+      "util"
     ]
   },
   "files": [

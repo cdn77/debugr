@@ -4,10 +4,12 @@ import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
 export abstract class Formatter {
   readonly levelMap: Record<number, string> = {
     [-1]: 'internal',
+    [LogLevel.TRACE]: 'trace',
     [LogLevel.DEBUG]: 'debug',
     [LogLevel.INFO]: 'info',
     [LogLevel.WARNING]: 'warning',
     [LogLevel.ERROR]: 'error',
+    [LogLevel.FATAL]: 'fatal',
   };
 
   protected readonly pluginManager: PluginManager;

@@ -15,6 +15,9 @@
     "node-uuid": "^1.4.8",
     "printj": "^1.2.2"
   },
+  "devDependencies": {
+    "@types/node-uuid": "0.0.29"
+  },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -47,8 +50,5 @@
     "build": "../../.run build",
     "lint": "../../.run lint",
     "preversion": "../../.run release"
-  },
-  "devDependencies": {
-    "@types/node-uuid": "0.0.29"
   }
 }
