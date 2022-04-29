@@ -1,24 +1,28 @@
+import { v4 } from 'node-uuid';
+
 import { AsyncLocalStorage } from 'async_hooks';
-import { QueueManager } from '../queues';
-import { LogLevel } from '../types';
+import { LogLevel, TContextBase } from './types';
+import { LogHandler } from './handler';
 import { PluginId } from '../plugins';
-import { LoggerInterface } from './loggerInterface';
 
-export class Logger implements LoggerInterface {
-  private readonly queueManager: QueueManager;
+export class Logger<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> {
+  private readonly globalContext: TGlobalContext;
 
-  private readonly globalLogger?: LoggerInterface;
+  private readonly logHandlers: LogHandler<TContext, TGlobalContext>[];
 
-  private readonly context: AsyncLocalStorage<string>;
+  private readonly asyncStorage: AsyncLocalStorage<TContext>;
 
-  constructor(queueManager: QueueManager, globalLogger?: LoggerInterface) {
-    this.queueManager = queueManager;
-    this.globalLogger = globalLogger;
-    this.context = new AsyncLocalStorage();
+  constructor(logHandlers: LogHandler<TContext, TGlobalContext>[], globalContext: TGlobalContext) {
+    this.globalContext = globalContext;
+    this.logHandlers = logHandlers;
+    this.asyncStorage = new AsyncLocalStorage();
   }
 
   ensureFork<R>(callback: () => R): R {
-    const tag = this.context.getStore();
+    const tag = this.asyncStorage.getStore();
 
     if (tag) {
       return callback();
@@ -35,110 +39,122 @@ export class Logger implements LoggerInterface {
         ? [maybeCallback!, callbackOrForce]
         : [callbackOrForce, false];
 
-    const tag = this.context.getStore();
+    const context = this.asyncStorage.getStore();
 
-    if (tag && !force) {
+    if (context && !force) {
       throw new Error('Logger is already forked');
     }
 
-    return this.context.run(this.queueManager.createQueue(), callback);
+    // @ts-expect-error Dont know how to make it typed properly...
+    return this.asyncStorage.run({ processId: v4() }, callback);
   }
 
-  debug(data: Record<string, any>): void;
-  debug(message: string, data?: Record<string, any>): void;
-  debug(message: string, params?: any[], data?: Record<string, any>): void;
-  debug(message: any, params?: any[], data?: Record<string, any>): void {
-    this.log(Logger.DEBUG, message, params, data);
+  trace(data: Record<string, any>): void;
+  trace(message: string, data?: Record<string, any>): void;
+  trace(message: any, data?: Record<string, any>): void {
+    this.log(LogLevel.TRACE, message, data);
   }
 
-  info(data: Record<string, any>): void;
-  info(message: string, data?: Record<string, any>): void;
-  info(message: string, params?: any[], data?: Record<string, any>): void;
-  info(message: any, params?: any[], data?: Record<string, any>): void {
-    this.log(Logger.INFO, message, params, data);
+  debug(data: Record<string, any> | Error): void;
+  debug(message: string, data?: Record<string, any> | Error): void;
+  debug(message: any, data?: Record<string, any> | Error): void {
+    this.log(LogLevel.DEBUG, message, data);
   }
 
-  warning(data: Record<string, any>): void;
-  warning(message: string, data?: Record<string, any>): void;
-  warning(message: string, params?: any[], data?: Record<string, any>): void;
-  warning(message: any, params?: any[], data?: Record<string, any>): void {
-    this.log(Logger.WARNING, message, params, data);
+  info(data: Record<string, any> | Error): void;
+  info(message: string, data?: Record<string, any> | Error): void;
+  info(message: any, data?: Record<string, any> | Error): void {
+    this.log(LogLevel.INFO, message, data);
   }
 
-  error(data: Record<string, any>): void;
-  error(message: string, data?: Record<string, any>): void;
-  error(message: string, params?: any[], data?: Record<string, any>): void;
-  error(message: any, params?: any[], data?: Record<string, any>): void {
-    this.log(Logger.ERROR, message, params, data);
+  warning(data: Record<string, any> | Error): void;
+  warning(message: string, data?: Record<string, any> | Error): void;
+  warning(message: any, data?: Record<string, any> | Error): void {
+    this.log(LogLevel.WARNING, message, data);
   }
 
-  log(level: number, data: Record<string, any>): void;
-  log(level: number, message: string, data?: Record<string, any>): void;
-  log(level: number, message: string, params?: any[], data?: Record<string, any>): void;
-  log(plugin: PluginId, level: number, data: Record<string, any>): void;
-  log(plugin: PluginId, level: number, message: string, data?: Record<string, any>): void;
+  error(data: Record<string, any> | Error): void;
+  error(message: string, data?: Record<string, any> | Error): void;
+  error(message: any, data?: Record<string, any> | Error): void {
+    this.log(LogLevel.ERROR, message, data);
+  }
+
+  fatal(data: Record<string, any> | Error): void;
+  fatal(message: string, data?: Record<string, any> | Error): void;
+  fatal(message: any, data?: Record<string, any> | Error): void {
+    this.log(LogLevel.ERROR, message, data);
+  }
+
+  log(level: LogLevel | number, data: Record<string, any> | Error): void;
+  log(level: LogLevel | number, message: string, data?: Record<string, any> | Error): void;
   log(
-    plugin: PluginId,
-    level: number,
-    message: string,
-    params?: any[],
-    data?: Record<string, any>,
-  ): void;
-  log(
-    pluginOrLevel: any,
-    levelOrMessage: any,
-    messageOrParams?: any,
-    paramsOrData?: any[],
-    maybeData?: Record<string, any>,
+    level: LogLevel | number,
+    messageOrDataOrError: Record<string, any> | Error | string,
+    maybeDataOrError?: Record<string, any> | Error,
   ): void {
-    const tag = this.context.getStore();
-
-    if (tag) {
-      this.queueManager.log(
-        tag,
-        pluginOrLevel,
-        levelOrMessage,
-        messageOrParams,
-        paramsOrData,
-        maybeData,
-      );
-    } else if (this.globalLogger) {
-      this.globalLogger.log(
-        pluginOrLevel,
-        levelOrMessage,
-        messageOrParams,
-        paramsOrData,
-        maybeData,
-      );
+    if (typeof messageOrDataOrError === 'string') {
+      this.pluginLog('', level, messageOrDataOrError, maybeDataOrError);
+    } else {
+      this.pluginLog('', level, '', messageOrDataOrError);
     }
   }
 
-  setId(id: string): void {
-    const tag = this.context.getStore();
-    tag && this.queueManager.setQueueId(tag, id);
+  pluginLog(plugin: PluginId, level: LogLevel | number, data: Record<string, any> | Error): void;
+  pluginLog(
+    plugin: PluginId,
+    level: LogLevel | number,
+    message: string,
+    data?: Record<string, any> | Error,
+  ): void;
+  pluginLog(
+    pluginId: PluginId,
+    level: LogLevel | number,
+    messageOrDataOrError: string | Record<string, any> | Error,
+    maybeDataOrError?: Record<string, any> | Error,
+  ): void {
+    // TODO REMOVE THAT "!""
+    const context: TContext | undefined = this.asyncStorage.getStore()!;
+
+    let error: Error | undefined;
+    let data: Record<string, any> | undefined;
+    let message: string;
+    if (typeof messageOrDataOrError === 'string') {
+      message = messageOrDataOrError;
+      if (maybeDataOrError instanceof Error) {
+        error = maybeDataOrError;
+      } else {
+        data = maybeDataOrError;
+      }
+    } else if (messageOrDataOrError instanceof Error) {
+      error = messageOrDataOrError;
+    } else {
+      data = messageOrDataOrError;
+    }
+
+    this.logHandlers.forEach((logHandler) => {
+      logHandler.log({
+        level,
+        context: { ...context, ...this.globalContext },
+        message,
+        data,
+        pluginId,
+        error,
+        ts: new Date(),
+      });
+    });
   }
 
-  setThreshold(threshold: number): void {
-    const tag = this.context.getStore();
-    tag && this.queueManager.setQueueThreshold(tag, threshold);
-  }
-
-  markForWriting(force: boolean = false): void {
-    const tag = this.context.getStore();
-    tag && this.queueManager.markQueueForWriting(tag, force);
-  }
-
-  markAsIgnored(force: boolean = false): void {
-    const tag = this.context.getStore();
-    tag && this.queueManager.markQueueIgnored(tag, force);
+  setContextProperty<T extends keyof TContext>(key: T, value: NonNullable<TContext>[T]): void {
+    const context = this.asyncStorage.getStore();
+    if (context) {
+      context[key] = value;
+      this.asyncStorage.enterWith(context);
+    }
   }
 
   flush(): void {
-    const tag = this.context.getStore();
-    tag && this.queueManager.flushQueue(tag);
+    this.logHandlers.forEach((logHandler) => {
+      logHandler.flush && logHandler.flush();
+    });
   }
-}
-
-export namespace Logger {
-  export const { DEBUG, INFO, WARNING, ERROR } = LogLevel;
 }

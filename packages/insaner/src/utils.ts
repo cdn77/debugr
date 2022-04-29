@@ -1,4 +1,4 @@
-import { Logger } from '@debugr/core';
+import { LogLevel } from '@debugr/core';
 import { OutgoingHttpHeaders } from 'http';
 import {
   CaptureBodyOption,
@@ -9,7 +9,7 @@ import {
 
 export function normalizeOptions(options?: Options): NormalizedOptions {
   return {
-    level: options?.level ?? Logger.INFO,
+    level: options?.level ?? LogLevel.INFO,
     e4xx: options?.e4xx ?? false,
     request: {
       captureBody: normalizeCaptureOption(

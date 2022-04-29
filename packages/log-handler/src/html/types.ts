@@ -1,4 +1,4 @@
-import { PluginId } from '../plugins';
+import { LogEntry } from '@debugr/core';
 
 export type GcOptions = {
   interval?: number;
@@ -11,14 +11,6 @@ export type QueueManagerOptions = {
   threshold: number;
   cloneData: boolean;
   gc: FullGcOptions;
-};
-
-export type LogEntry = {
-  plugin?: PluginId;
-  level: number;
-  message?: string;
-  data?: Record<string, any>;
-  ts: number;
 };
 
 export type LogEntryQueue = {

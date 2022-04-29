@@ -1,13 +1,9 @@
 import * as v8 from 'v8';
-import { EventDispatcher } from '../events';
-import { PluginId } from '../plugins';
-import { HtmlFormatter } from '../formatter';
-import { normalizeLogArgs } from '../utils';
+import { EventDispatcher, PluginId, generateIdentifier, With } from '@debugr/core';
+import { HtmlFormatter } from './htmlFormatter';
 import { Writer } from './writer';
-import { generateIdentifier } from '../bootstrap/utils';
 import { identifyQueue } from './utils';
-import { LogEntry, LogEntryQueue, QueueManagerOptions } from './types';
-import { With } from '../types';
+import { LogEntryQueue, QueueManagerOptions } from './types';
 
 export class QueueManager {
   private readonly eventDispatcher: EventDispatcher;

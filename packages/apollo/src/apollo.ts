@@ -1,5 +1,5 @@
 import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { Container, ContainerAware, Logger, Plugin } from '@debugr/core';
+import { Container, ContainerAware, Logger, Plugin, LogLevel } from '@debugr/core';
 import { GraphQLFormatter } from '@debugr/graphql-formatter';
 import { FullOptions, Options } from './types';
 
@@ -14,7 +14,7 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
 
   constructor(options?: Options) {
     this.options = {
-      level: options?.level || Logger.INFO,
+      level: options?.level || LogLevel.INFO,
     };
   }
 
@@ -37,7 +37,7 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
     return {
       didResolveOperation({ request, operation, operationName }): void {
         if (request.query) {
-          logger.log('graphql', options.level, {
+          logger.pluginLog('graphql', options.level, {
             query: request.query,
             variables: request.variables,
             operation:

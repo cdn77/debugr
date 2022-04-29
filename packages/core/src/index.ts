@@ -1,10 +1,8 @@
 export { Services, Debugr, debugr } from './bootstrap';
 export { Container, ContainerAware, Factory } from './di';
-export { Events, EventDispatcher } from './events';
+// export { Events, EventDispatcher } from './events';
 export {
   Formatter,
-  HtmlFormatter,
-  ConsoleFormatter,
   LayoutTemplate,
   EntryTemplate,
   formatData,
@@ -15,7 +13,6 @@ export {
   pad,
   pad3,
 } from './formatter';
-export { Logger, ConsoleLogger, LoggerInterface } from './logger';
-export { Plugins, PluginManager, FormatterPlugin, Plugin } from './plugins';
-export { GcOptions, LogEntry, LogEntryQueue, QueueManager, Writer } from './queues';
-export { Options, LogLevel } from './types';
+export { Logger, LogHandler, LogLevel, TContextBase, LogEntry } from './logger';
+export { Plugins, PluginManager, FormatterPlugin, Plugin, isFormatterPlugin } from './plugins';
+export { Options } from './types';

@@ -1,4 +1,4 @@
-import { LogEntry } from '../queues';
+import { LogEntry } from '../logger';
 
 export interface Plugins {
   [id: string]: Plugin;

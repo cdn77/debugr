@@ -1,7 +1,7 @@
 {
-  "name": "@debugr/core",
-  "version": "2.0.12",
-  "description": "Advanced application logger",
+  "name": "@debugr/log-handler",
+  "version": "1.0.0",
+  "description": "Log handlers to debugr",
   "author": {
     "name": "Dan Kadera",
     "email": "dan.kadera@cdn77.com"
@@ -11,25 +11,24 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "ansi-colors": "^4.1.1",
-    "node-uuid": "^1.4.8",
-    "printj": "^1.2.2"
+    "@debugr/http-formatter": "^2.0",
+    "ansi-colors": "^4.1.1"
   },
+  "devDependencies": {
+    "@debugr/core": "^2.0"
+  },
+  "peerDependencies": {
+    "@debugr/core": "^2.0"
+  },
+  "src": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "ansi-colors",
-      "async_hooks",
-      "crypto",
-      "events",
-      "fs",
-      "path",
-      "printj",
-      "v8",
-      "util"
+      "stream",
+      "express"
     ]
   },
   "files": [
@@ -47,8 +46,5 @@
     "build": "../../.run build",
     "lint": "../../.run lint",
     "preversion": "../../.run release"
-  },
-  "devDependencies": {
-    "@types/node-uuid": "0.0.29"
   }
 }

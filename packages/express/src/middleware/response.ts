@@ -1,4 +1,4 @@
-import { Logger } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { Response } from 'express';
 import { NormalizedOptions } from '../types';
 import {
@@ -22,9 +22,9 @@ export async function logHttpResponse(
   const bodyLength = body ? body.length : undefined;
   const lengthMismatch =
     bodyLength !== undefined && contentLength !== undefined && bodyLength !== contentLength;
-  const level = response.statusCode >= (options.e4xx ? 400 : 500) ? Logger.ERROR : options.level;
+  const level = response.statusCode >= (options.e4xx ? 400 : 500) ? LogLevel.ERROR : options.level;
 
-  logger.log('http', level, {
+  logger.pluginLog('http', level, {
     type: 'response',
     status: response.statusCode,
     message: response.statusMessage,

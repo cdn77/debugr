@@ -34,7 +34,7 @@ function doLogRequest(
   const canCapture = isCaptureEnabled(options.request.captureBody, contentType, bodyLength);
   const lengthMismatch = !!body && !canCapture;
 
-  logger.log('http', options.level, {
+  logger.pluginLog('http', options.level, {
     type: 'request',
     method: request.method,
     uri: request.originalUrl,

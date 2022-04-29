@@ -1,8 +1,12 @@
 import { dim, gray, yellow, red, white, blue, unstyle } from 'ansi-colors';
-import { FormatterPlugin, PluginManager } from '../plugins';
-import { LogEntry } from '../queues';
-import { Formatter } from './formatter';
-import { formatData, isEmpty } from './utils';
+import {
+  FormatterPlugin,
+  PluginManager,
+  LogEntry,
+  Formatter,
+  formatData,
+  isEmpty,
+} from '@debugr/core';
 
 export class ConsoleFormatter extends Formatter {
   private readonly writeTimestamp: boolean;
@@ -17,7 +21,7 @@ export class ConsoleFormatter extends Formatter {
       this.levelMap[entry.level] || 'unknown',
       plugin ? plugin.formatConsoleEntry(entry) : formatDefaultContent(entry.message, entry.data),
       plugin && plugin.getEntryLabel(entry),
-      this.writeTimestamp ? entry.ts : false,
+      this.writeTimestamp ? entry.ts.getTime() : false,
     );
   }
 

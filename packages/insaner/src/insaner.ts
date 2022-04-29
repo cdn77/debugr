@@ -33,7 +33,7 @@ export class InsanerLogger implements ContainerAware, Plugin {
 
   createRequestHandler() {
     return (request: HttpRequest) => {
-      this.logger.log('http', this.options.level, {
+      this.logger.pluginLog('http', this.options.level, {
         type: 'request',
         method: request.method,
         uri: request.url.toString(),
@@ -55,7 +55,7 @@ export class InsanerLogger implements ContainerAware, Plugin {
       const level =
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
-      this.logger.log('http', level, {
+      this.logger.pluginLog('http', level, {
         type: 'response',
         status: response.status,
         message: '',

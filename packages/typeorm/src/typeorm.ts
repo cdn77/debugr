@@ -1,11 +1,11 @@
 import { Logger as LoggerInterface } from 'typeorm';
-import { Container, ContainerAware, Logger, Plugin } from '@debugr/core';
+import { Container, ContainerAware, Logger, Plugin, LogLevel } from '@debugr/core';
 import { SqlFormatter } from '@debugr/sql-formatter';
 
 const levelMap = {
-  log: Logger.INFO,
-  info: Logger.INFO,
-  warn: Logger.WARNING,
+  log: LogLevel.INFO,
+  info: LogLevel.INFO,
+  warn: LogLevel.WARNING,
 };
 
 export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
@@ -27,18 +27,18 @@ export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
   }
 
   logMigration(message: string): void {
-    this.logger.log(Logger.DEBUG, message);
+    this.logger.log(LogLevel.DEBUG, message);
   }
 
   logQuery(query: string, parameters?: any[]): void {
-    this.logger.log('sql', Logger.DEBUG, {
+    this.logger.pluginLog('sql', LogLevel.DEBUG, {
       query,
       parameters,
     });
   }
 
   logQueryError(error: string, query: string, parameters?: any[]): void {
-    this.logger.log('sql', Logger.ERROR, {
+    this.logger.pluginLog('sql', LogLevel.ERROR, {
       query,
       parameters,
       error,
@@ -47,7 +47,7 @@ export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
   }
 
   logQuerySlow(time: number, query: string, parameters?: any[]): void {
-    this.logger.log('sql', Logger.WARNING, 'Slow query', {
+    this.logger.pluginLog('sql', LogLevel.WARNING, 'Slow query', {
       query,
       parameters,
       time,
@@ -55,6 +55,6 @@ export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
   }
 
   logSchemaBuild(message: string): void {
-    this.logger.log(Logger.DEBUG, message);
+    this.logger.log(LogLevel.DEBUG, message);
   }
 }

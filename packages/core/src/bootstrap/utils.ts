@@ -1,4 +1,5 @@
-import { LogLevel, Options } from '../types';
+import { LogLevel } from '../logger';
+import { Options } from '../types';
 import { FullOptions } from './types';
 
 export function normalizeOptions({ global = {}, fork, plugins = [] }: Options): FullOptions {

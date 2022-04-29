@@ -1,9 +1,14 @@
-import { FormatterPlugin, isFormatterPlugin } from '../plugins';
-import { findDefiningEntry, LogEntry, LogEntryQueue } from '../queues';
-import { Formatter } from './formatter';
-import { FormatterTemplateMap } from './types';
+import {
+  FormatterTemplateMap,
+  Formatter,
+  FormatterPlugin,
+  isFormatterPlugin,
+  LogEntry,
+} from '@debugr/core';
+import { escapeHtml, isEmpty, formatData, pad, pad3 } from '@debugr/core/src/formatter/utils';
 import * as templates from './templates';
-import { escapeHtml, isEmpty, formatData, pad, pad3 } from './utils';
+import { LogEntryQueue } from './types';
+import { findDefiningEntry } from './utils';
 
 export class HtmlFormatter extends Formatter {
   readonly templates: FormatterTemplateMap = templates;

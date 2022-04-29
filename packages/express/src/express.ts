@@ -1,4 +1,4 @@
-import { Container, ContainerAware, Plugin, Logger } from '@debugr/core';
+import { Container, ContainerAware, Plugin, Logger, LogLevel } from '@debugr/core';
 import { HttpFormatter } from '@debugr/http-formatter';
 import { Handler, ErrorRequestHandler } from 'express';
 import { NormalizedOptions, Options } from './types';
@@ -39,7 +39,7 @@ export class ExpressLogger implements ContainerAware, Plugin {
 
   createErrorHandler(): ErrorRequestHandler {
     return (err, req, res, next) => {
-      this.logger.log(Logger.ERROR, err);
+      this.logger.log(LogLevel.ERROR, err);
       next(err);
     };
   }

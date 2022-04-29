@@ -1,6 +1,5 @@
+import { LogEntry, LogLevel } from '../logger/types';
 import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
-import { LogEntry } from '../queues';
-import { LogLevel } from '../types';
 
 export abstract class Formatter {
   readonly levelMap: Record<number, string> = {
@@ -40,10 +39,10 @@ export abstract class Formatter {
   }
 
   private tryFormatEntry(entry: LogEntry, previousTs?: number, noPlugin: boolean = false): string {
-    const plugin = !noPlugin && entry.plugin ? this.pluginManager.get(entry.plugin) : undefined;
+    const plugin = !noPlugin && entry.pluginId ? this.pluginManager.get(entry.pluginId) : undefined;
 
     if (plugin && !isFormatterPlugin(plugin)) {
-      throw new Error(`Invalid plugin: ${entry.plugin} is not a Formatter plugin`);
+      throw new Error(`Invalid plugin: ${entry.pluginId} is not a Formatter plugin`);
     }
 
     return this.formatEntry(entry, previousTs, plugin);
