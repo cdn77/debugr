@@ -37,10 +37,10 @@ export class HtmlFormatter extends Formatter {
 
   private getEntryTitle(entry: LogEntry): string {
     try {
-      const plugin = entry.plugin ? this.pluginManager.get(entry.plugin) : undefined;
+      const plugin = entry.pluginId ? this.pluginManager.get(entry.pluginId) : undefined;
 
       if (plugin && !isFormatterPlugin(plugin)) {
-        throw new Error(`Invalid plugin: ${entry.plugin} is not a Formatter plugin`);
+        throw new Error(`Invalid plugin: ${entry.pluginId} is not a Formatter plugin`);
       }
 
       return plugin
@@ -51,7 +51,7 @@ export class HtmlFormatter extends Formatter {
     }
   }
 
-  protected formatEntry(entry: LogEntry, previousTs?: number, plugin?: FormatterPlugin): string {
+  protected formatEntry(entry: LogEntry, previousTs?: Date, plugin?: FormatterPlugin): string {
     return this.templates.entry(
       formatDate(entry.ts, previousTs),
       this.levelMap[entry.level] || 'unknown',
@@ -70,13 +70,14 @@ export class HtmlFormatter extends Formatter {
   }
 }
 
-function formatDate(ts: number, relativeTo?: number): string {
-  const d = new Date(ts);
-  const str = `${!relativeTo ? `${d.getDate()}/${d.getMonth() + 1} ${d.getFullYear()} ` : ''}${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}<small>.${pad3(d.getMilliseconds())}</small>`;
+function formatDate(ts: Date, relativeTo?: Date): string {
+  const str = `${
+    !relativeTo ? `${ts.getDate()}/${ts.getMonth() + 1} ${ts.getFullYear()} ` : ''
+  }${pad(ts.getHours())}:${pad(ts.getMinutes())}:${pad(ts.getSeconds())}<small>.${pad3(
+    ts.getMilliseconds(),
+  )}</small>`;
 
-  return relativeTo ? `${str} <small>(+${d.getTime() - relativeTo}ms)</small>` : str;
+  return relativeTo ? `${str} <small>(+${ts.getTime() - relativeTo.getTime()}ms)</small>` : str;
 }
 
 function formatStack(stack: string): string {

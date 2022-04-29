@@ -8,5 +8,5 @@ export abstract class LogHandler<
 
   public abstract log(entry: LogEntry<TContext, TGlobalContext>): void;
 
-  public abstract flush?(): void;
+  public abstract flush?(processId: string, forceWrite?: boolean): void;
 }

@@ -1,13 +1,19 @@
 import * as crypto from 'crypto';
-import { LogEntry, LogEntryQueue } from './types';
+import { v4 } from 'node-uuid';
+
+import { LogEntry } from '@debugr/core';
+import { LogEntryQueue } from './types';
 
 export function findDefiningEntry(queue: LogEntryQueue): LogEntry {
   if (queue.firstOverThreshold !== undefined) {
     return queue.entries[queue.firstOverThreshold];
   } else if (!queue.entries.length) {
     return {
-      ts: 0,
+      ts: new Date(),
       level: 4,
+      context: {
+        processId: v4(),
+      },
       message: 'EMPTY QUEUE!',
       data: queue,
     };

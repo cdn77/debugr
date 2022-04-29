@@ -16,7 +16,7 @@ export class ConsoleFormatter extends Formatter {
     this.writeTimestamp = writeTimestamp;
   }
 
-  protected formatEntry(entry: LogEntry, previousTs?: number, plugin?: FormatterPlugin): string {
+  protected formatEntry(entry: LogEntry, _previousTs?: Date, plugin?: FormatterPlugin): string {
     return formatEntry(
       this.levelMap[entry.level] || 'unknown',
       plugin ? plugin.formatConsoleEntry(entry) : formatDefaultContent(entry.message, entry.data),

@@ -12,6 +12,7 @@ export {
   isEmpty,
   pad,
   pad3,
+  FormatterTemplateMap,
 } from './formatter';
 export { Logger, LogHandler, LogLevel, TContextBase, LogEntry } from './logger';
 export { Plugins, PluginManager, FormatterPlugin, Plugin, isFormatterPlugin } from './plugins';

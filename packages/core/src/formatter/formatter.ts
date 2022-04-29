@@ -18,13 +18,13 @@ export abstract class Formatter {
 
   protected abstract formatEntry(
     entry: LogEntry,
-    previousTs?: number,
+    previousTs?: Date,
     plugin?: FormatterPlugin,
   ): string;
 
   protected abstract formatError(e: Error, message: string): string;
 
-  *format(entry: LogEntry, previousTs?: number): Generator<string> {
+  *format(entry: LogEntry, previousTs?: Date): Generator<string> {
     try {
       yield this.tryFormatEntry(entry, previousTs);
     } catch (e) {
@@ -38,7 +38,7 @@ export abstract class Formatter {
     }
   }
 
-  private tryFormatEntry(entry: LogEntry, previousTs?: number, noPlugin: boolean = false): string {
+  private tryFormatEntry(entry: LogEntry, previousTs?: Date, noPlugin: boolean = false): string {
     const plugin = !noPlugin && entry.pluginId ? this.pluginManager.get(entry.pluginId) : undefined;
 
     if (plugin && !isFormatterPlugin(plugin)) {

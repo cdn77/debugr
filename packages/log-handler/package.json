@@ -1,6 +1,6 @@
 {
   "name": "@debugr/log-handler",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Log handlers to debugr",
   "author": {
     "name": "Dan Kadera",
@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@debugr/http-formatter": "^2.0",
-    "ansi-colors": "^4.1.1"
+    "ansi-colors": "^4.1.1",
+    "node-uuid": "^1.4.8"
   },
   "devDependencies": {
-    "@debugr/core": "^2.0"
+    "@debugr/core": "^2.0",
+    "@types/node-uuid": "0.0.29"
   },
   "peerDependencies": {
     "@debugr/core": "^2.0"

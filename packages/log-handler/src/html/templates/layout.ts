@@ -1,5 +1,4 @@
-import { LayoutTemplate } from '../../../../core/src/formatter/types';
-import { escapeHtml } from '../../../../core/src/formatter/utils';
+import { LayoutTemplate, escapeHtml } from '@debugr/core';
 import { styles } from './styles';
 
 export const layout: LayoutTemplate = (level, title, content) => `

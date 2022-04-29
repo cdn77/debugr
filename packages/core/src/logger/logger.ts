@@ -153,8 +153,10 @@ export class Logger<
   }
 
   flush(): void {
+    const context = this.asyncStorage.getStore();
+
     this.logHandlers.forEach((logHandler) => {
-      logHandler.flush && logHandler.flush();
+      logHandler.flush && logHandler.flush(context?.processId || v4());
     });
   }
 }

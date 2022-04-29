@@ -1,5 +1,4 @@
-import { escapeHtml } from '../../../../core/src/formatter/utils';
-import { EntryTemplate } from '../../../../core/src/formatter/types';
+import { escapeHtml, EntryTemplate } from '@debugr/core';
 
 export const entry: EntryTemplate = (ts, level, label, content) => {
   return `

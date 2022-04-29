@@ -1,13 +1,15 @@
-import * as v8 from 'v8';
-import { EventDispatcher, PluginId, generateIdentifier, With } from '@debugr/core';
+import { LogHandler, TContextBase, LogEntry } from '@debugr/core';
 import { HtmlFormatter } from './htmlFormatter';
 import { Writer } from './writer';
 import { identifyQueue } from './utils';
 import { LogEntryQueue, QueueManagerOptions } from './types';
 
-export class QueueManager {
-  private readonly eventDispatcher: EventDispatcher;
-
+export class QueueManager<
+  TContext extends TContextBase = {
+    processId: string;
+  },
+  TGlobalContext extends Record<string, any> = {},
+> extends LogHandler<TContext, TGlobalContext> {
   private readonly formatter: HtmlFormatter;
 
   private readonly writer: Writer;
@@ -18,13 +20,8 @@ export class QueueManager {
 
   private readonly queues: Record<string, LogEntryQueue>;
 
-  constructor(
-    eventDispatcher: EventDispatcher,
-    formatter: HtmlFormatter,
-    writer: Writer,
-    options: QueueManagerOptions,
-  ) {
-    this.eventDispatcher = eventDispatcher;
+  constructor(formatter: HtmlFormatter, writer: Writer, options: QueueManagerOptions) {
+    super();
     this.formatter = formatter;
     this.writer = writer;
     this.options = options;
@@ -33,72 +30,32 @@ export class QueueManager {
     this.gcTmr.unref();
   }
 
-  log(tag: string, level: number, data: Record<string, any>): void;
-  log(tag: string, level: number, message: string, data?: Record<string, any>): void;
-  log(
-    tag: string,
-    level: number,
-    message: string,
-    params?: any[],
-    data?: Record<string, any>,
-  ): void;
-  log(tag: string, plugin: PluginId, level: number, data: Record<string, any>): void;
-  log(
-    tag: string,
-    plugin: PluginId,
-    level: number,
-    message: string,
-    data?: Record<string, any>,
-  ): void;
-  log(
-    tag: string,
-    plugin: PluginId,
-    level: number,
-    message: string,
-    params?: any[],
-    data?: Record<string, any>,
-  ): void;
-  log(tag: string, ...args: any): void {
-    if (!(tag in this.queues)) {
+  log(entry: LogEntry<TContext, TGlobalContext>): void {
+    if (!(entry.context.processId in this.queues)) {
       return;
     }
 
-    const ts = Date.now();
-
-    const [plugin, level, message, data] = normalizeLogArgs(args);
-    const queue = this.queues[tag];
+    const queue = this.queues[entry.context.processId];
     const entryId = queue.entries.length;
 
-    const entry: LogEntry = {
-      plugin,
-      message,
-      data: data && this.options.cloneData ? v8.deserialize(v8.serialize(data)) : data,
-      level,
-      ts,
-    };
-
-    this.eventDispatcher.emit('queue.push', entry, queue);
     queue.entries.push(entry);
-    queue.lastTs = ts;
+    queue.lastTs = entry.ts.getTime();
 
     const threshold = queue.threshold !== undefined ? queue.threshold : this.options.threshold;
 
-    if (level >= threshold && queue.firstOverThreshold === undefined) {
+    if (entry.level >= threshold && queue.firstOverThreshold === undefined) {
       queue.firstOverThreshold = entryId;
     }
   }
 
-  createQueue(): string {
+  createQueue(processId: string): void {
     const now = Date.now();
-    const tag = generateIdentifier(this.queues);
 
-    this.queues[tag] = {
+    this.queues[processId] = {
       entries: [],
       ts: now,
       lastTs: now,
     };
-
-    return tag;
   }
 
   setQueueId(tag: string, id: string): void {
@@ -131,10 +88,10 @@ export class QueueManager {
     }
   }
 
-  flushQueue(tag: string, forceWrite: boolean = false): void {
-    if (tag in this.queues) {
-      const queue = this.queues[tag];
-      delete this.queues[tag];
+  public flush(processId: string, forceWrite: boolean = false): void {
+    if (processId in this.queues) {
+      const queue = this.queues[processId];
+      delete this.queues[processId];
       Promise.resolve().then(() => this.doFlushQueue(queue, forceWrite));
     }
   }
@@ -144,7 +101,7 @@ export class QueueManager {
       queue.id = identifyQueue(queue);
     }
 
-    this.eventDispatcher.emit('queue.flush', queue as With<LogEntryQueue, 'id'>);
+    // this.eventDispatcher.emit('queue.flush', queue as With<LogEntryQueue, 'id'>);
 
     if (queue.write === undefined) {
       queue.write = queue.firstOverThreshold !== undefined;
@@ -152,18 +109,23 @@ export class QueueManager {
 
     if (forceWrite || queue.write) {
       const content = this.formatter.formatQueue(queue);
-      const url = await this.writer.write(queue.ts, queue.id, content);
-      this.eventDispatcher.emit('queue.write', url);
+      await this.writer.write(queue.ts, queue.id, content);
+      // this.eventDispatcher.emit('queue.write', url);
     }
   }
 
   private gc(): void {
     const threshold = Date.now() - this.options.gc.threshold * 1000;
 
-    for (const [tag, queue] of Object.entries(this.queues)) {
+    for (const [processId, queue] of Object.entries(this.queues)) {
       if (queue.lastTs < threshold) {
-        this.log(tag, -1, 'Queue was flushed by GC');
-        this.flushQueue(tag, true);
+        this.log({
+          context: { processId } as TContext & TGlobalContext,
+          level: -1,
+          message: 'Queue was flushed by GC',
+          ts: new Date(),
+        });
+        this.flush(processId, true);
       }
     }
   }
