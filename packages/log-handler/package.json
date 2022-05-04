@@ -13,6 +13,7 @@
   "dependencies": {
     "@debugr/core": "^2.0",
     "@debugr/http-formatter": "^2.0",
+    "@elastic/elasticsearch": "^8.2.0",
     "ansi-colors": "^4.1.1",
     "node-uuid": "^1.4.8"
   },
@@ -32,7 +33,8 @@
       "events",
       "fs",
       "path",
-      "util"
+      "util",
+      "@elastic/elasticsearch"
     ]
   },
   "files": [

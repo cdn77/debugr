@@ -1,5 +1,4 @@
-import { LogLevel, TContextBase, LogHandler } from '@debugr/core';
-import { LogEntry } from '@debugr/core/src';
+import { LogEntry, LogLevel, TContextBase, LogHandler } from '@debugr/core';
 
 import { ConsoleFormatter } from './consoleFormatter';
 
