@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@debugr/core": "^2.0",
-    "@elastic/elasticsearch": "^8.2.0"
+    "@elastic/elasticsearch": "^7.15.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -20,13 +20,6 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "node-uuid",
-      "crypto",
-      "async_hooks",
-      "events",
-      "fs",
-      "path",
-      "util",
       "@elastic/elasticsearch"
     ]
   },
