@@ -9,22 +9,35 @@ export enum LogLevel {
   FATAL = 60,
 }
 
-export type TContextBase = TContextFullOptional<
-  Record<string, boolean | string | number | Date | undefined>
-> & {
-  processId: string;
+export type TContextBase = {
+  processId?: string;
 };
 
-export type TContextFullOptional<BaseType extends Record<string, any>> = {
-  [K in keyof BaseType]?: BaseType[K];
-};
+export type ImmutableDate = Omit<
+  Date,
+  | 'setTime'
+  | 'setMilliseconds'
+  | 'setUTCMilliseconds'
+  | 'setSeconds'
+  | 'setUTCSeconds'
+  | 'setMinutes'
+  | 'setUTCMinutes'
+  | 'setHours'
+  | 'setUTCHours'
+  | 'setDate'
+  | 'setUTCDate'
+  | 'setMonth'
+  | 'setUTCMonth'
+  | 'setFullYear'
+  | 'setUTCFullYear'
+>;
 
-export type LogEntry<TContext = { processId: string }, TGlobalContext = {}> = {
+export type LogEntry<TContext extends TContextBase = { processId: string }, TGlobalContext = {}> = {
   level: LogLevel | number;
-  context: TContext & TGlobalContext;
+  context: Partial<TContext> & TGlobalContext;
   message?: string;
   error?: Error;
   data?: Record<string, any>;
   pluginId?: PluginId;
-  ts: Date;
+  ts: ImmutableDate;
 };

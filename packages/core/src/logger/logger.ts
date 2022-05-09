@@ -11,11 +11,14 @@ export class Logger<
 > {
   private readonly globalContext: TGlobalContext;
 
-  private readonly logHandlers: LogHandler<TContext, TGlobalContext>[];
+  private readonly logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[];
 
-  private readonly asyncStorage: AsyncLocalStorage<TContext>;
+  private readonly asyncStorage: AsyncLocalStorage<Partial<TContext>>;
 
-  constructor(logHandlers: LogHandler<TContext, TGlobalContext>[], globalContext: TGlobalContext) {
+  constructor(
+    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
+    globalContext: TGlobalContext,
+  ) {
     this.globalContext = globalContext;
     this.logHandlers = logHandlers;
     this.asyncStorage = new AsyncLocalStorage();
@@ -45,8 +48,10 @@ export class Logger<
       throw new Error('Logger is already forked');
     }
 
-    // @ts-expect-error Dont know how to make it typed properly...
-    return this.asyncStorage.run({ processId: v4() }, callback);
+    // @ts-ignore
+    const newContext: Partial<TContext> = { processId: v4() };
+
+    return this.asyncStorage.run(newContext, callback);
   }
 
   trace(data: Record<string, any>): void;
@@ -112,8 +117,7 @@ export class Logger<
     messageOrDataOrError: string | Record<string, any> | Error,
     maybeDataOrError?: Record<string, any> | Error,
   ): void {
-    // TODO REMOVE THAT "!""
-    const context: TContext | undefined = this.asyncStorage.getStore()!;
+    const context: Partial<TContext> = this.asyncStorage.getStore() || {};
 
     let error: Error | undefined;
     let data: Record<string, any> | undefined;

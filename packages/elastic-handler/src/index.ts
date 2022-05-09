@@ -1,1 +1,1 @@
-export { ElasticLogger, ElasticOptions } from './elasticLogger';
+export { ElasticLogger, ElasticOptions, ElasticLoggerOptions } from './elasticLogger';
