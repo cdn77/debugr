@@ -10,6 +10,8 @@ const importedLibraries = [
   '@debugr/express',
   '@debugr/typeorm',
   '@debugr/log-handler',
+  '@debugr/html-handler',
+  '@debugr/console-handler',
 ];
 
 if (pkg.build.externals) {
