@@ -4,6 +4,8 @@ import * as templates from './templates';
 export class HttpFormatter implements FormatterPlugin {
   readonly id: string = 'http';
 
+  injectLogger(): void {}
+
   getEntryLabel(entry: LogEntry): string {
     switch (entry.data?.type) {
       case 'request':

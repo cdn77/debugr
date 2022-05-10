@@ -1,4 +1,4 @@
-import { Logger, LogLevel } from '@debugr/core';
+import { Logger, LogLevel, TContextBase } from '@debugr/core';
 import { Response } from 'express';
 import { NormalizedOptions } from '../types';
 import {
@@ -9,8 +9,11 @@ import {
 } from '../utils';
 import { captureResponseBody } from './captureStream';
 
-export async function logHttpResponse(
-  logger: Logger,
+export async function logHttpResponse<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+>(
+  logger: Logger<Partial<TContext>, TGlobalContext>,
   options: NormalizedOptions,
   response: Response,
 ): Promise<void> {

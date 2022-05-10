@@ -1,5 +1,5 @@
 import { Logger as LoggerInterface } from 'typeorm';
-import { Logger, Plugin, LogLevel } from '@debugr/core';
+import { Logger, Plugin, LogLevel, TContextBase } from '@debugr/core';
 // import { SqlFormatter } from '@debugr/sql-formatter';
 
 const levelMap = {
@@ -8,19 +8,18 @@ const levelMap = {
   warn: LogLevel.WARNING,
 };
 
-export class TypeormLogger implements Plugin, LoggerInterface {
+export class TypeormLogger<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> implements Plugin<Partial<TContext>, TGlobalContext>, LoggerInterface
+{
   readonly id: string = 'typeorm';
 
-  private logger: Logger;
+  private logger: Logger<Partial<TContext>, TGlobalContext>;
 
-  // injectContainer(container: Container): void {
-  //   this.logger = container.get('logger');
-  //   const pluginManager = container.get('pluginManager');
-
-  //   if (!pluginManager.has('sql')) {
-  //     pluginManager.register(new SqlFormatter());
-  //   }
-  // }
+  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void {
+    this.logger = logger;
+  }
 
   log(level: 'log' | 'info' | 'warn', message: any): void {
     this.logger.log(levelMap[level], message);

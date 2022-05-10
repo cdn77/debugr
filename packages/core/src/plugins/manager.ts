@@ -1,13 +1,21 @@
+import { Logger, TContextBase } from '../logger';
 import { Plugin, PluginId, Plugins } from './types';
 
-export class PluginManager {
-  private readonly plugins: Plugins;
+export class PluginManager<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> {
+  private readonly plugins: Plugins<Partial<TContext>, TGlobalContext>;
 
-  constructor() {
+  private readonly logger: Logger<Partial<TContext>, TGlobalContext>;
+
+  constructor(logger: Logger<Partial<TContext>, TGlobalContext>) {
+    this.logger = logger;
     this.plugins = {};
   }
 
-  public register(plugin: Plugin): void {
+  public register(plugin: Plugin<Partial<TContext>, TGlobalContext>): void {
+    plugin.injectLogger(this.logger);
     this.plugins[plugin.id] = plugin;
   }
 
@@ -15,7 +23,7 @@ export class PluginManager {
     return id in this.plugins;
   }
 
-  public get<ID extends PluginId>(id: ID): Plugins[ID] {
+  public get<ID extends PluginId>(id: ID): Plugins<Partial<TContext>, TGlobalContext>[ID] {
     const plugin = this.plugins[id];
 
     if (!plugin) {

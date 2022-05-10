@@ -1,4 +1,4 @@
-import { Logger } from '@debugr/core';
+import { Logger, TContextBase } from '@debugr/core';
 import { Request } from 'express';
 import { NormalizedOptions } from '../types';
 import {
@@ -9,7 +9,14 @@ import {
 } from '../utils';
 import { captureRequestBody } from './captureStream';
 
-export function logHttpRequest(logger: Logger, options: NormalizedOptions, request: Request): void {
+export function logHttpRequest<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+>(
+  logger: Logger<Partial<TContext>, TGlobalContext>,
+  options: NormalizedOptions,
+  request: Request,
+): void {
   const contentType = normalizeContentType(request.header('content-type'));
   const contentLength = normalizeContentLength(request.header('content-length'));
 
@@ -22,8 +29,11 @@ export function logHttpRequest(logger: Logger, options: NormalizedOptions, reque
   }
 }
 
-function doLogRequest(
-  logger: Logger,
+function doLogRequest<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+>(
+  logger: Logger<Partial<TContext>, TGlobalContext>,
   options: NormalizedOptions,
   request: Request,
   contentType?: string,

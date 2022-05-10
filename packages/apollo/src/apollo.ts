@@ -1,14 +1,18 @@
 import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { Logger, Plugin, LogLevel } from '@debugr/core';
+import { Logger, Plugin, LogLevel, TContextBase } from '@debugr/core';
 // import { GraphQLFormatter } from '@debugr/graphql-formatter';
 import { FullOptions, Options } from './types';
 
-export class ApolloLogger implements Plugin, ApolloServerPlugin {
+export class ApolloLogger<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> implements Plugin<Partial<TContext>, TGlobalContext>, ApolloServerPlugin
+{
   readonly id: string = 'apollo';
 
   private readonly options: FullOptions;
 
-  private logger: Logger;
+  private logger: Logger<Partial<TContext>, TGlobalContext>;
 
   private autoFlush: boolean;
 
@@ -18,16 +22,9 @@ export class ApolloLogger implements Plugin, ApolloServerPlugin {
     };
   }
 
-  // injectContainer(container: Container): void {
-  //   const pluginManager = container.get('pluginManager');
-
-  //   this.logger = container.get('logger');
-  //   this.autoFlush = !pluginManager.has('express');
-
-  //   if (!pluginManager.has('graphql')) {
-  //     pluginManager.register(new GraphQLFormatter());
-  //   }
-  // }
+  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void {
+    this.logger = logger;
+  }
 
   requestDidStart(): GraphQLRequestListener {
     const logger = this.logger;

@@ -8,7 +8,10 @@ export function insanerLogger(options?: Options): InsanerLogger {
 }
 
 declare module '@debugr/core' {
-  export interface Plugins {
-    insaner: InsanerLogger;
+  export interface Plugins<
+    TContext extends TContextBase = { processId: string },
+    TGlobalContext extends Record<string, any> = {},
+  > {
+    insaner: InsanerLogger<Partial<TContext>, TGlobalContext>;
   }
 }

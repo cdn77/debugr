@@ -9,15 +9,15 @@ export class Debugr<
 > {
   private readonly eventDispatcher: EventDispatcher;
 
-  private readonly pluginManager: PluginManager;
+  private readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
 
-  public readonly logger: Logger;
+  public readonly logger: Logger<Partial<TContext>, TGlobalContext>;
 
   public constructor(
     eventDispatcher: EventDispatcher,
-    pluginManager: PluginManager,
+    pluginManager: PluginManager<Partial<TContext>, TGlobalContext>,
     logger: Logger<Partial<TContext>, TGlobalContext>,
-    plugins: Plugin[],
+    plugins: Plugin<Partial<TContext>, TGlobalContext>[],
   ) {
     this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
@@ -30,21 +30,22 @@ export class Debugr<
     TContext extends TContextBase = { processId: string },
     TGlobalContext extends Record<string, any> = {},
   >(globalContext: TGlobalContext): Debugr<Partial<TContext>, TGlobalContext> {
+    const logger = new Logger<Partial<TContext>, TGlobalContext>([], globalContext);
     return new Debugr<Partial<TContext>, TGlobalContext>(
       new EventDispatcher(new EventEmitter(), 1000),
-      new PluginManager(),
-      new Logger<Partial<TContext>, TGlobalContext>([], globalContext),
+      new PluginManager<Partial<TContext>, TGlobalContext>(logger),
+      logger,
       [],
     );
   }
 
-  public registerPlugins(plugins: Plugin[]): void {
+  public registerPlugins(plugins: Plugin<Partial<TContext>, TGlobalContext>[]): void {
     for (const plugin of plugins) {
       this.registerPlugin(plugin);
     }
   }
 
-  public registerPlugin(plugin: Plugin): void {
+  public registerPlugin(plugin: Plugin<Partial<TContext>, TGlobalContext>): void {
     this.pluginManager.register(plugin);
   }
 
@@ -52,7 +53,7 @@ export class Debugr<
     return this.pluginManager.has(id);
   }
 
-  public getPlugin<ID extends PluginId>(id: ID): Plugins[ID] {
+  public getPlugin<ID extends PluginId>(id: ID): Plugins<Partial<TContext>, TGlobalContext>[ID] {
     return this.pluginManager.get(id);
   }
 

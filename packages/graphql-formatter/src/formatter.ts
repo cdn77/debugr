@@ -3,6 +3,8 @@ import { escapeHtml, formatData, FormatterPlugin, isEmpty, LogEntry } from '@deb
 export class GraphQLFormatter implements FormatterPlugin {
   readonly id: string = 'graphql';
 
+  injectLogger(): void {}
+
   getEntryLabel(): string {
     return 'GraphQL request';
   }

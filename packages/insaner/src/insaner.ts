@@ -1,17 +1,25 @@
-import { Logger, LogLevel, Plugin } from '@debugr/core';
+import { Logger, LogLevel, Plugin, TContextBase } from '@debugr/core';
 import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'insaner';
 import { NormalizedOptions, Options } from './types';
 import { filterHeaders, normalizeOptions } from './utils';
 
-export class InsanerLogger implements Plugin {
+export class InsanerLogger<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> implements Plugin<Partial<TContext>, TGlobalContext>
+{
   readonly id: string = 'insaner';
 
   private readonly options: NormalizedOptions;
 
-  private logger: Logger;
+  private logger: Logger<Partial<TContext>, TGlobalContext>;
 
   constructor(options?: Options) {
     this.options = normalizeOptions(options);
+  }
+
+  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void {
+    this.logger = logger;
   }
 
   createMiddlewareHandler() {

@@ -1,4 +1,4 @@
-import { Plugin, Logger, LogLevel } from '@debugr/core';
+import { Plugin, Logger, LogLevel, TContextBase } from '@debugr/core';
 // import { HttpFormatter } from '@debugr/http-formatter';
 import { Handler, ErrorRequestHandler } from 'express';
 import { NormalizedOptions, Options } from './types';
@@ -6,26 +6,24 @@ import { normalizeOptions } from './utils';
 import { logHttpRequest } from './middleware/request';
 import { logHttpResponse } from './middleware/response';
 
-export class ExpressLogger implements Plugin {
+export class ExpressLogger<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> implements Plugin<Partial<TContext>, TGlobalContext>
+{
   readonly id: string = 'express';
 
   private readonly options: NormalizedOptions;
 
-  private logger: Logger;
+  private logger: Logger<Partial<TContext>, TGlobalContext>;
 
   constructor(options?: Options) {
     this.options = normalizeOptions(options);
   }
 
-  // injectContainer(container: Container): void {
-  //   this.logger = container.get('logger');
-
-  //   const pluginManager = container.get('pluginManager');
-
-  //   if (!pluginManager.has('http')) {
-  //     pluginManager.register(new HttpFormatter());
-  //   }
-  // }
+  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void {
+    this.logger = logger;
+  }
 
   createRequestHandler(): Handler {
     return (req, res, next) => {

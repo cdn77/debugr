@@ -8,7 +8,10 @@ export function expressLogger(options?: Options): ExpressLogger {
 }
 
 declare module '@debugr/core' {
-  export interface Plugins {
-    express: ExpressLogger;
+  export interface Plugins<
+    TContext extends TContextBase = { processId: string },
+    TGlobalContext extends Record<string, any> = {},
+  > {
+    express: ExpressLogger<Partial<TContext>, TGlobalContext>;
   }
 }

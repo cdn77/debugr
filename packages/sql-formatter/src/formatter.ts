@@ -5,6 +5,8 @@ import { formatQueryTime } from './utils';
 export class SqlFormatter implements FormatterPlugin {
   readonly id: string = 'sql';
 
+  injectLogger(): void {}
+
   getEntryLabel(): string {
     return 'SQL query';
   }
