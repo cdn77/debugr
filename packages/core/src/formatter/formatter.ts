@@ -1,7 +1,10 @@
-import { LogEntry, LogLevel, ImmutableDate } from '../logger/types';
+import { LogEntry, LogLevel, ImmutableDate, TContextBase } from '../logger/types';
 import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
 
-export abstract class Formatter {
+export abstract class Formatter<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> {
   readonly levelMap: Record<number, string> = {
     [-1]: 'internal',
     [LogLevel.TRACE]: 'trace',
@@ -12,21 +15,24 @@ export abstract class Formatter {
     [LogLevel.FATAL]: 'fatal',
   };
 
-  protected readonly pluginManager: PluginManager;
+  protected readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
 
-  constructor(pluginManager: PluginManager) {
+  constructor(pluginManager: PluginManager<Partial<TContext>, TGlobalContext>) {
     this.pluginManager = pluginManager;
   }
 
   protected abstract formatEntry(
-    entry: LogEntry,
+    entry: LogEntry<Partial<TContext>, TGlobalContext>,
     previousTs?: ImmutableDate,
-    plugin?: FormatterPlugin,
+    plugin?: FormatterPlugin<Partial<TContext>, TGlobalContext>,
   ): string;
 
   protected abstract formatError(e: Error, message: string): string;
 
-  *format(entry: LogEntry, previousTs?: ImmutableDate): Generator<string> {
+  *format(
+    entry: LogEntry<Partial<TContext>, TGlobalContext>,
+    previousTs?: ImmutableDate,
+  ): Generator<string> {
     try {
       yield this.tryFormatEntry(entry, previousTs);
     } catch (e) {
@@ -41,7 +47,7 @@ export abstract class Formatter {
   }
 
   private tryFormatEntry(
-    entry: LogEntry,
+    entry: LogEntry<Partial<TContext>, TGlobalContext>,
     previousTs?: ImmutableDate,
     noPlugin: boolean = false,
   ): string {

@@ -21,16 +21,24 @@ export interface FormatterPlugin<
   TContext extends TContextBase = { processId: string },
   TGlobalContext extends Record<string, any> = {},
 > extends Plugin<Partial<TContext>, TGlobalContext> {
-  getEntryLabel(entry: LogEntry): string;
-  getEntryTitle(entry: LogEntry): string;
-  formatHtmlEntry(entry: LogEntry): string;
-  formatConsoleEntry(entry: LogEntry): string;
+  getEntryLabel(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
+  getEntryTitle(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
+  formatHtmlEntry(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
+  formatConsoleEntry(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
 }
 
-export function isFormatterPlugin(plugin: Plugin): plugin is FormatterPlugin {
+export function isFormatterPlugin<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+>(
+  plugin: Plugin<Partial<TContext>, TGlobalContext>,
+): plugin is FormatterPlugin<Partial<TContext>, TGlobalContext> {
   return (
-    typeof (plugin as any).getEntryLabel === 'function' &&
-    typeof (plugin as any).formatHtmlEntry === 'function' &&
-    typeof (plugin as any).formatConsoleEntry === 'function'
+    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).getEntryLabel ===
+      'function' &&
+    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).formatHtmlEntry ===
+      'function' &&
+    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).formatConsoleEntry ===
+      'function'
   );
 }
