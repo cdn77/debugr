@@ -1,10 +1,9 @@
-import { Container, ContainerAware, Logger, LogLevel, Plugin } from '@debugr/core';
-import { HttpFormatter } from '@debugr/http-formatter';
+import { Logger, LogLevel, Plugin } from '@debugr/core';
 import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'insaner';
 import { NormalizedOptions, Options } from './types';
 import { filterHeaders, normalizeOptions } from './utils';
 
-export class InsanerLogger implements ContainerAware, Plugin {
+export class InsanerLogger implements Plugin {
   readonly id: string = 'insaner';
 
   private readonly options: NormalizedOptions;
@@ -15,16 +14,6 @@ export class InsanerLogger implements ContainerAware, Plugin {
     this.options = normalizeOptions(options);
   }
 
-  injectContainer(container: Container): void {
-    this.logger = container.get('logger');
-
-    const pluginManager = container.get('pluginManager');
-
-    if (!pluginManager.has('http')) {
-      pluginManager.register(new HttpFormatter());
-    }
-  }
-
   createMiddlewareHandler() {
     return async (next: MiddlewareNext) => {
       await this.logger.fork(next);
@@ -33,11 +22,15 @@ export class InsanerLogger implements ContainerAware, Plugin {
 
   createRequestHandler() {
     return (request: HttpRequest) => {
-      this.logger.pluginLog('http', this.options.level, {
-        type: 'request',
-        method: request.method,
-        uri: request.url.toString(),
-        headers: filterHeaders(request.headers, this.options.request.excludeHeaders),
+      this.logger.add({
+        pluginId: 'http',
+        level: this.options.level,
+        data: {
+          type: 'request',
+          method: request.method,
+          uri: request.url.toString(),
+          headers: filterHeaders(request.headers, this.options.request.excludeHeaders),
+        },
       });
     };
   }
@@ -55,11 +48,15 @@ export class InsanerLogger implements ContainerAware, Plugin {
       const level =
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
-      this.logger.pluginLog('http', level, {
-        type: 'response',
-        status: response.status,
-        message: '',
-        headers: filterHeaders(response.headers, this.options.response.excludeHeaders),
+      this.logger.add({
+        pluginId: 'http',
+        level,
+        data: {
+          type: 'response',
+          status: response.status,
+          message: '',
+          headers: filterHeaders(response.headers, this.options.response.excludeHeaders),
+        },
       });
 
       this.logger.flush();

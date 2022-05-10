@@ -9,6 +9,7 @@ import {
   formatData,
   pad,
   pad3,
+  ImmutableDate,
 } from '@debugr/core';
 import * as templates from './templates';
 import { LogEntryQueue } from './types';
@@ -55,7 +56,11 @@ export class HtmlFormatter extends Formatter {
     }
   }
 
-  protected formatEntry(entry: LogEntry, previousTs?: Date, plugin?: FormatterPlugin): string {
+  protected formatEntry(
+    entry: LogEntry,
+    previousTs?: ImmutableDate,
+    plugin?: FormatterPlugin,
+  ): string {
     return this.templates.entry(
       formatDate(entry.ts, previousTs),
       this.levelMap[entry.level] || 'unknown',
@@ -74,7 +79,7 @@ export class HtmlFormatter extends Formatter {
   }
 }
 
-function formatDate(ts: Date, relativeTo?: Date): string {
+function formatDate(ts: ImmutableDate, relativeTo?: ImmutableDate): string {
   const str = `${
     !relativeTo ? `${ts.getDate()}/${ts.getMonth() + 1} ${ts.getFullYear()} ` : ''
   }${pad(ts.getHours())}:${pad(ts.getMinutes())}:${pad(ts.getSeconds())}<small>.${pad3(

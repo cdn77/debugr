@@ -24,13 +24,17 @@ export async function logHttpResponse(
     bodyLength !== undefined && contentLength !== undefined && bodyLength !== contentLength;
   const level = response.statusCode >= (options.e4xx ? 400 : 500) ? LogLevel.ERROR : options.level;
 
-  logger.pluginLog('http', level, {
-    type: 'response',
-    status: response.statusCode,
-    message: response.statusMessage,
-    headers: filterHeaders(headers, options.response.excludeHeaders),
-    body: canCapture ? body : undefined,
-    bodyLength,
-    lengthMismatch,
+  logger.add({
+    pluginId: 'http',
+    level,
+    data: {
+      type: 'response',
+      status: response.statusCode,
+      message: response.statusMessage,
+      headers: filterHeaders(headers, options.response.excludeHeaders),
+      body: canCapture ? body : undefined,
+      bodyLength,
+      lengthMismatch,
+    },
   });
 }

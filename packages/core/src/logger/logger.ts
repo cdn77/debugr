@@ -1,9 +1,8 @@
 import { v4 } from 'node-uuid';
 
 import { AsyncLocalStorage } from 'async_hooks';
-import { LogLevel, TContextBase } from './types';
+import { LogLevel, TContextBase, LogEntry } from './types';
 import { LogHandler } from './handler';
-import { PluginId } from '../plugins';
 
 export class Logger<
   TContext extends TContextBase = { processId: string },
@@ -97,31 +96,9 @@ export class Logger<
     messageOrDataOrError: Record<string, any> | Error | string,
     maybeDataOrError?: Record<string, any> | Error,
   ): void {
-    if (typeof messageOrDataOrError === 'string') {
-      this.pluginLog('', level, messageOrDataOrError, maybeDataOrError);
-    } else {
-      this.pluginLog('', level, '', messageOrDataOrError);
-    }
-  }
-
-  pluginLog(plugin: PluginId, level: LogLevel | number, data: Record<string, any> | Error): void;
-  pluginLog(
-    plugin: PluginId,
-    level: LogLevel | number,
-    message: string,
-    data?: Record<string, any> | Error,
-  ): void;
-  pluginLog(
-    pluginId: PluginId,
-    level: LogLevel | number,
-    messageOrDataOrError: string | Record<string, any> | Error,
-    maybeDataOrError?: Record<string, any> | Error,
-  ): void {
-    const context: Partial<TContext> = this.asyncStorage.getStore() || {};
-
     let error: Error | undefined;
     let data: Record<string, any> | undefined;
-    let message: string;
+    let message: string | undefined;
     if (typeof messageOrDataOrError === 'string') {
       message = messageOrDataOrError;
       if (maybeDataOrError instanceof Error) {
@@ -135,14 +112,25 @@ export class Logger<
       data = messageOrDataOrError;
     }
 
+    this.add({
+      level,
+      message,
+      data,
+      error,
+    });
+  }
+
+  add(entry: Omit<LogEntry<Partial<TContext>, TGlobalContext>, 'context' | 'ts'>): void {
+    const context: Partial<TContext> = this.asyncStorage.getStore() || {};
+
     this.logHandlers.forEach((logHandler) => {
       logHandler.log({
-        level,
+        level: entry.level,
         context: { ...context, ...this.globalContext },
-        message,
-        data,
-        pluginId,
-        error,
+        message: entry.message,
+        data: entry.data,
+        pluginId: entry.pluginId,
+        error: entry.error,
         ts: new Date(),
       });
     });

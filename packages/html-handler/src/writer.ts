@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { promisify } from 'util';
+import { ImmutableDate } from '@debugr/core';
 
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
@@ -12,7 +13,7 @@ export class Writer {
     this.outputDir = outputDir;
   }
 
-  async write(ts: number, id: string, content: string): Promise<string> {
+  async write(ts: ImmutableDate, id: string, content: string): Promise<string> {
     const file = this.formatPath(ts, id);
 
     await mkdir(path.dirname(file), {
@@ -24,9 +25,9 @@ export class Writer {
     return `file://${file}`;
   }
 
-  private formatPath(ts: number, id: string): string {
+  private formatPath(ts: ImmutableDate, id: string): string {
     const idx = id.lastIndexOf('/');
-    const dt = new Date(ts)
+    const dt = ts
       .toISOString()
       .replace(/\.\d+Z$/, '')
       .replace(/[:T]/g, '-');

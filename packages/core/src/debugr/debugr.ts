@@ -3,8 +3,6 @@ import { EventDispatcher, Events } from '../events';
 import { Plugin, PluginId, PluginManager, Plugins } from '../plugins';
 import { Logger, TContextBase } from '../logger';
 
-export type Factory<S> = () => S;
-
 export class Debugr<
   TContext extends TContextBase = { processId: string },
   TGlobalContext extends Record<string, any> = {},

@@ -1,4 +1,4 @@
-import { LogEntry } from '@debugr/core';
+import { LogEntry, ImmutableDate } from '@debugr/core';
 
 export type GcOptions = {
   interval?: number;
@@ -19,6 +19,6 @@ export type LogEntryQueue = {
   write?: boolean;
   threshold?: number;
   firstOverThreshold?: number;
-  ts: number;
-  lastTs: number;
+  ts: ImmutableDate;
+  lastTs: ImmutableDate;
 };

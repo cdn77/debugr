@@ -1,12 +1,12 @@
-import { Container, ContainerAware, Plugin, Logger, LogLevel } from '@debugr/core';
-import { HttpFormatter } from '@debugr/http-formatter';
+import { Plugin, Logger, LogLevel } from '@debugr/core';
+// import { HttpFormatter } from '@debugr/http-formatter';
 import { Handler, ErrorRequestHandler } from 'express';
 import { NormalizedOptions, Options } from './types';
 import { normalizeOptions } from './utils';
 import { logHttpRequest } from './middleware/request';
 import { logHttpResponse } from './middleware/response';
 
-export class ExpressLogger implements ContainerAware, Plugin {
+export class ExpressLogger implements Plugin {
   readonly id: string = 'express';
 
   private readonly options: NormalizedOptions;
@@ -17,15 +17,15 @@ export class ExpressLogger implements ContainerAware, Plugin {
     this.options = normalizeOptions(options);
   }
 
-  injectContainer(container: Container): void {
-    this.logger = container.get('logger');
+  // injectContainer(container: Container): void {
+  //   this.logger = container.get('logger');
 
-    const pluginManager = container.get('pluginManager');
+  //   const pluginManager = container.get('pluginManager');
 
-    if (!pluginManager.has('http')) {
-      pluginManager.register(new HttpFormatter());
-    }
-  }
+  //   if (!pluginManager.has('http')) {
+  //     pluginManager.register(new HttpFormatter());
+  //   }
+  // }
 
   createRequestHandler(): Handler {
     return (req, res, next) => {

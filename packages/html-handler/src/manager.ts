@@ -31,15 +31,16 @@ export class QueueManager<
   }
 
   log(entry: LogEntry<TContext, TGlobalContext>): void {
-    if (!(entry.context.processId in this.queues)) {
+    // TODO
+    if (!entry?.context?.processId || !(entry.context!.processId! in this.queues)) {
       return;
     }
 
-    const queue = this.queues[entry.context.processId];
+    const queue = this.queues[entry.context!.processId!];
     const entryId = queue.entries.length;
 
     queue.entries.push(entry);
-    queue.lastTs = entry.ts.getTime();
+    queue.lastTs = entry.ts;
 
     const threshold = queue.threshold !== undefined ? queue.threshold : this.options.threshold;
 
@@ -49,7 +50,7 @@ export class QueueManager<
   }
 
   createQueue(processId: string): void {
-    const now = Date.now();
+    const now = new Date();
 
     this.queues[processId] = {
       entries: [],
@@ -118,7 +119,7 @@ export class QueueManager<
     const threshold = Date.now() - this.options.gc.threshold * 1000;
 
     for (const [processId, queue] of Object.entries(this.queues)) {
-      if (queue.lastTs < threshold) {
+      if (queue.lastTs.getTime() < threshold) {
         this.log({
           context: { processId } as TContext & TGlobalContext,
           level: -1,

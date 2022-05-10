@@ -1,9 +1,9 @@
 import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { Container, ContainerAware, Logger, Plugin, LogLevel } from '@debugr/core';
-import { GraphQLFormatter } from '@debugr/graphql-formatter';
+import { Logger, Plugin, LogLevel } from '@debugr/core';
+// import { GraphQLFormatter } from '@debugr/graphql-formatter';
 import { FullOptions, Options } from './types';
 
-export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin {
+export class ApolloLogger implements Plugin, ApolloServerPlugin {
   readonly id: string = 'apollo';
 
   private readonly options: FullOptions;
@@ -18,16 +18,16 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
     };
   }
 
-  injectContainer(container: Container): void {
-    const pluginManager = container.get('pluginManager');
+  // injectContainer(container: Container): void {
+  //   const pluginManager = container.get('pluginManager');
 
-    this.logger = container.get('logger');
-    this.autoFlush = !pluginManager.has('express');
+  //   this.logger = container.get('logger');
+  //   this.autoFlush = !pluginManager.has('express');
 
-    if (!pluginManager.has('graphql')) {
-      pluginManager.register(new GraphQLFormatter());
-    }
-  }
+  //   if (!pluginManager.has('graphql')) {
+  //     pluginManager.register(new GraphQLFormatter());
+  //   }
+  // }
 
   requestDidStart(): GraphQLRequestListener {
     const logger = this.logger;
@@ -37,11 +37,15 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
     return {
       didResolveOperation({ request, operation, operationName }): void {
         if (request.query) {
-          logger.pluginLog('graphql', options.level, {
-            query: request.query,
-            variables: request.variables,
-            operation:
-              [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
+          logger.add({
+            pluginId: 'graphql',
+            level: options.level,
+            data: {
+              query: request.query,
+              variables: request.variables,
+              operation:
+                [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
+            },
           });
         }
       },

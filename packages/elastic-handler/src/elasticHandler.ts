@@ -2,7 +2,7 @@ import { Client, ClientOptions } from '@elastic/elasticsearch';
 
 import { LogEntry, LogLevel, TContextBase, LogHandler } from '@debugr/core';
 
-export interface ElasticLoggerOptions<
+export interface ElasticHandlerOptions<
   TContext extends TContextBase = { processId: string },
   TGlobalContext extends Record<string, any> = {},
 > {
@@ -16,15 +16,15 @@ export interface ElasticLoggerOptions<
 export type ElasticOptions<
   TContext extends TContextBase = { processId: string },
   TGlobalContext extends Record<string, any> = {},
-> = {} & ClientOptions & ElasticLoggerOptions<TContext, TGlobalContext>;
+> = {} & ClientOptions & ElasticHandlerOptions<TContext, TGlobalContext>;
 
-export class ElasticLogger<
+export class ElasticHandler<
   TContext extends TContextBase,
   TGlobalContext extends Record<string, any>,
 > extends LogHandler<TContext> {
   private readonly elasticClient: Client;
 
-  private readonly opts: ElasticLoggerOptions<TContext, TGlobalContext>;
+  private readonly opts: ElasticHandlerOptions<TContext, TGlobalContext>;
 
   public readonly threshold: LogLevel | number;
 
@@ -32,13 +32,13 @@ export class ElasticLogger<
 
   constructor(
     threshold: LogLevel | number,
-    opts: ElasticLoggerOptions<TContext, TGlobalContext>,
+    opts: ElasticHandlerOptions<TContext, TGlobalContext>,
     elasticClient: Client,
   ) {
+    super();
     if (!opts.baseIndex && !opts.indexCallback) {
       throw new Error('baseIndex or indexCallback must be set');
     }
-    super();
     this.threshold = threshold;
     this.opts = opts;
     this.elasticClient = elasticClient;
@@ -47,8 +47,8 @@ export class ElasticLogger<
   public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
     threshold: LogLevel | number,
     opts: ElasticOptions<TContext, TGlobalContext>,
-  ): ElasticLogger<TContext, TGlobalContext> {
-    const instance = new ElasticLogger(threshold, opts, new Client(opts));
+  ): ElasticHandler<TContext, TGlobalContext> {
+    const instance = new ElasticHandler(threshold, opts, new Client(opts));
     return instance;
   }
 
