@@ -126,7 +126,7 @@ export class Logger<
     this.logHandlers.forEach((logHandler) => {
       logHandler.log({
         level: entry.level,
-        context: { ...context, ...this.globalContext },
+        context: JSON.parse(JSON.stringify({ ...context, ...this.globalContext })),
         message: entry.message,
         data: entry.data,
         pluginId: entry.pluginId,
