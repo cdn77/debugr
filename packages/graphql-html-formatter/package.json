@@ -1,7 +1,7 @@
 {
-  "name": "@debugr/apollo",
-  "version": "2.0.0",
-  "description": "Apollo server plugin for Advanced application logger",
+  "name": "@debugr/graphql-html-formatter",
+  "version": "2.0.1",
+  "description": "GraphQL request formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
     "email": "dan.kadera@cdn77.com"
@@ -10,32 +10,19 @@
   "engines": {
     "node": ">=12.0"
   },
-  "dependencies": {
-    "@debugr/core": "^2.0",
-    "@debugr/graphql-formatter": "^2.0",
-    "apollo-server-types": "^3.5.3"
-  },
   "devDependencies": {
-    "@debugr/core": "^2.0",
-    "apollo-server-plugin-base": "^0.10.2",
-    "graphql": "^15.4.0"
+    "@debugr/apollo": "^2.0.0",
+    "@debugr/core": "^2.0"
   },
   "peerDependencies": {
-    "@debugr/core": "^2.0",
-    "apollo-server-plugin-base": "^0.10.2",
-    "graphql": "^15.4.0"
+    "@debugr/apollo": "^2.0.0",
+    "@debugr/core": "^2.0"
   },
-  "src": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "build": {
-    "src": "src/index.ts",
-    "externals": [
-      "apollo-server-plugin-base",
-      "apollo-server-types",
-      "long"
-    ]
+    "src": "src/index.ts"
   },
   "files": [
     "dist"

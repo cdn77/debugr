@@ -6,11 +6,14 @@ export class ConsoleLogger<
   TContext extends TContextBase,
   TGlobalContext extends Record<string, any>,
 > extends LogHandler<TContext> {
-  private readonly formatter: ConsoleFormatter;
+  private readonly formatter: ConsoleFormatter<Partial<TContext>, TGlobalContext>;
 
   public readonly threshold: LogLevel | number;
 
-  public constructor(formatter: ConsoleFormatter, threshold: LogLevel | number) {
+  public constructor(
+    formatter: ConsoleFormatter<Partial<TContext>, TGlobalContext>,
+    threshold: LogLevel | number,
+  ) {
     super();
     this.formatter = formatter;
     this.threshold = threshold;
@@ -23,7 +26,7 @@ export class ConsoleLogger<
     return new ConsoleLogger(new ConsoleFormatter(pluginManager, true), threshold);
   }
 
-  public log(entry: LogEntry<TContext, TGlobalContext>): void {
+  public log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void {
     for (const msg of this.formatter.format(entry)) {
       console.log(msg);
     }

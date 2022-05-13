@@ -1,4 +1,5 @@
 import { LogEntry, Logger, TContextBase } from '../logger';
+import { PluginManager } from './manager';
 
 export interface Plugins<
   TContext extends TContextBase = { processId: string },
@@ -14,17 +15,22 @@ export interface Plugin<
   TGlobalContext extends Record<string, any> = {},
 > {
   readonly id: string;
-  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void;
+  readonly entryFormat: string;
+  injectLogger(
+    logger: Logger<Partial<TContext>, TGlobalContext>,
+    pluginManager: PluginManager,
+  ): void;
 }
 
 export interface FormatterPlugin<
   TContext extends TContextBase = { processId: string },
   TGlobalContext extends Record<string, any> = {},
 > extends Plugin<Partial<TContext>, TGlobalContext> {
+  readonly entryFormat: string;
+  readonly handlerSupport: string;
   getEntryLabel(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
   getEntryTitle(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
-  formatHtmlEntry(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
-  formatConsoleEntry(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
+  formatEntry(entry: LogEntry<Partial<TContext>, TGlobalContext>): any;
 }
 
 export function isFormatterPlugin<
@@ -36,9 +42,6 @@ export function isFormatterPlugin<
   return (
     typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).getEntryLabel ===
       'function' &&
-    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).formatHtmlEntry ===
-      'function' &&
-    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).formatConsoleEntry ===
-      'function'
+    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).formatEntry === 'function'
   );
 }

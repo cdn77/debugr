@@ -10,16 +10,20 @@ import {
   pad,
   pad3,
   ImmutableDate,
+  TContextBase,
 } from '@debugr/core';
 import * as templates from './templates';
 import { LogEntryQueue } from './types';
 import { findDefiningEntry } from './utils';
 
-export class HtmlFormatter extends Formatter {
+export class HtmlFormatter<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> extends Formatter<Partial<TContext>, TGlobalContext> {
   readonly templates: FormatterTemplateMap = templates;
 
-  formatQueue(queue: LogEntryQueue): string {
-    const definingEntry = findDefiningEntry(queue);
+  formatQueue(queue: LogEntryQueue<Partial<TContext>, TGlobalContext>): string {
+    const definingEntry = findDefiningEntry<Partial<TContext>, TGlobalContext>(queue);
 
     return this.templates.layout(
       this.levelMap[definingEntry.level] || 'unknown',
@@ -28,9 +32,9 @@ export class HtmlFormatter extends Formatter {
     );
   }
 
-  private formatEntries(entries: LogEntry[]): string {
+  private formatEntries(entries: LogEntry<Partial<TContext>, TGlobalContext>[]): string {
     const chunks: string[] = [];
-    let previous: LogEntry | undefined;
+    let previous: LogEntry<Partial<TContext>, TGlobalContext> | undefined;
 
     for (const entry of entries) {
       chunks.push(...this.format(entry, previous?.ts));
@@ -40,12 +44,12 @@ export class HtmlFormatter extends Formatter {
     return chunks.join('\n');
   }
 
-  private getEntryTitle(entry: LogEntry): string {
+  private getEntryTitle(entry: LogEntry<Partial<TContext>, TGlobalContext>): string {
     try {
-      const plugin = entry.pluginId ? this.pluginManager.get(entry.pluginId) : undefined;
+      const plugin = entry.formatId ? this.pluginManager.get(entry.formatId) : undefined;
 
       if (plugin && !isFormatterPlugin(plugin)) {
-        throw new Error(`Invalid plugin: ${entry.pluginId} is not a Formatter plugin`);
+        throw new Error(`Invalid plugin: ${entry.formatId} is not a Formatter plugin`);
       }
 
       return plugin
@@ -57,15 +61,15 @@ export class HtmlFormatter extends Formatter {
   }
 
   protected formatEntry(
-    entry: LogEntry,
+    entry: LogEntry<Partial<TContext>, TGlobalContext>,
     previousTs?: ImmutableDate,
-    plugin?: FormatterPlugin,
+    plugin?: FormatterPlugin<Partial<TContext>, TGlobalContext>,
   ): string {
     return this.templates.entry(
       formatDate(entry.ts, previousTs),
       this.levelMap[entry.level] || 'unknown',
       plugin ? plugin.getEntryLabel(entry) : '',
-      plugin ? plugin.formatHtmlEntry(entry) : formatDefaultContent(entry.message, entry.data),
+      plugin ? plugin.formatEntry(entry) : formatDefaultContent(entry.message, entry.data),
     );
   }
 

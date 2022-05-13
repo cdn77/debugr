@@ -1,5 +1,5 @@
 {
-  "name": "@debugr/http-formatter",
+  "name": "@debugr/http-html-formatter",
   "version": "2.0.2",
   "description": "HTTP request and response formatter plugin for Advanced application logger",
   "author": {
@@ -14,9 +14,11 @@
     "ansi-colors": "^4.1.1"
   },
   "devDependencies": {
+    "@debugr/express": "^2.0.2",
     "@debugr/core": "^2.0"
   },
   "peerDependencies": {
+    "@debugr/express": "^2.0.2",
     "@debugr/core": "^2.0"
   },
   "main": "dist/index.js",

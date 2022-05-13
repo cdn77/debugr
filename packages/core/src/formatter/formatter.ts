@@ -51,10 +51,10 @@ export abstract class Formatter<
     previousTs?: ImmutableDate,
     noPlugin: boolean = false,
   ): string {
-    const plugin = !noPlugin && entry.pluginId ? this.pluginManager.get(entry.pluginId) : undefined;
+    const plugin = !noPlugin && entry.formatId ? this.pluginManager.get(entry.formatId) : undefined;
 
     if (plugin && !isFormatterPlugin(plugin)) {
-      throw new Error(`Invalid plugin: ${entry.pluginId} is not a Formatter plugin`);
+      throw new Error(`Invalid plugin: ${entry.formatId} is not a Formatter plugin`);
     }
 
     return this.formatEntry(entry, previousTs, plugin);

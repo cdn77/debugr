@@ -22,11 +22,15 @@ export class ElasticHandler<
   TContext extends TContextBase,
   TGlobalContext extends Record<string, any>,
 > extends LogHandler<TContext> {
+  public readonly identifier: string = 'elastic';
+
+  public readonly doesNeedFormatters: boolean = false;
+
+  public readonly threshold: LogLevel | number;
+
   private readonly elasticClient: Client;
 
   private readonly opts: ElasticHandlerOptions<TContext, TGlobalContext>;
-
-  public readonly threshold: LogLevel | number;
 
   private lastError?: Date;
 

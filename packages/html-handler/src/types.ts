@@ -1,4 +1,4 @@
-import { LogEntry, ImmutableDate } from '@debugr/core';
+import { LogEntry, ImmutableDate, TContextBase } from '@debugr/core';
 
 export type GcOptions = {
   interval?: number;
@@ -13,9 +13,12 @@ export type QueueManagerOptions = {
   gc: FullGcOptions;
 };
 
-export type LogEntryQueue = {
+export type LogEntryQueue<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> = {
   id?: string;
-  entries: LogEntry[];
+  entries: LogEntry<Partial<TContext>, TGlobalContext>[];
   write?: boolean;
   threshold?: number;
   firstOverThreshold?: number;

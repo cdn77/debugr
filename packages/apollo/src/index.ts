@@ -1,7 +1,7 @@
 import { ApolloLogger } from './apollo';
-import { Options } from './types';
+import { Options, GraphQlLogEntry } from './types';
 
-export { ApolloLogger, Options };
+export { ApolloLogger, Options, GraphQlLogEntry };
 
 export function apolloLogger(options?: Options): ApolloLogger {
   return new ApolloLogger(options);

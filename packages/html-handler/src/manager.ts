@@ -10,6 +10,10 @@ export class QueueManager<
   },
   TGlobalContext extends Record<string, any> = {},
 > extends LogHandler<TContext, TGlobalContext> {
+  public readonly identifier: string = 'html';
+
+  public readonly doesNeedFormatters: boolean = true;
+
   private readonly formatter: HtmlFormatter;
 
   private readonly writer: Writer;

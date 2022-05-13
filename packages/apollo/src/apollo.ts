@@ -1,7 +1,6 @@
 import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { Logger, Plugin, LogLevel, TContextBase } from '@debugr/core';
-// import { GraphQLFormatter } from '@debugr/graphql-formatter';
-import { FullOptions, Options } from './types';
+import { FullOptions, GraphQlLogEntry, Options } from './types';
 
 export class ApolloLogger<
   TContext extends TContextBase = { processId: string },
@@ -9,6 +8,8 @@ export class ApolloLogger<
 > implements Plugin<Partial<TContext>, TGlobalContext>, ApolloServerPlugin
 {
   readonly id: string = 'apollo';
+
+  readonly entryFormat: 'graphql' = 'graphql';
 
   private readonly options: FullOptions;
 
@@ -34,8 +35,8 @@ export class ApolloLogger<
     return {
       didResolveOperation({ request, operation, operationName }): void {
         if (request.query) {
-          logger.add({
-            pluginId: 'graphql',
+          const entry: Omit<GraphQlLogEntry, 'context' | 'ts'> = {
+            formatId: 'graphql',
             level: options.level,
             data: {
               query: request.query,
@@ -43,7 +44,8 @@ export class ApolloLogger<
               operation:
                 [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
             },
-          });
+          };
+          logger.add(entry);
         }
       },
       didEncounterErrors({ errors }): void {

@@ -1,7 +1,7 @@
 {
-  "name": "@debugr/sql-formatter",
-  "version": "2.0.4",
-  "description": "SQL formatter plugin for Advanced application logger",
+  "name": "@debugr/http-console-formatter",
+  "version": "2.0.2",
+  "description": "HTTP request and response formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
     "email": "dan.kadera@cdn77.com"
@@ -14,9 +14,11 @@
     "ansi-colors": "^4.1.1"
   },
   "devDependencies": {
+    "@debugr/express": "^2.0.2",
     "@debugr/core": "^2.0"
   },
   "peerDependencies": {
+    "@debugr/express": "^2.0.2",
     "@debugr/core": "^2.0"
   },
   "main": "dist/index.js",

@@ -38,6 +38,6 @@ export type LogEntry<TContext extends TContextBase = { processId: string }, TGlo
   message?: string;
   error?: Error;
   data?: Record<string, any>;
-  pluginId?: PluginId;
+  formatId?: PluginId;
   ts: ImmutableDate;
 };

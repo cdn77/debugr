@@ -129,7 +129,7 @@ export class Logger<
         context: JSON.parse(JSON.stringify({ ...context, ...this.globalContext })),
         message: entry.message,
         data: entry.data,
-        pluginId: entry.pluginId,
+        formatId: entry.formatId,
         error: entry.error,
         ts: new Date(),
       });

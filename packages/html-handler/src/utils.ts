@@ -1,16 +1,22 @@
 import * as crypto from 'crypto';
 import { v4 } from 'node-uuid';
 
-import { LogEntry } from '@debugr/core';
+import { LogEntry, TContextBase } from '@debugr/core';
 import { LogEntryQueue } from './types';
 
-export function findDefiningEntry(queue: LogEntryQueue): LogEntry {
+export function findDefiningEntry<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+>(
+  queue: LogEntryQueue<Partial<TContext>, TGlobalContext>,
+): LogEntry<Partial<TContext>, TGlobalContext> {
   if (queue.firstOverThreshold !== undefined) {
     return queue.entries[queue.firstOverThreshold];
   } else if (!queue.entries.length) {
     return {
       ts: new Date(),
       level: 4,
+      // @ts-ignore
       context: {
         processId: v4(),
       },

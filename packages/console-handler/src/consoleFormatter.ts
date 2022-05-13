@@ -6,20 +6,31 @@ import {
   Formatter,
   formatData,
   isEmpty,
+  TContextBase,
 } from '@debugr/core';
 
-export class ConsoleFormatter extends Formatter {
+export class ConsoleFormatter<
+  TContext extends TContextBase,
+  TGlobalContext extends Record<string, any>,
+> extends Formatter<Partial<TContext>, TGlobalContext> {
   private readonly writeTimestamp: boolean;
 
-  constructor(pluginManager: PluginManager, writeTimestamp: boolean = true) {
+  constructor(
+    pluginManager: PluginManager<Partial<TContext>, TGlobalContext>,
+    writeTimestamp: boolean = true,
+  ) {
     super(pluginManager);
     this.writeTimestamp = writeTimestamp;
   }
 
-  protected formatEntry(entry: LogEntry, _previousTs?: Date, plugin?: FormatterPlugin): string {
+  protected formatEntry(
+    entry: LogEntry<Partial<TContext>, TGlobalContext>,
+    _previousTs?: Date,
+    plugin?: FormatterPlugin,
+  ): string {
     return formatEntry(
       this.levelMap[entry.level] || 'unknown',
-      plugin ? plugin.formatConsoleEntry(entry) : formatDefaultContent(entry.message, entry.data),
+      plugin ? plugin.formatEntry(entry) : formatDefaultContent(entry.message, entry.data),
       plugin && plugin.getEntryLabel(entry),
       this.writeTimestamp ? entry.ts.getTime() : false,
     );

@@ -1,9 +1,23 @@
-import { escapeHtml, formatData, isEmpty, FormatterPlugin, LogEntry } from '@debugr/core';
-import { dim } from 'ansi-colors';
+import {
+  escapeHtml,
+  formatData,
+  isEmpty,
+  FormatterPlugin,
+  LogEntry,
+  TContextBase,
+} from '@debugr/core';
 import { formatQueryTime } from './utils';
 
-export class SqlFormatter implements FormatterPlugin {
-  readonly id: string = 'sql';
+export class SqlHtmlFormatter<
+  TContext extends TContextBase = { processId: string },
+  TGlobalContext extends Record<string, any> = {},
+> implements FormatterPlugin<Partial<TContext>, TGlobalContext>
+{
+  public readonly id: string = 'sql';
+
+  public readonly entryFormat: string = 'sql';
+
+  public readonly handlerSupport: string = 'html';
 
   injectLogger(): void {}
 
@@ -25,7 +39,7 @@ export class SqlFormatter implements FormatterPlugin {
     }
   }
 
-  formatHtmlEntry(entry: LogEntry): string {
+  formatEntry(entry: LogEntry): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
     }
@@ -76,52 +90,5 @@ export class SqlFormatter implements FormatterPlugin {
     }
 
     return parts.join('');
-  }
-
-  formatConsoleEntry(entry: LogEntry): string {
-    if (!entry.data || !entry.data.query) {
-      throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
-    }
-
-    const parts: string[] = [];
-
-    if (entry.message) {
-      parts.push(entry.message);
-    }
-
-    parts.push(dim(entry.data.query));
-
-    if (
-      entry.data.parameters &&
-      (Array.isArray(entry.data.parameters)
-        ? entry.data.parameters.length
-        : !isEmpty(entry.data.parameters))
-    ) {
-      parts.push('Parameters:', dim(formatData(entry.data.parameters)));
-    }
-
-    if (typeof entry.data.error === 'string') {
-      parts.push(`Error: ${entry.data.error}`);
-    }
-
-    const details: string[] = [];
-
-    if (typeof entry.data.time === 'number') {
-      details.push(`time: ${formatQueryTime(entry.data.time)}`);
-    }
-
-    if (typeof entry.data.affectedRows === 'number') {
-      details.push(`${entry.data.affectedRows} rows affected`);
-    }
-
-    if (typeof entry.data.rows === 'number') {
-      details.push(`${entry.data.rows} rows`);
-    }
-
-    if (details.length) {
-      parts.push(dim(`(${details.join(' | ')})`));
-    }
-
-    return parts.join('\n');
   }
 }

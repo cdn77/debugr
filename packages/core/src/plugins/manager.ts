@@ -15,7 +15,7 @@ export class PluginManager<
   }
 
   public register(plugin: Plugin<Partial<TContext>, TGlobalContext>): void {
-    plugin.injectLogger(this.logger);
+    plugin.injectLogger(this.logger, this);
     this.plugins[plugin.id] = plugin;
   }
 
