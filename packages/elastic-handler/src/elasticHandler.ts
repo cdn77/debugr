@@ -7,6 +7,7 @@ export interface ElasticHandlerOptions<
   TGlobalContext extends Record<string, any> = {},
 > {
   baseIndex?: string;
+  threshold: LogLevel | number;
   indexCallback?: (entry: LogEntry<TContext, TGlobalContext>) => string;
   errorCallback?: (error: Error) => void;
   bodyParser?: (entry: LogEntry<TContext, TGlobalContext>) => Record<string, any>;
@@ -34,25 +35,20 @@ export class ElasticHandler<
 
   private lastError?: Date;
 
-  constructor(
-    threshold: LogLevel | number,
-    opts: ElasticHandlerOptions<TContext, TGlobalContext>,
-    elasticClient: Client,
-  ) {
+  constructor(opts: ElasticHandlerOptions<TContext, TGlobalContext>, elasticClient: Client) {
     super();
     if (!opts.baseIndex && !opts.indexCallback) {
       throw new Error('baseIndex or indexCallback must be set');
     }
-    this.threshold = threshold;
+    this.threshold = opts.threshold;
     this.opts = opts;
     this.elasticClient = elasticClient;
   }
 
   public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
-    threshold: LogLevel | number,
     opts: ElasticOptions<TContext, TGlobalContext>,
   ): ElasticHandler<TContext, TGlobalContext> {
-    const instance = new ElasticHandler(threshold, opts, new Client(opts));
+    const instance = new ElasticHandler<TContext, TGlobalContext>(opts, new Client(opts));
     return instance;
   }
 
@@ -90,7 +86,10 @@ export class ElasticHandler<
   }
 
   private defaultBodyParser(entry: LogEntry<TContext, TGlobalContext>): Record<string, any> {
-    return entry;
+    return {
+      ...entry,
+      data: JSON.stringify(entry.data),
+    };
   }
 
   flush = undefined;

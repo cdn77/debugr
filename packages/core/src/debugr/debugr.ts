@@ -1,7 +1,14 @@
 import EventEmitter from 'events';
 import { EventDispatcher, Events } from '../events';
-import { Plugin, PluginId, PluginManager, Plugins } from '../plugins';
-import { Logger, TContextBase } from '../logger';
+import {
+  FormatterPlugin,
+  isFormatterPlugin,
+  Plugin,
+  PluginId,
+  PluginManager,
+  Plugins,
+} from '../plugins';
+import { Logger, LogHandler, TContextBase } from '../logger';
 
 export class Debugr<
   TContext extends TContextBase = { processId: string },
@@ -13,40 +20,72 @@ export class Debugr<
 
   public readonly logger: Logger<Partial<TContext>, TGlobalContext>;
 
-  public constructor(
+  private constructor(
     eventDispatcher: EventDispatcher,
     pluginManager: PluginManager<Partial<TContext>, TGlobalContext>,
     logger: Logger<Partial<TContext>, TGlobalContext>,
+    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
     plugins: Plugin<Partial<TContext>, TGlobalContext>[],
   ) {
     this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
     this.logger = logger;
 
-    this.registerPlugins(plugins);
+    for (const plugin of plugins) {
+      this.pluginManager.register(plugin);
+    }
+
+    const formatterPluginsErrors: string[] = [];
+    for (const logHandler of logHandlers) {
+      if (!logHandler.doesNeedFormatters) {
+        continue;
+      }
+
+      const entryFormats = new Set(...plugins.map((plugin) => plugin.entryFormat));
+
+      for (const entryFormat of entryFormats) {
+        const plugin = plugins.find((plugin) => {
+          if (!isFormatterPlugin(plugin)) {
+            return false;
+          }
+          return (
+            (plugin as FormatterPlugin).handlerSupport === logHandler.identifier &&
+            entryFormat === (plugin as FormatterPlugin).entryFormat
+          );
+        });
+
+        if (!plugin) {
+          formatterPluginsErrors.push(
+            `log handler identifier: ${logHandler.identifier} for format ${entryFormat}`,
+          );
+        }
+      }
+    }
+
+    if (formatterPluginsErrors.length) {
+      throw new Error(
+        `Should install formatter plugins for combinations of log handler and entry format: ${formatterPluginsErrors}`,
+      );
+    }
   }
 
   public static create<
     TContext extends TContextBase = { processId: string },
     TGlobalContext extends Record<string, any> = {},
-  >(globalContext: TGlobalContext): Debugr<Partial<TContext>, TGlobalContext> {
-    const logger = new Logger<Partial<TContext>, TGlobalContext>([], globalContext);
-    return new Debugr<Partial<TContext>, TGlobalContext>(
+  >(
+    globalContext: TGlobalContext,
+    plugins: Plugin<Partial<TContext>, TGlobalContext>[],
+    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
+  ): Debugr<Partial<TContext>, TGlobalContext> {
+    const logger = new Logger<Partial<TContext>, TGlobalContext>(logHandlers, globalContext);
+    const debugr = new Debugr<Partial<TContext>, TGlobalContext>(
       new EventDispatcher(new EventEmitter(), 1000),
       new PluginManager<Partial<TContext>, TGlobalContext>(logger),
       logger,
-      [],
+      logHandlers,
+      plugins,
     );
-  }
-
-  public registerPlugins(plugins: Plugin<Partial<TContext>, TGlobalContext>[]): void {
-    for (const plugin of plugins) {
-      this.registerPlugin(plugin);
-    }
-  }
-
-  public registerPlugin(plugin: Plugin<Partial<TContext>, TGlobalContext>): void {
-    this.pluginManager.register(plugin);
+    return debugr;
   }
 
   public hasPlugin(id: string): boolean {

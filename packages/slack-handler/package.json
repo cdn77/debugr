@@ -1,0 +1,42 @@
+{
+  "name": "@debugr/slack-handler",
+  "version": "2.0.0",
+  "description": "Elastic log handler to debugr",
+  "author": {
+    "name": "Dan Kadera",
+    "email": "dan.kadera@cdn77.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "@debugr/core": "^2.0",
+    "axios": "^0.27.2"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "build": {
+    "src": "src/index.ts",
+    "externals": [
+      "axios"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:cleanup": "../../.run build:cleanup",
+    "build:compile": "../../.run build:compile",
+    "build:declarations": "../../.run build:declarations",
+    "build:prettify": "../../.run build:prettify",
+    "build:main": "../../.run build:main",
+    "build": "../../.run build",
+    "lint": "../../.run lint",
+    "preversion": "../../.run release"
+  }
+}

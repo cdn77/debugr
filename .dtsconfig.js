@@ -16,6 +16,7 @@ const importedLibraries = [
   '@debugr/elastic-handler',
   '@debugr/html-handler',
   '@debugr/console-handler',
+  '@debugr/slack-handler',
 ];
 
 if (pkg.build.externals) {
