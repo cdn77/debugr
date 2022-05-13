@@ -3,16 +3,16 @@ import { OutgoingHttpHeaders } from 'http';
 import { formatHeadersMap, formatLength } from '../utils';
 
 export function request(
-  method: string,
-  uri: string,
-  headers: OutgoingHttpHeaders,
+  method?: string,
+  uri?: string,
+  headers?: OutgoingHttpHeaders,
   ip?: string,
   bodyLength?: number,
   lengthMismatch?: boolean,
 ): string {
   const parts: string[] = [
-    `${method.toUpperCase()} ${decodeURIComponent(uri)}`,
-    dim(formatHeadersMap(headers)),
+    `${method?.toUpperCase()} ${uri ? decodeURIComponent(uri) : ''}`,
+    dim(headers ? formatHeadersMap(headers) : ''),
     '',
   ];
 

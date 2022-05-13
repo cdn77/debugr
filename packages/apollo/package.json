@@ -11,8 +11,8 @@
     "node": ">=12.0"
   },
   "dependencies": {
+    "@apollo/utils.logger": "^1.0.0",
     "@debugr/core": "^2.0",
-    "@debugr/graphql-formatter": "^2.0",
     "apollo-server-types": "^3.5.3"
   },
   "devDependencies": {
@@ -32,6 +32,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
+      "@apollo/utils.logger",
       "apollo-server-plugin-base",
       "apollo-server-types",
       "long"

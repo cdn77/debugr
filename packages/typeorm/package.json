@@ -10,9 +10,6 @@
   "engines": {
     "node": ">=12.0"
   },
-  "dependencies": {
-    "@debugr/sql-formatter": "^2.0"
-  },
   "devDependencies": {
     "@debugr/core": "^2.0",
     "typeorm": "^0.2.29"
