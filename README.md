@@ -68,9 +68,6 @@ const globalContext = {
   applicationName: 'example',
 };
 
-// Inject Plugin manager to log handlers, so they dont need plugin
-// manager as dependency...
-
 const debugr = Debugr.create(globalContext);
 
 const consoleLogHandler = ConsoleLogHandler.create(
@@ -91,7 +88,6 @@ const htmlLogHandler = HtmlLogHandler.create(
 
 debugr.registerHandler(consoleLogHandler);
 debugr.registerHandler(htmlLogHandler);
-
 
 // There are all dependent formatters checked and validated. In this example there are none needed, because we did not install any plugins
 const logger: Logger = debug.logger;
