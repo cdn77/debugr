@@ -32,4 +32,8 @@ export class PluginManager<
 
     return plugin;
   }
+
+  public getAll(): Plugin<Partial<TContext>, TGlobalContext>[] {
+    return Object.values(this.plugins);
+  }
 }

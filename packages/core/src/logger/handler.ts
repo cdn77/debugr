@@ -12,5 +12,7 @@ export abstract class LogHandler<
 
   public abstract log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void;
 
-  public abstract flush?(processId: string, forceWrite?: boolean): void;
+  public abstract flush?(processId?: string, forceWrite?: boolean): void;
+
+  public abstract fork?<R>(callback: () => R): () => R;
 }

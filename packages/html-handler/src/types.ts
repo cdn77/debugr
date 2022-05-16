@@ -7,7 +7,7 @@ export type GcOptions = {
 
 export type FullGcOptions = Readonly<Required<GcOptions>>;
 
-export type QueueManagerOptions = {
+export type HtmlLogHandlerOptions = {
   threshold: number;
   cloneData: boolean;
   gc: FullGcOptions;

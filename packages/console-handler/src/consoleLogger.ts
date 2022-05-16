@@ -33,4 +33,6 @@ export class ConsoleLogger<
   }
 
   flush = undefined;
+
+  fork = undefined;
 }

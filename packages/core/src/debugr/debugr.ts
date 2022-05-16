@@ -18,23 +18,83 @@ export class Debugr<
 
   private readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
 
-  public readonly logger: Logger<Partial<TContext>, TGlobalContext>;
+  private readonly loggerInternal: Logger<Partial<TContext>, TGlobalContext>;
 
   private constructor(
     eventDispatcher: EventDispatcher,
     pluginManager: PluginManager<Partial<TContext>, TGlobalContext>,
     logger: Logger<Partial<TContext>, TGlobalContext>,
-    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
     plugins: Plugin<Partial<TContext>, TGlobalContext>[],
   ) {
     this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
-    this.logger = logger;
+    this.loggerInternal = logger;
 
     for (const plugin of plugins) {
       this.pluginManager.register(plugin);
     }
+  }
 
+  public get logger(): Logger<Partial<TContext>, TGlobalContext> | never {
+    this.checkFormatters();
+    return this.loggerInternal;
+  }
+
+  public static create<
+    TContext extends TContextBase = { processId: string },
+    TGlobalContext extends Record<string, any> = {},
+  >(
+    globalContext: TGlobalContext,
+    plugins: Plugin<Partial<TContext>, TGlobalContext>[],
+    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
+  ): Debugr<Partial<TContext>, TGlobalContext> {
+    const logger = new Logger<Partial<TContext>, TGlobalContext>(logHandlers, globalContext);
+    const debugr = new Debugr<Partial<TContext>, TGlobalContext>(
+      new EventDispatcher(new EventEmitter(), 1000),
+      new PluginManager<Partial<TContext>, TGlobalContext>(logger),
+      logger,
+      plugins,
+    );
+    return debugr;
+  }
+
+  public registerPlugins(plugins: Plugin<Partial<TContext>, TGlobalContext>[]): void {
+    for (const plugin of plugins) {
+      this.registerPlugin(plugin);
+    }
+  }
+
+  public registerPlugin(plugin: Plugin<Partial<TContext>, TGlobalContext>): void {
+    this.pluginManager.register(plugin);
+  }
+
+  public hasPlugin(id: string): boolean {
+    return this.pluginManager.has(id);
+  }
+
+  public getPlugin<ID extends PluginId>(id: ID): Plugins<Partial<TContext>, TGlobalContext>[ID] {
+    return this.pluginManager.get(id);
+  }
+
+  public on<E extends keyof Events>(event: E, listener: Events[E]): void {
+    this.eventDispatcher.on(event, listener);
+  }
+
+  public once<E extends keyof Events>(event: E, listener: Events[E]): void {
+    this.eventDispatcher.once(event, listener);
+  }
+
+  public off<E extends keyof Events>(event: E, listener?: Events[E]): void {
+    this.eventDispatcher.off(event, listener);
+  }
+
+  public registerListeners(listeners: Partial<Events>): void {
+    this.eventDispatcher.register(listeners);
+  }
+
+  private checkFormatters(): void | never {
+    const plugins = this.pluginManager.getAll();
+    const logHandlers = this.loggerInternal.getAll();
     const formatterPluginsErrors: string[] = [];
     for (const logHandler of logHandlers) {
       if (!logHandler.doesNeedFormatters) {
@@ -67,48 +127,5 @@ export class Debugr<
         `Should install formatter plugins for combinations of log handler and entry format: ${formatterPluginsErrors}`,
       );
     }
-  }
-
-  public static create<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
-  >(
-    globalContext: TGlobalContext,
-    plugins: Plugin<Partial<TContext>, TGlobalContext>[],
-    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
-  ): Debugr<Partial<TContext>, TGlobalContext> {
-    const logger = new Logger<Partial<TContext>, TGlobalContext>(logHandlers, globalContext);
-    const debugr = new Debugr<Partial<TContext>, TGlobalContext>(
-      new EventDispatcher(new EventEmitter(), 1000),
-      new PluginManager<Partial<TContext>, TGlobalContext>(logger),
-      logger,
-      logHandlers,
-      plugins,
-    );
-    return debugr;
-  }
-
-  public hasPlugin(id: string): boolean {
-    return this.pluginManager.has(id);
-  }
-
-  public getPlugin<ID extends PluginId>(id: ID): Plugins<Partial<TContext>, TGlobalContext>[ID] {
-    return this.pluginManager.get(id);
-  }
-
-  public on<E extends keyof Events>(event: E, listener: Events[E]): void {
-    this.eventDispatcher.on(event, listener);
-  }
-
-  public once<E extends keyof Events>(event: E, listener: Events[E]): void {
-    this.eventDispatcher.once(event, listener);
-  }
-
-  public off<E extends keyof Events>(event: E, listener?: Events[E]): void {
-    this.eventDispatcher.off(event, listener);
-  }
-
-  public registerListeners(listeners: Partial<Events>): void {
-    this.eventDispatcher.register(listeners);
   }
 }

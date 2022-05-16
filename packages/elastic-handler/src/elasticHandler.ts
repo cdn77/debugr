@@ -93,4 +93,6 @@ export class ElasticHandler<
   }
 
   flush = undefined;
+
+  fork = undefined;
 }

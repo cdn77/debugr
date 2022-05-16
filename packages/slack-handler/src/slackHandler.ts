@@ -72,4 +72,6 @@ export class SlackHandler<
   }
 
   flush = undefined;
+
+  fork = undefined;
 }

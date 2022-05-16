@@ -1,3 +1,4 @@
+/* eslint-disable guard-for-in */
 import { v4 } from 'node-uuid';
 
 import { AsyncLocalStorage } from 'async_hooks';
@@ -14,7 +15,7 @@ export class Logger<
 
   private readonly asyncStorage: AsyncLocalStorage<Partial<TContext>>;
 
-  constructor(
+  public constructor(
     logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
     globalContext: TGlobalContext,
   ) {
@@ -23,24 +24,17 @@ export class Logger<
     this.asyncStorage = new AsyncLocalStorage();
   }
 
-  ensureFork<R>(callback: () => R): R {
-    const tag = this.asyncStorage.getStore();
+  public ensureFork<R>(callback: () => R): R {
+    const context = this.asyncStorage.getStore();
 
-    if (tag) {
+    if (context) {
       return callback();
     } else {
       return this.fork(callback);
     }
   }
 
-  fork<R>(callback: () => R): R;
-  fork<R>(force: true, callback: () => R): R;
-  fork<R>(callbackOrForce: boolean | (() => R), maybeCallback?: () => R): R {
-    const [callback, force] =
-      typeof callbackOrForce === 'boolean'
-        ? [maybeCallback!, callbackOrForce]
-        : [callbackOrForce, false];
-
+  public fork<R>(callback: () => R, force?: boolean): R {
     const context = this.asyncStorage.getStore();
 
     if (context && !force) {
@@ -50,48 +44,56 @@ export class Logger<
     // @ts-ignore
     const newContext: Partial<TContext> = { processId: v4() };
 
-    return this.asyncStorage.run(newContext, callback);
+    const callbacks: ((callback: () => R) => () => R)[] = this.logHandlers
+      .map((logHandler) => logHandler.fork)
+      .filter((item) => !!item) as ((callback: () => R) => () => R)[];
+    let one: () => R = callback;
+    for (const fun of callbacks) {
+      one = fun(one);
+    }
+
+    return this.asyncStorage.run(newContext, one);
   }
 
-  trace(data: Record<string, any>): void;
-  trace(message: string, data?: Record<string, any>): void;
-  trace(message: any, data?: Record<string, any>): void {
+  public trace(data: Record<string, any>): void;
+  public trace(message: string, data?: Record<string, any>): void;
+  public trace(message: any, data?: Record<string, any>): void {
     this.log(LogLevel.TRACE, message, data);
   }
 
-  debug(data: Record<string, any> | Error): void;
-  debug(message: string, data?: Record<string, any> | Error): void;
-  debug(message: any, data?: Record<string, any> | Error): void {
+  public debug(data: Record<string, any> | Error): void;
+  public debug(message: string, data?: Record<string, any> | Error): void;
+  public debug(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.DEBUG, message, data);
   }
 
-  info(data: Record<string, any> | Error): void;
-  info(message: string, data?: Record<string, any> | Error): void;
-  info(message: any, data?: Record<string, any> | Error): void {
+  public info(data: Record<string, any> | Error): void;
+  public info(message: string, data?: Record<string, any> | Error): void;
+  public info(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.INFO, message, data);
   }
 
-  warning(data: Record<string, any> | Error): void;
-  warning(message: string, data?: Record<string, any> | Error): void;
-  warning(message: any, data?: Record<string, any> | Error): void {
+  public warning(data: Record<string, any> | Error): void;
+  public warning(message: string, data?: Record<string, any> | Error): void;
+  public warning(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.WARNING, message, data);
   }
 
-  error(data: Record<string, any> | Error): void;
-  error(message: string, data?: Record<string, any> | Error): void;
-  error(message: any, data?: Record<string, any> | Error): void {
+  public error(data: Record<string, any> | Error): void;
+  public error(message: string, data?: Record<string, any> | Error): void;
+  public error(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.ERROR, message, data);
   }
 
-  fatal(data: Record<string, any> | Error): void;
-  fatal(message: string, data?: Record<string, any> | Error): void;
-  fatal(message: any, data?: Record<string, any> | Error): void {
+  public fatal(data: Record<string, any> | Error): void;
+  public fatal(message: string, data?: Record<string, any> | Error): void;
+  public fatal(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.ERROR, message, data);
   }
 
-  log(level: LogLevel | number, data: Record<string, any> | Error): void;
-  log(level: LogLevel | number, message: string, data?: Record<string, any> | Error): void;
-  log(
+  public log(level: LogLevel | number, data: Record<string, any> | Error): void;
+  public log(level: LogLevel | number, message: string, data?: Record<string, any> | Error): void;
+  public log(
     level: LogLevel | number,
     messageOrDataOrError: Record<string, any> | Error | string,
     maybeDataOrError?: Record<string, any> | Error,
@@ -120,7 +122,7 @@ export class Logger<
     });
   }
 
-  add(entry: Omit<LogEntry<Partial<TContext>, TGlobalContext>, 'context' | 'ts'>): void {
+  public add(entry: Omit<LogEntry<Partial<TContext>, TGlobalContext>, 'context' | 'ts'>): void {
     const context: Partial<TContext> = this.asyncStorage.getStore() || {};
 
     this.logHandlers.forEach((logHandler) => {
@@ -136,7 +138,10 @@ export class Logger<
     });
   }
 
-  setContextProperty<T extends keyof TContext>(key: T, value: NonNullable<TContext>[T]): void {
+  public setContextProperty<T extends keyof TContext>(
+    key: T,
+    value: NonNullable<TContext>[T],
+  ): void {
     const context = this.asyncStorage.getStore();
     if (context) {
       context[key] = value;
@@ -144,11 +149,33 @@ export class Logger<
     }
   }
 
-  flush(): void {
+  public flush(): void {
     const context = this.asyncStorage.getStore();
 
     this.logHandlers.forEach((logHandler) => {
-      logHandler.flush && logHandler.flush(context?.processId || v4());
+      logHandler.flush && logHandler.flush(context?.processId);
     });
+  }
+
+  public registerHandler(logHandler: LogHandler<Partial<TContext>, TGlobalContext>): void {
+    this.logHandlers.push(logHandler);
+  }
+
+  public has(id: string): boolean {
+    return id in this.logHandlers.map((logHandler) => logHandler.identifier);
+  }
+
+  public get(id: string): LogHandler<Partial<TContext>, TGlobalContext> | never {
+    const logHandler = this.logHandlers.find((logHandler) => logHandler.identifier === id);
+
+    if (!logHandler) {
+      throw new Error(`Unknown plugin: ${id}`);
+    }
+
+    return logHandler;
+  }
+
+  public getAll(): LogHandler<Partial<TContext>, TGlobalContext>[] {
+    return this.logHandlers;
   }
 }
