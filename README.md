@@ -68,7 +68,8 @@ const globalContext = {
   applicationName: 'example',
 };
 
-// Inject Plugin manager to log handlers...
+// Inject Plugin manager to log handlers, so they dont need plugin
+// manager as dependency...
 
 const debugr = Debugr.create(globalContext);
 
