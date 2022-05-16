@@ -99,18 +99,18 @@ const logger: Logger = debug.logger;
 // ... but to make Debugr aware of the execution context of your task,
 // you need to fork the logger at the beginning of the task:
 logger.fork(() => {
-    // execute your task here
+  // execute your task here
+
+  // At any point inside your task you can write into the logger:
+  logger.debug('A debug message');
+  logger.info('An info message with %d %s %s', [3, 'printf-style', 'params']);
+  logger.warning({ custom: 'data', is: 'supported also' });
+  logger.error(new Error('Which shan\'t disappear without a trace!'));
+  logger.log(Logger.INFO, 'Just so you know');
+
+  // At the end of your task you may call this for manual invocation logHandler.flush:
+  logger.flush();
 });
-
-// At any point inside your task you can write into the logger:
-logger.debug('A debug message');
-logger.info('An info message with %d %s %s', [3, 'printf-style', 'params']);
-logger.warning({ custom: 'data', is: 'supported also' });
-logger.error(new Error('Which shan\'t disappear without a trace!'));
-logger.log(Logger.INFO, 'Just so you know');
-
-// At the end of your task you may call this for manual invocation logHandler.flush:
-logger.flush();
 ```
 
 This will produce log to console and a dump file in the log directory that will look something like this:
