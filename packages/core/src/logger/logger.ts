@@ -41,18 +41,33 @@ export class Logger<
       throw new Error('Logger is already forked');
     }
 
+    const envelopedCallback = () => {
+      const response = callback();
+      if (
+        typeof response === 'object' &&
+        typeof (response as unknown as Promise<any>).then === 'function'
+      ) {
+        (response as unknown as Promise<any>).then(() => {
+          this.flush();
+        });
+      } else {
+        this.flush();
+      }
+      return response;
+    };
+
     // @ts-ignore
     const newContext: Partial<TContext> = { processId: v4() };
 
     const callbacks: ((callback: () => R) => () => R)[] = this.logHandlers
       .map((logHandler) => logHandler.fork)
       .filter((item) => !!item) as ((callback: () => R) => () => R)[];
-    let one: () => R = callback;
-    for (const fun of callbacks) {
-      one = fun(one);
+    let mainCallback: () => R = envelopedCallback;
+    for (const iteratedCallback of callbacks) {
+      mainCallback = iteratedCallback(mainCallback);
     }
 
-    return this.asyncStorage.run(newContext, one);
+    return this.asyncStorage.run(newContext, mainCallback);
   }
 
   public trace(data: Record<string, any>): void;

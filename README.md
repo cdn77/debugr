@@ -93,7 +93,7 @@ debugr.registerHandler(consoleLogHandler);
 debugr.registerHandler(htmlLogHandler);
 
 
-// The Logger instance is global and can be injected wherever you need...
+// There are all dependent formatters checked and validated. In this example there are none needed, because we did not install any plugins
 const logger: Logger = debug.logger;
 
 // ... but to make Debugr aware of the execution context of your task,
@@ -109,7 +109,7 @@ logger.warning({ custom: 'data', is: 'supported also' });
 logger.error(new Error('Which shan\'t disappear without a trace!'));
 logger.log(Logger.INFO, 'Just so you know');
 
-// At the end of your task you must call this:
+// At the end of your task you may call this for manual invocation logHandler.flush:
 logger.flush();
 ```
 
@@ -129,11 +129,12 @@ each message belongs.
 
 ### But how about code outside a forked job?
 
-Outside a forked asynchronous execution context Debugr will log into the console,
-as would any other logger. This means that you can use Debugr everywhere in your
+Outside a forked asynchronous execution context Debugr will still send logs to log handlers and it is on their own to manage it.
+Console. Elastic and Slack handlers will log, but html handler ignores those logs.
+This means that you can use Debugr everywhere in your
 app and only worry about forking in a couple of places.
 
-### Okay, back to logging inside forked jobs...
+### Html log handler behaviour inside forked job
 
 The way this tool is designed, **nothing** is logged at the time you call `logger.log()` or
 any of the shortcuts; instead, when you call `logger.flush()`, Debugr will check if at least
