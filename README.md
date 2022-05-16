@@ -9,6 +9,9 @@ in a cron job etc. In an asynchronous environment, simply writing debug data to 
 parallel tasks quickly results in a headache. Apply a little Debugr magic though, and the next bug
 that causes your app to crash will be found in minutes, if not seconds!
 
+Also Debugr supports multiple log handlers into which are log events distributed and each of them handle
+them by itself. Which you use is up to yourself, also you can add your own.
+
 Heavily inspired by [Tracy], although Debugr comes with its own unique perks.
 Written in TypeScript, so type declarations are included out of the box.
 
@@ -17,17 +20,34 @@ Written in TypeScript, so type declarations are included out of the box.
 Debugr consists of a core package and a number of plugins. `npm install` what you need according
 to your use-case:
 
- - [`@debugr/core`] - Boring, but necessary
- - [`@debugr/express`] - Express request & response logger
- - [`@debugr/apollo`] - Apollo Server request logger
- - [`@debugr/typeorm`] - TypeORM SQL logger
- - [`@debugr/http-formatter`] - HTTP request & response formatter
- - [`@debugr/sql-formatter`] - SQL query formatter
- - [`@debugr/graphql-formatter`] - GraphQL query formatter
+Core:
 
-Note that formatter plugins are installed and configured automatically with packages that
-generate data they can consume, e.g. the Express logger plugin will install and autoconfigure
-the HTTP formatter plugin.
+- [`@debugr/core`] - Boring, but necessary
+
+Plugins:
+
+- [`@debugr/apollo`] - Apollo Server request plugin
+- [`@debugr/express`] - Express request & response plugin
+- [`@debugr/insaner`] - Insaner plugin
+- [`@debugr/typeorm`] - TypeORM SQL plugin
+
+Log Handlers:
+
+- [`@debugr/console-handler`] - Log Handler to console
+- [`@debugr/elastic-handler`] - Log Handler to elastic
+- [`@debugr/html-handler`] - Log Handler to html dumps
+- [`@debugr/slack-handler`] - Log Handler to slack channel
+
+Formatter Plugins:
+
+- [`@debugr/graphql-console-formatter`] - GraphQL query console formatter
+- [`@debugr/graphql-html-formatter`] - GraphQL query html formatter
+- [`@debugr/http-console-formatter`] - HTTP request & response console formatter
+- [`@debugr/http-html-formatter`] - HTTP request & response html formatter
+- [`@debugr/sql-console-formatter`] - SQL query console formatter
+- [`@debugr/sql-html-formatter`] - SQL query html formatter
+
+Note that formatter plugins must be installed and configured manually and with logger getter are those dependencies checked and may cause thrown of error
 
 ## Usage introduction
 
@@ -35,14 +55,45 @@ This is an example of the raw core usage, just to show you the basics; with plug
 stuff will be done automatically for you.
 
 ```typescript
-import { Logger, debugr } from '@debugr/core';
+import { 
+  Logger, 
+  Debugr, 
+  PluginManager, 
+  LogLevel,
+} from '@debugr/core';
+import { ConsoleLogHandler } from '@debugr/console-handler';
+import { HtmlLogHandler } from '@debugr/html-handler';
 
-const debug = debugr({
-  logDir: __dirname + '/log',
-});
+const globalContext = {
+  applicationName: 'example',
+};
+
+// Inject Plugin manager to log handlers...
+
+const debugr = Debugr.create(globalContext);
+
+const consoleLogHandler = ConsoleLogHandler.create(
+  debugr.pluginManager, 
+  LogLevel.info,
+);
+const htmlLogHandler = HtmlLogHandler.create(
+  debugr.pluginManager, 
+  {
+    threshold: LogLevel.trace,
+    outputDir: './log',
+    gc: {
+      interval: 600,
+      threshold: LogLevel.trace,
+    },
+  },
+);
+
+debugr.registerHandler(consoleLogHandler);
+debugr.registerHandler(htmlLogHandler);
+
 
 // The Logger instance is global and can be injected wherever you need...
-const logger: Logger = debug.getLogger();
+const logger: Logger = debug.logger;
 
 // ... but to make Debugr aware of the execution context of your task,
 // you need to fork the logger at the beginning of the task:
@@ -61,7 +112,7 @@ logger.log(Logger.INFO, 'Just so you know');
 logger.flush();
 ```
 
-This will produce a dump file in the log directory that will look something like this:
+This will produce log to console and a dump file in the log directory that will look something like this:
 
 ![an example dump file]
 

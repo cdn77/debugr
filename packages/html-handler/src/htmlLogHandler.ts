@@ -1,4 +1,4 @@
-import { LogHandler, TContextBase, LogEntry } from '@debugr/core';
+import { LogHandler, TContextBase, LogEntry, PluginManager } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
 import { HtmlFormatter } from './htmlFormatter';
 import { Writer } from './writer';
@@ -39,6 +39,17 @@ export class HtmlLogHandler<
     this.asyncStorage = new AsyncLocalStorage<LogEntryQueue<Partial<TContext>, TGlobalContext>>();
     this.gcTmr = setInterval(() => this.gc(), this.options.gc.interval * 1000);
     this.gcTmr.unref();
+  }
+
+  public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
+    pluginManager: PluginManager,
+    options: HtmlLogHandlerOptions,
+  ): HtmlLogHandler<Partial<TContext>, TGlobalContext> {
+    return new HtmlLogHandler<Partial<TContext>, TGlobalContext>(
+      new HtmlFormatter<Partial<TContext>, TGlobalContext>(pluginManager),
+      new Writer(options.outputDir),
+      options,
+    );
   }
 
   public log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void {

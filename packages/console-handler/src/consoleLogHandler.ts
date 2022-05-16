@@ -2,7 +2,7 @@ import { LogEntry, LogLevel, TContextBase, LogHandler, PluginManager } from '@de
 
 import { ConsoleFormatter } from './consoleFormatter';
 
-export class ConsoleLogger<
+export class ConsoleLogHandler<
   TContext extends TContextBase,
   TGlobalContext extends Record<string, any>,
 > extends LogHandler<TContext> {
@@ -22,8 +22,11 @@ export class ConsoleLogger<
   public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
     pluginManager: PluginManager,
     threshold: LogLevel | number,
-  ): ConsoleLogger<TContext, TGlobalContext> {
-    return new ConsoleLogger(new ConsoleFormatter(pluginManager, true), threshold);
+  ): ConsoleLogHandler<Partial<TContext>, TGlobalContext> {
+    return new ConsoleLogHandler<Partial<TContext>, TGlobalContext>(
+      new ConsoleFormatter<Partial<TContext>, TGlobalContext>(pluginManager, true),
+      threshold,
+    );
   }
 
   public log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void {

@@ -16,7 +16,7 @@ export class Debugr<
 > {
   private readonly eventDispatcher: EventDispatcher;
 
-  private readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
+  public readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
 
   private readonly loggerInternal: Logger<Partial<TContext>, TGlobalContext>;
 
@@ -45,15 +45,15 @@ export class Debugr<
     TGlobalContext extends Record<string, any> = {},
   >(
     globalContext: TGlobalContext,
-    plugins: Plugin<Partial<TContext>, TGlobalContext>[],
-    logHandlers: LogHandler<Partial<TContext>, TGlobalContext>[],
+    plugins?: Plugin<Partial<TContext>, TGlobalContext>[],
+    logHandlers?: LogHandler<Partial<TContext>, TGlobalContext>[],
   ): Debugr<Partial<TContext>, TGlobalContext> {
-    const logger = new Logger<Partial<TContext>, TGlobalContext>(logHandlers, globalContext);
+    const logger = new Logger<Partial<TContext>, TGlobalContext>(logHandlers || [], globalContext);
     const debugr = new Debugr<Partial<TContext>, TGlobalContext>(
       new EventDispatcher(new EventEmitter(), 1000),
       new PluginManager<Partial<TContext>, TGlobalContext>(logger),
       logger,
-      plugins,
+      plugins || [],
     );
     return debugr;
   }
@@ -76,6 +76,18 @@ export class Debugr<
     return this.pluginManager.get(id);
   }
 
+  public registerHandler(logHandler: LogHandler<Partial<TContext>, TGlobalContext>): void {
+    this.loggerInternal.registerHandler(logHandler);
+  }
+
+  public hasHandler(id: string): boolean {
+    return this.loggerInternal.hasHandler(id);
+  }
+
+  public getHandler(id: string): LogHandler<Partial<TContext>, TGlobalContext> | never {
+    return this.loggerInternal.getHandler(id);
+  }
+
   public on<E extends keyof Events>(event: E, listener: Events[E]): void {
     this.eventDispatcher.on(event, listener);
   }
@@ -94,7 +106,7 @@ export class Debugr<
 
   private checkFormatters(): void | never {
     const plugins = this.pluginManager.getAll();
-    const logHandlers = this.loggerInternal.getAll();
+    const logHandlers = this.loggerInternal.getAllHandlers();
     const formatterPluginsErrors: string[] = [];
     for (const logHandler of logHandlers) {
       if (!logHandler.doesNeedFormatters) {

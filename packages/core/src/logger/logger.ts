@@ -161,11 +161,11 @@ export class Logger<
     this.logHandlers.push(logHandler);
   }
 
-  public has(id: string): boolean {
+  public hasHandler(id: string): boolean {
     return id in this.logHandlers.map((logHandler) => logHandler.identifier);
   }
 
-  public get(id: string): LogHandler<Partial<TContext>, TGlobalContext> | never {
+  public getHandler(id: string): LogHandler<Partial<TContext>, TGlobalContext> | never {
     const logHandler = this.logHandlers.find((logHandler) => logHandler.identifier === id);
 
     if (!logHandler) {
@@ -175,7 +175,7 @@ export class Logger<
     return logHandler;
   }
 
-  public getAll(): LogHandler<Partial<TContext>, TGlobalContext>[] {
+  public getAllHandlers(): LogHandler<Partial<TContext>, TGlobalContext>[] {
     return this.logHandlers;
   }
 }
