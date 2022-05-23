@@ -68,34 +68,31 @@ const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext);
-
-const consoleLogHandler = ConsoleLogHandler.create(
-  debugr.pluginManager, 
-  LogLevel.info,
-);
-const htmlLogHandler = HtmlLogHandler.create(
-  debugr.pluginManager, 
-  {
-    threshold: LogLevel.trace,
-    outputDir: './log',
-    gc: {
-      interval: 600,
-      threshold: LogLevel.trace,
-    },
-  },
-);
-
-debugr.registerHandler(consoleLogHandler);
-debugr.registerHandler(htmlLogHandler);
-
 // There are all dependent formatters checked and validated. In this example there are none needed, because we did not install any plugins
+const debugr = Debugr.create(globalContext, 
+  [
+    ConsoleLogHandler.create(
+      LogLevel.info,
+    ),
+    HtmlLogHandler.create(
+      {
+        threshold: LogLevel.trace,
+        outputDir: './log',
+        gc: {
+          interval: 600,
+          threshold: LogLevel.trace,
+        },
+      },
+    ),
+  ],
+);
+
 const logger: Logger = debug.logger;
 
 // ... but to make Debugr aware of the execution context of your task,
 // you need to runTask the logger at the beginning of the task:
 logger.runTask(() => {
-  // execute your task here
+  // execute your tasks here
 
   // At any point inside your task you can write into the logger:
   logger.debug('A debug message');
@@ -106,6 +103,7 @@ logger.runTask(() => {
 
   // At the end of your task you may call this for manual invocation logHandler.flush:
   logger.flush();
+  // If you dont call it, it will cal itself automatically
 });
 ```
 

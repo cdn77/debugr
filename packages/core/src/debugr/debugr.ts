@@ -12,7 +12,7 @@ export class Debugr<
 
   private readonly loggerInternal: Logger<Partial<TTaskContext>, TGlobalContext>;
 
-  private constructor(
+  public constructor(
     eventDispatcher: EventDispatcher,
     pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>,
     logger: Logger<Partial<TTaskContext>, TGlobalContext>,
