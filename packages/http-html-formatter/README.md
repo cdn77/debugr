@@ -1,4 +1,4 @@
-HTTP request and response formatter plugin for Debugr
+HTTP request and response formatter plugin for Debugr html log handler
 =====================================================
 
 **Plugin ID:** `http`

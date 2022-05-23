@@ -24,6 +24,12 @@ export class InsanerLogger<
     this.logger = logger;
   }
 
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    options?: Options,
+  ): InsanerLogger<Partial<TTaskContext>, TGlobalContext> {
+    return new InsanerLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  }
+
   createMiddlewareHandler() {
     return async (next: MiddlewareNext) => {
       await this.logger.runTask(next);

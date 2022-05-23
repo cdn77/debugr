@@ -1,17 +1,9 @@
 import { LogEntry, ImmutableDate, TContextBase, LogLevel, TContextShape } from '@debugr/core';
 
-export type GcOptions = {
-  interval?: number;
-  threshold?: LogLevel | number;
-};
-
-export type FullGcOptions = Readonly<Required<GcOptions>>;
-
 export type HtmlLogHandlerOptions = {
   threshold: LogLevel | number;
   cloneData?: boolean;
   outputDir: string;
-  gc: FullGcOptions;
 };
 
 export type LogEntryQueue<

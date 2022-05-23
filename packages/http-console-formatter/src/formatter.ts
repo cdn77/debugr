@@ -13,6 +13,13 @@ export class HttpConsoleFormatter<
 
   public readonly handlerSupport: string = 'console';
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): HttpConsoleFormatter<Partial<TTaskContext>, TGlobalContext> {
+    return new HttpConsoleFormatter<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(): void {}
 
   getEntryLabel(entry: HttpLogEntry<Partial<TTaskContext>, TGlobalContext>): string {

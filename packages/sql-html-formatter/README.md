@@ -1,4 +1,4 @@
-SQL formatter plugin for Debugr
+SQL formatter plugin for Debugr for html log handler
 =====================================================
 
 **Plugin ID:** `sql`

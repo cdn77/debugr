@@ -12,6 +12,13 @@ export class GraphQLConsoleFormatter<
 
   readonly handlerSupport: string = 'console';
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): GraphQLConsoleFormatter<Partial<TTaskContext>, TGlobalContext> {
+    return new GraphQLConsoleFormatter<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(): void {}
 
   getEntryLabel(): string {

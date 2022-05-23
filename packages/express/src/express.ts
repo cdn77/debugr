@@ -14,23 +14,29 @@ export class ExpressLogger<
   TGlobalContext extends TContextShape = {},
 > implements Plugin<Partial<TTaskContext>, TGlobalContext>
 {
-  readonly id: string = 'express';
+  public readonly id: string = 'express';
 
-  readonly entryFormat: 'http' = 'http';
+  public readonly entryFormat: 'http' = 'http';
 
   private readonly options: NormalizedOptions;
 
   private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
-  constructor(options?: Options) {
+  public constructor(options?: Options) {
     this.options = normalizeOptions(options);
   }
 
-  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    options?: Options,
+  ): ExpressLogger<Partial<TTaskContext>, TGlobalContext> {
+    return new ExpressLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  }
+
+  public injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
     this.logger = logger;
   }
 
-  createRequestHandler(): Handler {
+  public createRequestHandler(): Handler {
     return (req, res, next) => {
       this.logger.runTask(() => {
         this.logHttpRequest(this.logger, this.options, req);
@@ -40,7 +46,7 @@ export class ExpressLogger<
     };
   }
 
-  createErrorHandler(): ErrorRequestHandler {
+  public createErrorHandler(): ErrorRequestHandler {
     return (err, req, res, next) => {
       this.logger.log(LogLevel.ERROR, err);
       next(err);

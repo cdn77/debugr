@@ -13,6 +13,13 @@ export class HttpHtmlFormatter<
 
   public readonly handlerSupport: string = 'html';
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): HttpHtmlFormatter<Partial<TTaskContext>, TGlobalContext> {
+    return new HttpHtmlFormatter<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(): void {}
 
   getEntryLabel(entry: HttpLogEntry<Partial<TTaskContext>, TGlobalContext>): string {

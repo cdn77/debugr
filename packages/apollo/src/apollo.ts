@@ -23,6 +23,12 @@ export class ApolloLogger<
     };
   }
 
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    options?: Options,
+  ): ApolloLogger<Partial<TTaskContext>, TGlobalContext> {
+    return new ApolloLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  }
+
   injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
     this.logger = logger;
   }

@@ -20,6 +20,13 @@ export class SqlConsoleFormatter<
 
   public readonly handlerSupport: string = 'console';
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): SqlConsoleFormatter<Partial<TTaskContext>, TGlobalContext> {
+    return new SqlConsoleFormatter<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(): void {}
 
   getEntryLabel(): string {

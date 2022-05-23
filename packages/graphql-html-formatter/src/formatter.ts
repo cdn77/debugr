@@ -19,6 +19,13 @@ export class GraphQLHtmlFormatter<
 
   readonly handlerSupport: string = 'html';
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): GraphQLHtmlFormatter<Partial<TTaskContext>, TGlobalContext> {
+    return new GraphQLHtmlFormatter<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(): void {}
 
   getEntryLabel(): string {

@@ -19,6 +19,13 @@ export class TypeormLogger<
 
   private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): TypeormLogger<Partial<TTaskContext>, TGlobalContext> {
+    return new TypeormLogger<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
     this.logger = logger;
   }

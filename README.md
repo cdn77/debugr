@@ -58,7 +58,6 @@ stuff will be done automatically for you.
 import { 
   Logger, 
   Debugr, 
-  PluginManager, 
   LogLevel,
 } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
@@ -85,6 +84,7 @@ const debugr = Debugr.create(globalContext,
       },
     ),
   ],
+  [],
 );
 
 const logger: Logger = debug.logger;

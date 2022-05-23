@@ -20,6 +20,13 @@ export class SqlHtmlFormatter<
 
   public readonly handlerSupport: string = 'html';
 
+  public static create<
+    TTaskContext extends TContextBase,
+    TGlobalContext extends TContextShape,
+  >(): SqlHtmlFormatter<Partial<TTaskContext>, TGlobalContext> {
+    return new SqlHtmlFormatter<Partial<TTaskContext>, TGlobalContext>();
+  }
+
   injectLogger(): void {}
 
   getEntryLabel(): string {

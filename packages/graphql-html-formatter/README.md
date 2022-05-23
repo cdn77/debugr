@@ -1,4 +1,4 @@
-GraphQL request formatter plugin for Debugr
+GraphQL request formatter plugin for Debugr Html log handler
 ===========================================
 
 **Plugin ID:** `graphql`
