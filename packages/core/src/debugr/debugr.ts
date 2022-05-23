@@ -1,4 +1,3 @@
-import EventEmitter from 'events';
 import { EventDispatcher, Events } from '../events';
 import { isFormatterPlugin, Plugin, PluginId, PluginManager, Plugins } from '../plugins';
 import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
@@ -57,7 +56,7 @@ export class Debugr<
     }
 
     const debugr = new Debugr<Partial<TTaskContext>, TGlobalContext>(
-      new EventDispatcher(new EventEmitter(), 1000),
+      new EventDispatcher(1000),
       pluginManager,
       logger,
       plugins || [],

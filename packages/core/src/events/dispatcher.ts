@@ -4,13 +4,13 @@ import { Events } from './types';
 export class EventDispatcher {
   private readonly eventEmitter: EventEmitter;
 
-  public constructor(eventEmitter: EventEmitter, maxListeners: number = 1000) {
-    this.eventEmitter = eventEmitter;
+  public constructor(maxListeners: number = 1000) {
+    this.eventEmitter = new EventEmitter();
     this.eventEmitter.setMaxListeners(maxListeners);
   }
 
   public static create(): EventDispatcher {
-    return new EventDispatcher(new EventEmitter(), 1000);
+    return new EventDispatcher(1000);
   }
 
   public emit<E extends keyof Events>(event: E, ...args: Parameters<Events[E]>): boolean {
