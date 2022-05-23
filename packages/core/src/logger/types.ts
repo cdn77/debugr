@@ -9,7 +9,11 @@ export enum LogLevel {
   FATAL = 60,
 }
 
-export type TContextBase = {
+export type TContextShape = {
+  [property: string]: TContextShape | Date | string | number | boolean | undefined | null;
+};
+
+export type TContextBase = TContextShape & {
   processId?: string;
 };
 
@@ -32,12 +36,15 @@ export type ImmutableDate = Omit<
   | 'setUTCFullYear'
 >;
 
-export type LogEntry<TContext extends TContextBase = { processId: string }, TGlobalContext = {}> = {
+export type LogEntry<
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> = {
   level: LogLevel | number;
-  context: Partial<TContext> & TGlobalContext;
+  context: Partial<TTaskContext> & TGlobalContext;
   message?: string;
   error?: Error;
   data?: Record<string, any>;
-  formatId?: PluginId;
+  format?: PluginId;
   ts: ImmutableDate;
 };

@@ -93,8 +93,8 @@ debugr.registerHandler(htmlLogHandler);
 const logger: Logger = debug.logger;
 
 // ... but to make Debugr aware of the execution context of your task,
-// you need to fork the logger at the beginning of the task:
-logger.fork(() => {
+// you need to runTask the logger at the beginning of the task:
+logger.runTask(() => {
   // execute your task here
 
   // At any point inside your task you can write into the logger:
@@ -113,11 +113,11 @@ This will produce log to console and a dump file in the log directory that will 
 
 ![an example dump file]
 
-### Wait, what the fork..?
+### Wait, what the runTask..?
 
 Debugr internally uses an `AsyncLocalStorage` from the [Async Hooks] NodeJS module
 which allows it to keep track of asynchronous execution without the need to explicitly
-pass around a logger object. The `logger.fork()` method only generates a unique
+pass around a logger object. The `logger.runTask()` method only generates a unique
 identifier, stores it in the internal `AsyncLocalStorage` instance and then runs
 the callback you provided, but inside that callback and any asynchronous calls made from
 within it the logger can now retrieve the identifier and use it to figure out where
@@ -163,13 +163,13 @@ immediately; there is no need to call `logger.flush()`.
 | ------------------- | ---------- | -------------- | ---------------------------------------------------------------------------- |
 | `global`            | `object`   |                | Options for global console logger (outside forked jobs)                      |
 | `global.threshold`  | `number`   | `Logger.INFO`  | The minimum level a log entry must have to be written to the console         |
-| `fork`              | `object`   |                | Options for forked job logger (the one that generates HTML dumps)            |
-| `fork.logDir`       | `string`   |                | Root directory for generated logs; this is the only required option          |
-| `fork.threshold`    | `number`   | `Logger.ERROR` | The minimum level a log entry must have to mark a job queue for writing      |
-| `fork.cloneData`    | `boolean`  | `false`        | Clone data of log entries using V8 serialize / deserialize                   |
-| `fork.gc`           | `object`   |                | Garbage collection options:                                                  |
-| `fork.gc.interval`  | `number`   | `60`           | How often GC will be run, in seconds                                         |
-| `fork.gc.threshold` | `number`   | `300`          | How long since a logger has last been touched before GC should auto-flush it |
+| `runTask`              | `object`   |                | Options for forked job logger (the one that generates HTML dumps)            |
+| `runTask.logDir`       | `string`   |                | Root directory for generated logs; this is the only required option          |
+| `runTask.threshold`    | `number`   | `Logger.ERROR` | The minimum level a log entry must have to mark a job queue for writing      |
+| `runTask.cloneData`    | `boolean`  | `false`        | Clone data of log entries using V8 serialize / deserialize                   |
+| `runTask.gc`           | `object`   |                | Garbage collection options:                                                  |
+| `runTask.gc.interval`  | `number`   | `60`           | How often GC will be run, in seconds                                         |
+| `runTask.gc.threshold` | `number`   | `300`          | How long since a logger has last been touched before GC should auto-flush it |
 | `plugins`           | `Plugin[]` |                | An array of plugins                                                          |
 
 ### `Logger` API

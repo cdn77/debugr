@@ -1,10 +1,10 @@
-import { formatData, FormatterPlugin, isEmpty, TContextBase } from '@debugr/core';
+import { formatData, FormatterPlugin, isEmpty, TContextBase, TContextShape } from '@debugr/core';
 import { GraphQlLogEntry } from '@debugr/apollo';
 
 export class GraphQLConsoleFormatter<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> implements FormatterPlugin<Partial<TContext>, TGlobalContext>
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {
   readonly id: string = 'graphql';
 
@@ -18,7 +18,7 @@ export class GraphQLConsoleFormatter<
     return 'GraphQL request';
   }
 
-  getEntryTitle(entry: GraphQlLogEntry<Partial<TContext>, TGlobalContext>): string {
+  getEntryTitle(entry: GraphQlLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }
@@ -26,7 +26,7 @@ export class GraphQLConsoleFormatter<
     return entry.data.operation || entry.data.query.replace(/{[\s\S]*$/, '').trim();
   }
 
-  formatEntry(entry: GraphQlLogEntry<Partial<TContext>, TGlobalContext>): string {
+  formatEntry(entry: GraphQlLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }

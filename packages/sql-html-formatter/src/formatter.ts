@@ -5,13 +5,14 @@ import {
   FormatterPlugin,
   LogEntry,
   TContextBase,
+  TContextShape,
 } from '@debugr/core';
 import { formatQueryTime } from './utils';
 
 export class SqlHtmlFormatter<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> implements FormatterPlugin<Partial<TContext>, TGlobalContext>
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {
   public readonly id: string = 'sql';
 

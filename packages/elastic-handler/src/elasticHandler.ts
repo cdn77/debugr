@@ -1,28 +1,27 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 
-import { LogEntry, LogLevel, TContextBase, LogHandler } from '@debugr/core';
+import { LogEntry, LogLevel, TContextBase, LogHandler, TContextShape } from '@debugr/core';
 
 export interface ElasticHandlerOptions<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
-  baseIndex?: string;
   threshold: LogLevel | number;
-  indexCallback?: (entry: LogEntry<TContext, TGlobalContext>) => string;
+  index: string | ((entry: LogEntry<TTaskContext, TGlobalContext>) => string);
   errorCallback?: (error: Error) => void;
-  bodyParser?: (entry: LogEntry<TContext, TGlobalContext>) => Record<string, any>;
+  bodyMapper?: (entry: LogEntry<TTaskContext, TGlobalContext>) => Record<string, any>;
   errorMsThreshold?: number;
 }
 
 export type ElasticOptions<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> = {} & ClientOptions & ElasticHandlerOptions<TContext, TGlobalContext>;
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> = {} & ClientOptions & ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 
 export class ElasticHandler<
-  TContext extends TContextBase,
-  TGlobalContext extends Record<string, any>,
-> extends LogHandler<TContext> {
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> extends LogHandler<TTaskContext> {
   public readonly identifier: string = 'elastic';
 
   public readonly doesNeedFormatters: boolean = false;
@@ -31,44 +30,44 @@ export class ElasticHandler<
 
   private readonly elasticClient: Client;
 
-  private readonly opts: ElasticHandlerOptions<TContext, TGlobalContext>;
+  private readonly opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 
   private lastError?: Date;
 
-  constructor(opts: ElasticHandlerOptions<TContext, TGlobalContext>, elasticClient: Client) {
+  constructor(opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>, elasticClient: Client) {
     super();
-    if (!opts.baseIndex && !opts.indexCallback) {
-      throw new Error('baseIndex or indexCallback must be set');
-    }
     this.threshold = opts.threshold;
     this.opts = opts;
     this.elasticClient = elasticClient;
   }
 
-  public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
-    opts: ElasticOptions<TContext, TGlobalContext>,
-  ): ElasticHandler<TContext, TGlobalContext> {
-    const instance = new ElasticHandler<TContext, TGlobalContext>(opts, new Client(opts));
+  public injectPluginManager(): void {}
+
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    opts: ElasticOptions<TTaskContext, TGlobalContext>,
+  ): ElasticHandler<TTaskContext, TGlobalContext> {
+    const instance = new ElasticHandler<TTaskContext, TGlobalContext>(opts, new Client(opts));
     return instance;
   }
 
-  log(entry: LogEntry<TContext, TGlobalContext>): void {
+  log(entry: LogEntry<TTaskContext, TGlobalContext>): void {
     this.elasticClient
       .index({
-        index: this.opts.indexCallback
-          ? this.opts.indexCallback(entry)
-          : this.defaultIndexCallback(entry),
-        body: this.opts.bodyParser ? this.opts.bodyParser(entry) : this.defaultBodyParser(entry),
+        index:
+          typeof this.opts.index === 'string'
+            ? this.defaultIndexCallback(entry)
+            : this.opts.index(entry),
+        body: this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry),
       })
       .catch((error) =>
         this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
       );
   }
 
-  private defaultIndexCallback(entry: LogEntry<TContext, TGlobalContext>): string {
+  private defaultIndexCallback(entry: LogEntry<TTaskContext, TGlobalContext>): string {
     return entry.level === 10
-      ? `${this.opts.baseIndex}-trace-${new Date().toISOString().split('T')[0]}`
-      : `${this.opts.baseIndex}-log-${new Date().toISOString().split('T')[0]}`;
+      ? `${this.opts.index}-trace-${new Date().toISOString().split('T')[0]}`
+      : `${this.opts.index}-log-${new Date().toISOString().split('T')[0]}`;
   }
 
   private defaultErrorCallback(error: Error): void {
@@ -85,14 +84,10 @@ export class ElasticHandler<
     }
   }
 
-  private defaultBodyParser(entry: LogEntry<TContext, TGlobalContext>): Record<string, any> {
+  private defaultBodyParser(entry: LogEntry<TTaskContext, TGlobalContext>): Record<string, any> {
     return {
       ...entry,
       data: JSON.stringify(entry.data),
     };
   }
-
-  flush = undefined;
-
-  fork = undefined;
 }

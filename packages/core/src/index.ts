@@ -13,5 +13,14 @@ export {
   pad3,
   FormatterTemplateMap,
 } from './formatter';
-export { Logger, LogHandler, LogLevel, TContextBase, LogEntry, ImmutableDate } from './logger';
+export {
+  Logger,
+  LogHandler,
+  TaskAwareLogHandler,
+  LogLevel,
+  TContextBase,
+  LogEntry,
+  ImmutableDate,
+  TContextShape,
+} from './logger';
 export { Plugins, PluginManager, FormatterPlugin, Plugin, isFormatterPlugin } from './plugins';

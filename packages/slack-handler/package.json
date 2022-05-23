@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@debugr/core": "^2.0",
-    "axios": "^0.27.2"
+    "node-fetch": "^3.2.4"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -20,7 +20,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "axios"
+      "node-fetch"
     ]
   },
   "files": [

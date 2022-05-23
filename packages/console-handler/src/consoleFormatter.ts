@@ -7,16 +7,17 @@ import {
   formatData,
   isEmpty,
   TContextBase,
+  TContextShape,
 } from '@debugr/core';
 
 export class ConsoleFormatter<
-  TContext extends TContextBase,
-  TGlobalContext extends Record<string, any>,
-> extends Formatter<Partial<TContext>, TGlobalContext> {
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> extends Formatter<Partial<TTaskContext>, TGlobalContext> {
   private readonly writeTimestamp: boolean;
 
   constructor(
-    pluginManager: PluginManager<Partial<TContext>, TGlobalContext>,
+    pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>,
     writeTimestamp: boolean = true,
   ) {
     super(pluginManager);
@@ -24,7 +25,7 @@ export class ConsoleFormatter<
   }
 
   protected formatEntry(
-    entry: LogEntry<Partial<TContext>, TGlobalContext>,
+    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
     _previousTs?: Date,
     plugin?: FormatterPlugin,
   ): string {

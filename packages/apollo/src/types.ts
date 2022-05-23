@@ -1,4 +1,4 @@
-import { LogEntry, TContextBase } from '@debugr/core';
+import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
 import { VariableValues } from 'apollo-server-types';
 
 export type Options = {
@@ -10,12 +10,10 @@ export type FullOptions = {
 };
 
 export interface GraphQlLogEntry<
-  TContext extends TContextBase = {
-    processId: string;
-  },
-  TGlobalContext = {},
-> extends LogEntry<Partial<TContext>, TGlobalContext> {
-  formatId: 'graphql';
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+  format: 'graphql';
   data: {
     query?: string;
     variables?: VariableValues;

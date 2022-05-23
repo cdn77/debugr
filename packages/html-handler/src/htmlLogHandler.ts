@@ -1,4 +1,10 @@
-import { LogHandler, TContextBase, LogEntry, PluginManager } from '@debugr/core';
+import {
+  TaskAwareLogHandler,
+  TContextBase,
+  LogEntry,
+  PluginManager,
+  TContextShape,
+} from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
 import { HtmlFormatter } from './htmlFormatter';
 import { Writer } from './writer';
@@ -6,53 +12,53 @@ import { identifyQueue } from './utils';
 import { LogEntryQueue, HtmlLogHandlerOptions } from './types';
 
 export class HtmlLogHandler<
-  TContext extends TContextBase = {
-    processId: string;
-  },
-  TGlobalContext extends Record<string, any> = {},
-> extends LogHandler<Partial<TContext>, TGlobalContext> {
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> extends TaskAwareLogHandler<Partial<TTaskContext>, TGlobalContext> {
   public readonly identifier: string = 'html';
 
   public readonly doesNeedFormatters: boolean = true;
 
-  private readonly formatter: HtmlFormatter<Partial<TContext>, TGlobalContext>;
+  private formatter?: HtmlFormatter<Partial<TTaskContext>, TGlobalContext>;
 
   private readonly writer: Writer;
 
   private readonly options: HtmlLogHandlerOptions;
 
-  private readonly gcTmr: NodeJS.Timeout;
-
   private readonly asyncStorage: AsyncLocalStorage<
-    LogEntryQueue<Partial<TContext>, TGlobalContext>
+    LogEntryQueue<Partial<TTaskContext>, TGlobalContext>
   >;
 
   public constructor(
-    formatter: HtmlFormatter<Partial<TContext>, TGlobalContext>,
     writer: Writer,
     options: HtmlLogHandlerOptions,
+    formatter?: HtmlFormatter<Partial<TTaskContext>, TGlobalContext>,
   ) {
     super();
     this.formatter = formatter;
     this.writer = writer;
     this.options = options;
-    this.asyncStorage = new AsyncLocalStorage<LogEntryQueue<Partial<TContext>, TGlobalContext>>();
-    this.gcTmr = setInterval(() => this.gc(), this.options.gc.interval * 1000);
-    this.gcTmr.unref();
+    this.asyncStorage = new AsyncLocalStorage<
+      LogEntryQueue<Partial<TTaskContext>, TGlobalContext>
+    >();
   }
 
-  public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
-    pluginManager: PluginManager,
+  public injectPluginManager(pluginManager: PluginManager<TContextShape, {}>): void {
+    if (!this.formatter) {
+      this.formatter = new HtmlFormatter<Partial<TTaskContext>, TGlobalContext>(pluginManager);
+    }
+  }
+
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options: HtmlLogHandlerOptions,
-  ): HtmlLogHandler<Partial<TContext>, TGlobalContext> {
-    return new HtmlLogHandler<Partial<TContext>, TGlobalContext>(
-      new HtmlFormatter<Partial<TContext>, TGlobalContext>(pluginManager),
+  ): HtmlLogHandler<Partial<TTaskContext>, TGlobalContext> {
+    return new HtmlLogHandler<Partial<TTaskContext>, TGlobalContext>(
       new Writer(options.outputDir),
       options,
     );
   }
 
-  public log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void {
+  public log(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): void {
     const queue = this.asyncStorage.getStore();
 
     if (!queue) {
@@ -71,10 +77,10 @@ export class HtmlLogHandler<
     }
   }
 
-  public fork<R>(callback: () => R): () => R {
+  public runTask<R>(callback: () => R): () => R {
     const now = new Date();
 
-    const queue: LogEntryQueue<Partial<TContext>, TGlobalContext> = {
+    const queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext> = {
       entries: [],
       ts: now,
       lastTs: now,
@@ -96,9 +102,12 @@ export class HtmlLogHandler<
   }
 
   private async doFlushQueue(
-    queue: LogEntryQueue<Partial<TContext>, TGlobalContext>,
+    queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext>,
     forceWrite: boolean = false,
   ): Promise<void> {
+    if (!this.formatter) {
+      throw new Error('Logger was incorrectly initialized, no formatter found');
+    }
     if (queue.id === undefined) {
       queue.id = identifyQueue(queue);
     }
@@ -110,26 +119,6 @@ export class HtmlLogHandler<
     if (forceWrite || queue.write) {
       const content = this.formatter.formatQueue(queue);
       await this.writer.write(queue.ts, queue.id, content);
-    }
-  }
-
-  private gc(): void {
-    const queue = this.asyncStorage.getStore();
-
-    if (!queue) {
-      return;
-    }
-
-    const threshold = Date.now() - this.options.gc.threshold * 1000;
-
-    if (queue.lastTs.getTime() < threshold) {
-      this.log({
-        context: { processId: queue.entries[0].context.processId } as TContext & TGlobalContext,
-        level: -1,
-        message: 'Queue was flushed by GC',
-        ts: new Date(),
-      });
-      this.flush(undefined, true);
     }
   }
 }

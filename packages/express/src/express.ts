@@ -1,4 +1,4 @@
-import { Plugin, Logger, LogLevel, TContextBase } from '@debugr/core';
+import { Plugin, Logger, LogLevel, TContextBase, TContextShape } from '@debugr/core';
 import { Handler, ErrorRequestHandler, Request, Response } from 'express';
 import { HttpLogEntry, NormalizedOptions, Options } from './types';
 import {
@@ -10,9 +10,9 @@ import {
 } from './utils';
 
 export class ExpressLogger<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> implements Plugin<Partial<TContext>, TGlobalContext>
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> implements Plugin<Partial<TTaskContext>, TGlobalContext>
 {
   readonly id: string = 'express';
 
@@ -20,19 +20,19 @@ export class ExpressLogger<
 
   private readonly options: NormalizedOptions;
 
-  private logger: Logger<Partial<TContext>, TGlobalContext>;
+  private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
   constructor(options?: Options) {
     this.options = normalizeOptions(options);
   }
 
-  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void {
+  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
     this.logger = logger;
   }
 
   createRequestHandler(): Handler {
     return (req, res, next) => {
-      this.logger.ensureFork(() => {
+      this.logger.runTask(() => {
         this.logHttpRequest(this.logger, this.options, req);
         this.logHttpResponse(this.logger, this.options, res).finally(() => this.logger.flush());
         next();
@@ -48,10 +48,10 @@ export class ExpressLogger<
   }
 
   private logHttpRequest<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
+    TTaskContext extends TContextBase = TContextShape,
+    TGlobalContext extends TContextShape = {},
   >(
-    logger: Logger<Partial<TContext>, TGlobalContext>,
+    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
     options: NormalizedOptions,
     request: Request,
   ): void {
@@ -68,10 +68,10 @@ export class ExpressLogger<
   }
 
   private doLogRequest<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
+    TTaskContext extends TContextBase = TContextShape,
+    TGlobalContext extends TContextShape = {},
   >(
-    logger: Logger<Partial<TContext>, TGlobalContext>,
+    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
     options: NormalizedOptions,
     request: Request,
     contentType?: string,
@@ -83,7 +83,7 @@ export class ExpressLogger<
     const lengthMismatch = !!body && !canCapture;
 
     const entry: Omit<HttpLogEntry, 'ts' | 'context'> = {
-      formatId: this.entryFormat,
+      format: this.entryFormat,
       level: options.level,
       data: {
         type: 'request',
@@ -131,10 +131,10 @@ export class ExpressLogger<
   }
 
   private async logHttpResponse<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
+    TTaskContext extends TContextBase = TContextShape,
+    TGlobalContext extends TContextShape = {},
   >(
-    logger: Logger<Partial<TContext>, TGlobalContext>,
+    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
     options: NormalizedOptions,
     response: Response,
   ): Promise<void> {
@@ -150,7 +150,7 @@ export class ExpressLogger<
       response.statusCode >= (options.e4xx ? 400 : 500) ? LogLevel.ERROR : options.level;
 
     const entry: Omit<HttpLogEntry, 'ts' | 'context'> = {
-      formatId: this.entryFormat,
+      format: this.entryFormat,
       level,
       data: {
         type: 'response',

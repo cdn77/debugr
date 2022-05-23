@@ -1,47 +1,48 @@
-import { LogEntry, Logger, TContextBase } from '../logger';
+import { LogEntry, Logger, TContextBase, TContextShape } from '../logger';
 import { PluginManager } from './manager';
 
 export interface Plugins<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
-  [id: string]: Plugin<Partial<TContext>, TGlobalContext>;
+  [id: string]: Plugin<Partial<TTaskContext>, TGlobalContext>;
 }
 
 export type PluginId = Exclude<keyof Plugins, number | symbol>;
 
 export interface Plugin<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
   readonly id: string;
   readonly entryFormat: string;
   injectLogger(
-    logger: Logger<Partial<TContext>, TGlobalContext>,
+    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
     pluginManager: PluginManager,
   ): void;
 }
 
 export interface FormatterPlugin<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> extends Plugin<Partial<TContext>, TGlobalContext> {
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> extends Plugin<Partial<TTaskContext>, TGlobalContext> {
   readonly entryFormat: string;
   readonly handlerSupport: string;
-  getEntryLabel(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
-  getEntryTitle(entry: LogEntry<Partial<TContext>, TGlobalContext>): string;
-  formatEntry(entry: LogEntry<Partial<TContext>, TGlobalContext>): any;
+  getEntryLabel(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string;
+  getEntryTitle(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string;
+  formatEntry(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): any;
 }
 
 export function isFormatterPlugin<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 >(
-  plugin: Plugin<Partial<TContext>, TGlobalContext>,
-): plugin is FormatterPlugin<Partial<TContext>, TGlobalContext> {
+  plugin: Plugin<Partial<TTaskContext>, TGlobalContext>,
+): plugin is FormatterPlugin<Partial<TTaskContext>, TGlobalContext> {
   return (
-    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).getEntryLabel ===
+    typeof (plugin as FormatterPlugin<Partial<TTaskContext>, TGlobalContext>).getEntryLabel ===
       'function' &&
-    typeof (plugin as FormatterPlugin<Partial<TContext>, TGlobalContext>).formatEntry === 'function'
+    typeof (plugin as FormatterPlugin<Partial<TTaskContext>, TGlobalContext>).formatEntry ===
+      'function'
   );
 }

@@ -1,9 +1,9 @@
-import { LogEntry, LogLevel, ImmutableDate, TContextBase } from '../logger/types';
+import { LogEntry, LogLevel, ImmutableDate, TContextBase, TContextShape } from '../logger/types';
 import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
 
 export abstract class Formatter<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
   readonly levelMap: Record<number, string> = {
     [-1]: 'internal',
@@ -15,22 +15,22 @@ export abstract class Formatter<
     [LogLevel.FATAL]: 'fatal',
   };
 
-  protected readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
+  protected readonly pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>;
 
-  constructor(pluginManager: PluginManager<Partial<TContext>, TGlobalContext>) {
+  constructor(pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>) {
     this.pluginManager = pluginManager;
   }
 
   protected abstract formatEntry(
-    entry: LogEntry<Partial<TContext>, TGlobalContext>,
+    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
     previousTs?: ImmutableDate,
-    plugin?: FormatterPlugin<Partial<TContext>, TGlobalContext>,
+    plugin?: FormatterPlugin<Partial<TTaskContext>, TGlobalContext>,
   ): string;
 
   protected abstract formatError(e: Error, message: string): string;
 
   *format(
-    entry: LogEntry<Partial<TContext>, TGlobalContext>,
+    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
     previousTs?: ImmutableDate,
   ): Generator<string> {
     try {
@@ -47,14 +47,14 @@ export abstract class Formatter<
   }
 
   private tryFormatEntry(
-    entry: LogEntry<Partial<TContext>, TGlobalContext>,
+    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
     previousTs?: ImmutableDate,
     noPlugin: boolean = false,
   ): string {
-    const plugin = !noPlugin && entry.formatId ? this.pluginManager.get(entry.formatId) : undefined;
+    const plugin = !noPlugin && entry.format ? this.pluginManager.get(entry.format) : undefined;
 
     if (plugin && !isFormatterPlugin(plugin)) {
-      throw new Error(`Invalid plugin: ${entry.formatId} is not a Formatter plugin`);
+      throw new Error(`Invalid plugin: ${entry.format} is not a Formatter plugin`);
     }
 
     return this.formatEntry(entry, previousTs, plugin);

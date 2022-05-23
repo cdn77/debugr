@@ -8,23 +8,23 @@ import {
   PluginManager,
   Plugins,
 } from '../plugins';
-import { Logger, LogHandler, TContextBase } from '../logger';
+import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
 
 export class Debugr<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
   private readonly eventDispatcher: EventDispatcher;
 
-  public readonly pluginManager: PluginManager<Partial<TContext>, TGlobalContext>;
+  public readonly pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>;
 
-  private readonly loggerInternal: Logger<Partial<TContext>, TGlobalContext>;
+  private readonly loggerInternal: Logger<Partial<TTaskContext>, TGlobalContext>;
 
   private constructor(
     eventDispatcher: EventDispatcher,
-    pluginManager: PluginManager<Partial<TContext>, TGlobalContext>,
-    logger: Logger<Partial<TContext>, TGlobalContext>,
-    plugins: Plugin<Partial<TContext>, TGlobalContext>[],
+    pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>,
+    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
+    plugins: Plugin<Partial<TTaskContext>, TGlobalContext>[],
   ) {
     this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
@@ -33,58 +33,60 @@ export class Debugr<
     for (const plugin of plugins) {
       this.pluginManager.register(plugin);
     }
+
+    for (const logHandler of this.loggerInternal.getAllHandlers()) {
+      logHandler.injectPluginManager(this.pluginManager);
+    }
+
+    this.checkFormatters();
   }
 
-  public get logger(): Logger<Partial<TContext>, TGlobalContext> | never {
-    this.checkFormatters();
+  public get logger(): Logger<Partial<TTaskContext>, TGlobalContext> | never {
     return this.loggerInternal;
   }
 
   public static create<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
+    TTaskContext extends TContextBase = TContextShape,
+    TGlobalContext extends TContextShape = {},
   >(
     globalContext: TGlobalContext,
-    plugins?: Plugin<Partial<TContext>, TGlobalContext>[],
-    logHandlers?: LogHandler<Partial<TContext>, TGlobalContext>[],
-  ): Debugr<Partial<TContext>, TGlobalContext> {
-    const logger = new Logger<Partial<TContext>, TGlobalContext>(logHandlers || [], globalContext);
-    const debugr = new Debugr<Partial<TContext>, TGlobalContext>(
+    logHandlers: LogHandler<Partial<TTaskContext>, TGlobalContext>[],
+    plugins: Plugin<Partial<TTaskContext>, TGlobalContext>[],
+  ): Debugr<Partial<TTaskContext>, TGlobalContext> {
+    const logger = new Logger<Partial<TTaskContext>, TGlobalContext>(
+      logHandlers || [],
+      globalContext,
+    );
+    const pluginManager = new PluginManager<Partial<TTaskContext>, TGlobalContext>(logger);
+
+    for (const logHandler of logHandlers) {
+      logHandler.injectPluginManager(pluginManager);
+    }
+
+    const debugr = new Debugr<Partial<TTaskContext>, TGlobalContext>(
       new EventDispatcher(new EventEmitter(), 1000),
-      new PluginManager<Partial<TContext>, TGlobalContext>(logger),
+      pluginManager,
       logger,
       plugins || [],
     );
     return debugr;
   }
 
-  public registerPlugins(plugins: Plugin<Partial<TContext>, TGlobalContext>[]): void {
-    for (const plugin of plugins) {
-      this.registerPlugin(plugin);
-    }
-  }
-
-  public registerPlugin(plugin: Plugin<Partial<TContext>, TGlobalContext>): void {
-    this.pluginManager.register(plugin);
-  }
-
   public hasPlugin(id: string): boolean {
     return this.pluginManager.has(id);
   }
 
-  public getPlugin<ID extends PluginId>(id: ID): Plugins<Partial<TContext>, TGlobalContext>[ID] {
+  public getPlugin<ID extends PluginId>(
+    id: ID,
+  ): Plugins<Partial<TTaskContext>, TGlobalContext>[ID] {
     return this.pluginManager.get(id);
-  }
-
-  public registerHandler(logHandler: LogHandler<Partial<TContext>, TGlobalContext>): void {
-    this.loggerInternal.registerHandler(logHandler);
   }
 
   public hasHandler(id: string): boolean {
     return this.loggerInternal.hasHandler(id);
   }
 
-  public getHandler(id: string): LogHandler<Partial<TContext>, TGlobalContext> | never {
+  public getHandler(id: string): LogHandler<Partial<TTaskContext>, TGlobalContext> | never {
     return this.loggerInternal.getHandler(id);
   }
 

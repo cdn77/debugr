@@ -9,9 +9,9 @@ export function apolloLogger(options?: Options): ApolloLogger {
 
 declare module '@debugr/core' {
   export interface Plugins<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
+    TTaskContext extends TContextBase = TContextShape,
+    TGlobalContext extends TContextShape = {},
   > {
-    apollo: ApolloLogger<Partial<TContext>, TGlobalContext>;
+    apollo: ApolloLogger<Partial<TTaskContext>, TGlobalContext>;
   }
 }

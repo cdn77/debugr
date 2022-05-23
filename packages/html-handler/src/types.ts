@@ -1,4 +1,4 @@
-import { LogEntry, ImmutableDate, TContextBase, LogLevel } from '@debugr/core';
+import { LogEntry, ImmutableDate, TContextBase, LogLevel, TContextShape } from '@debugr/core';
 
 export type GcOptions = {
   interval?: number;
@@ -15,11 +15,11 @@ export type HtmlLogHandlerOptions = {
 };
 
 export type LogEntryQueue<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > = {
   id?: string;
-  entries: LogEntry<Partial<TContext>, TGlobalContext>[];
+  entries: LogEntry<Partial<TTaskContext>, TGlobalContext>[];
   write?: boolean;
   threshold?: number;
   firstOverThreshold?: number;

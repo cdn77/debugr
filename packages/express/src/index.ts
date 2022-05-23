@@ -5,9 +5,9 @@ export { ExpressLogger, Options, HttpLogEntry };
 
 declare module '@debugr/core' {
   export interface Plugins<
-    TContext extends TContextBase = { processId: string },
-    TGlobalContext extends Record<string, any> = {},
+    TTaskContext extends TContextBase = TContextShape,
+    TGlobalContext extends TContextShape = {},
   > {
-    express: ExpressLogger<Partial<TContext>, TGlobalContext>;
+    express: ExpressLogger<Partial<TTaskContext>, TGlobalContext>;
   }
 }

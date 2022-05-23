@@ -1,12 +1,10 @@
-import { LogEntry, TContextBase } from '@debugr/core';
+import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
 
 export interface SqlLogEntry<
-  TContext extends TContextBase = {
-    processId: string;
-  },
-  TGlobalContext = {},
-> extends LogEntry<Partial<TContext>, TGlobalContext> {
-  formatId: 'sql';
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+  format: 'sql';
   data: {
     query: string;
     parameters?: any[];

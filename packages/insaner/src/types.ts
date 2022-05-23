@@ -1,4 +1,4 @@
-import { LogEntry, TContextBase } from '@debugr/core';
+import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
 import { OutgoingHttpHeaders } from 'http';
 
 export type CaptureBodyOption = boolean | number | string | string[] | Record<string, number>;
@@ -34,12 +34,10 @@ export type NormalizedOptions = {
 };
 
 export interface HttpLogEntry<
-  TContext extends TContextBase = {
-    processId: string;
-  },
-  TGlobalContext = {},
-> extends LogEntry<Partial<TContext>, TGlobalContext> {
-  formatId: 'http';
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+  format: 'http';
   data: {
     type: string;
     status?: number;

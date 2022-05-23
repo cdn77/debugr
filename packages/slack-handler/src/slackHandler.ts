@@ -1,9 +1,9 @@
-import { LogEntry, LogLevel, TContextBase, LogHandler } from '@debugr/core';
-import { Axios } from 'axios';
+import { LogEntry, LogLevel, TContextBase, LogHandler, TContextShape } from '@debugr/core';
+import fetch from 'node-fetch';
 
 export interface SlackHandlerOptions<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
   webhookUrl: string;
   threshold: LogLevel | number;
@@ -12,54 +12,55 @@ export interface SlackHandlerOptions<
   iconUrl?: string;
   iconEmoji?: string;
   errorCallback?: (error: Error) => void;
-  bodyParser?: (entry: LogEntry<Partial<TContext>, TGlobalContext>) => Record<string, any>;
+  bodyMapper?: (entry: LogEntry<Partial<TTaskContext>, TGlobalContext>) => Record<string, any>;
 }
 
 export class SlackHandler<
-  TContext extends TContextBase,
-  TGlobalContext extends Record<string, any>,
-> extends LogHandler<TContext> {
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> extends LogHandler<TTaskContext> {
   public readonly identifier: string = 'elastic';
 
   public readonly doesNeedFormatters: boolean = false;
 
-  private readonly opts: SlackHandlerOptions<TContext, TGlobalContext>;
+  private readonly opts: SlackHandlerOptions<TTaskContext, TGlobalContext>;
 
-  private readonly axios: Axios;
-
-  constructor(opts: SlackHandlerOptions<TContext, TGlobalContext>) {
+  constructor(opts: SlackHandlerOptions<TTaskContext, TGlobalContext>) {
     super();
     this.opts = opts;
-    this.axios = new Axios();
   }
 
-  public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
-    opts: SlackHandlerOptions<TContext, TGlobalContext>,
-  ): SlackHandler<TContext, TGlobalContext> {
-    const instance = new SlackHandler<TContext, TGlobalContext>(opts);
+  public injectPluginManager(): void {}
+
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    opts: SlackHandlerOptions<TTaskContext, TGlobalContext>,
+  ): SlackHandler<TTaskContext, TGlobalContext> {
+    const instance = new SlackHandler<TTaskContext, TGlobalContext>(opts);
     return instance;
   }
 
-  log(entry: LogEntry<TContext, TGlobalContext>): void {
-    const body = this.opts.bodyParser ? this.opts.bodyParser(entry) : this.defaultBodyParser(entry);
-    this.axios
-      .post(this.opts.webhookUrl, {
+  log(entry: LogEntry<TTaskContext, TGlobalContext>): void {
+    const body = this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry);
+    fetch(this.opts.webhookUrl, {
+      body: JSON.stringify({
         channel: this.opts.channel,
         username: this.opts.username,
         icon_url: this.opts.iconUrl,
         icon_emoji: this.opts.iconEmoji,
         ...body,
-      })
-      .catch((error) =>
-        this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
-      );
+      }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'post',
+    }).catch((error) =>
+      this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
+    );
   }
 
   private defaultErrorCallback(error: Error): void {
     console.log('SLACK CONNECTION ERROR HAPPENED', error);
   }
 
-  private defaultBodyParser(entry: LogEntry<TContext, TGlobalContext>): Record<string, any> {
+  private defaultBodyParser(entry: LogEntry<TTaskContext, TGlobalContext>): Record<string, any> {
     return {
       text: `
 :warning: *Alert* :warning:
@@ -70,8 +71,4 @@ export class SlackHandler<
   `,
     };
   }
-
-  flush = undefined;
-
-  fork = undefined;
 }

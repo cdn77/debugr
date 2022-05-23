@@ -1,11 +1,11 @@
-import { FormatterPlugin, TContextBase } from '@debugr/core';
+import { FormatterPlugin, TContextBase, TContextShape } from '@debugr/core';
 import { HttpLogEntry } from '@debugr/express';
 import * as templates from './templates';
 
 export class HttpConsoleFormatter<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> implements FormatterPlugin<Partial<TContext>, TGlobalContext>
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {
   public readonly id: string = 'http';
 
@@ -15,7 +15,7 @@ export class HttpConsoleFormatter<
 
   injectLogger(): void {}
 
-  getEntryLabel(entry: HttpLogEntry<Partial<TContext>, TGlobalContext>): string {
+  getEntryLabel(entry: HttpLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
     switch (entry.data?.type) {
       case 'request':
         return 'HTTP request';
@@ -26,7 +26,7 @@ export class HttpConsoleFormatter<
     throw new Error('This entry cannot be formatted by the HttpFormatter plugin');
   }
 
-  getEntryTitle(entry: HttpLogEntry<Partial<TContext>, TGlobalContext>): string {
+  getEntryTitle(entry: HttpLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
     switch (entry.data?.type) {
       case 'request':
         return `${entry.data.method} ${entry.data.uri}`;
@@ -37,7 +37,7 @@ export class HttpConsoleFormatter<
     throw new Error('This entry cannot be formatted by the HttpFormatter plugin');
   }
 
-  formatEntry(entry: HttpLogEntry<Partial<TContext>, TGlobalContext>): string {
+  formatEntry(entry: HttpLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
     switch (entry.data?.type) {
       case 'request':
         return templates.console.request(

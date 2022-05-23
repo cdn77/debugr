@@ -1,41 +1,58 @@
-import { LogEntry, LogLevel, TContextBase, LogHandler, PluginManager } from '@debugr/core';
+import {
+  LogEntry,
+  LogLevel,
+  TContextBase,
+  LogHandler,
+  PluginManager,
+  TContextShape,
+} from '@debugr/core';
 
 import { ConsoleFormatter } from './consoleFormatter';
 
 export class ConsoleLogHandler<
-  TContext extends TContextBase,
-  TGlobalContext extends Record<string, any>,
-> extends LogHandler<TContext> {
-  private readonly formatter: ConsoleFormatter<Partial<TContext>, TGlobalContext>;
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> extends LogHandler<Partial<TTaskContext>, TGlobalContext> {
+  private formatter?: ConsoleFormatter<Partial<TTaskContext>, TGlobalContext>;
+
+  private readonly writeTimestamp: boolean;
 
   public readonly threshold: LogLevel | number;
 
   public constructor(
-    formatter: ConsoleFormatter<Partial<TContext>, TGlobalContext>,
     threshold: LogLevel | number,
+    writeTimestamp: boolean = true,
+    formatter?: ConsoleFormatter<Partial<TTaskContext>, TGlobalContext>,
   ) {
     super();
     this.formatter = formatter;
+    this.writeTimestamp = writeTimestamp;
     this.threshold = threshold;
   }
 
-  public static create<TContext extends TContextBase, TGlobalContext extends Record<string, any>>(
-    pluginManager: PluginManager,
-    threshold: LogLevel | number,
-  ): ConsoleLogHandler<Partial<TContext>, TGlobalContext> {
-    return new ConsoleLogHandler<Partial<TContext>, TGlobalContext>(
-      new ConsoleFormatter<Partial<TContext>, TGlobalContext>(pluginManager, true),
-      threshold,
-    );
+  public injectPluginManager(pluginManager: PluginManager<TContextShape, {}>): void {
+    if (!this.formatter) {
+      this.formatter = new ConsoleFormatter<Partial<TTaskContext>, TGlobalContext>(
+        pluginManager,
+        this.writeTimestamp,
+      );
+    }
   }
 
-  public log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void {
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    threshold: LogLevel | number,
+    writeTimestamp: boolean = true,
+  ): ConsoleLogHandler<Partial<TTaskContext>, TGlobalContext> {
+    return new ConsoleLogHandler<Partial<TTaskContext>, TGlobalContext>(threshold, writeTimestamp);
+  }
+
+  public log(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): void {
+    if (!this.formatter) {
+      throw new Error('Logger was incorrectly initialized, no formatter found');
+    }
+
     for (const msg of this.formatter.format(entry)) {
       console.log(msg);
     }
   }
-
-  flush = undefined;
-
-  fork = undefined;
 }

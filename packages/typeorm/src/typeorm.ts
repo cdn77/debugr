@@ -1,5 +1,5 @@
 import { Logger as LoggerInterface } from 'typeorm';
-import { Logger, Plugin, LogLevel, TContextBase } from '@debugr/core';
+import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/core';
 import { SqlLogEntry } from './types';
 
 const levelMap = {
@@ -9,17 +9,17 @@ const levelMap = {
 };
 
 export class TypeormLogger<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
-> implements Plugin<Partial<TContext>, TGlobalContext>, LoggerInterface
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> implements Plugin<Partial<TTaskContext>, TGlobalContext>, LoggerInterface
 {
   public readonly id: string = 'typeorm';
 
   public readonly entryFormat: string = 'sql';
 
-  private logger: Logger<Partial<TContext>, TGlobalContext>;
+  private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
-  injectLogger(logger: Logger<Partial<TContext>, TGlobalContext>): void {
+  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
     this.logger = logger;
   }
 
@@ -33,7 +33,7 @@ export class TypeormLogger<
 
   logQuery(query: string, parameters?: any[]): void {
     const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
-      formatId: 'sql',
+      format: 'sql',
       level: LogLevel.DEBUG,
       data: {
         query,
@@ -45,7 +45,7 @@ export class TypeormLogger<
 
   logQueryError(error: string, query: string, parameters?: any[]): void {
     const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
-      formatId: 'sql',
+      format: 'sql',
       level: LogLevel.ERROR,
       data: {
         query,
@@ -59,7 +59,7 @@ export class TypeormLogger<
 
   logQuerySlow(time: number, query: string, parameters?: any[]): void {
     const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
-      formatId: 'sql',
+      format: 'sql',
       level: LogLevel.WARNING,
       message: 'Slow query',
       data: {

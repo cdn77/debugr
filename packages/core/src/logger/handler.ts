@@ -1,8 +1,9 @@
-import { LogEntry, LogLevel, TContextBase } from './types';
+import { PluginManager } from '../plugins';
+import { LogEntry, LogLevel, TContextBase, TContextShape } from './types';
 
 export abstract class LogHandler<
-  TContext extends TContextBase = { processId: string },
-  TGlobalContext extends Record<string, any> = {},
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
 > {
   public readonly threshold: LogLevel | number;
 
@@ -10,9 +11,16 @@ export abstract class LogHandler<
 
   public readonly doesNeedFormatters: boolean;
 
-  public abstract log(entry: LogEntry<Partial<TContext>, TGlobalContext>): void;
+  public abstract log(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): void;
 
-  public abstract flush?(processId?: string, forceWrite?: boolean): void;
+  public abstract injectPluginManager(pluginManager: PluginManager): void;
+}
 
-  public abstract fork?<R>(callback: () => R): () => R;
+export abstract class TaskAwareLogHandler<
+  TTaskContext extends TContextBase = TContextShape,
+  TGlobalContext extends TContextShape = {},
+> extends LogHandler<TTaskContext, TGlobalContext> {
+  public abstract flush(processId?: string, forceWrite?: boolean): void;
+
+  public abstract runTask<R>(callback: () => R): () => R;
 }
