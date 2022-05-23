@@ -1,13 +1,6 @@
 import EventEmitter from 'events';
 import { EventDispatcher, Events } from '../events';
-import {
-  FormatterPlugin,
-  isFormatterPlugin,
-  Plugin,
-  PluginId,
-  PluginManager,
-  Plugins,
-} from '../plugins';
+import { isFormatterPlugin, Plugin, PluginId, PluginManager, Plugins } from '../plugins';
 import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
 
 export class Debugr<
@@ -123,8 +116,7 @@ export class Debugr<
             return false;
           }
           return (
-            (plugin as FormatterPlugin).handlerSupport === logHandler.identifier &&
-            entryFormat === (plugin as FormatterPlugin).entryFormat
+            plugin.handlerSupport === logHandler.identifier && entryFormat === plugin.entryFormat
           );
         });
 
