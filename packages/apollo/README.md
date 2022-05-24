@@ -16,11 +16,7 @@ Standalone Apollo Server:
 ```typescript
 import { ApolloLogger } from '@debugr/apollo';
 import { ApolloServer } from 'apollo-server';
-import { 
-  Logger, 
-  Debugr, 
-  LogLevel,
-} from '@debugr/core';
+import { Debugr, LogLevel } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 import { GraphQLConsoleFormatter } from '@debugr/graphql-console-formatter';
 

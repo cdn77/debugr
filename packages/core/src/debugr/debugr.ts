@@ -10,7 +10,7 @@ export class Debugr<
 
   public readonly pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>;
 
-  private readonly loggerInternal: Logger<Partial<TTaskContext>, TGlobalContext>;
+  public readonly logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
   public constructor(
     eventDispatcher: EventDispatcher,
@@ -20,21 +20,17 @@ export class Debugr<
   ) {
     this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
-    this.loggerInternal = logger;
+    this.logger = logger;
 
     for (const plugin of plugins) {
       this.pluginManager.register(plugin);
     }
 
-    for (const logHandler of this.loggerInternal.getAllHandlers()) {
+    for (const logHandler of this.logger.getAllHandlers()) {
       logHandler.injectPluginManager(this.pluginManager);
     }
 
     this.checkFormatters();
-  }
-
-  public get logger(): Logger<Partial<TTaskContext>, TGlobalContext> | never {
-    return this.loggerInternal;
   }
 
   public static create<
@@ -75,11 +71,11 @@ export class Debugr<
   }
 
   public hasHandler(id: string): boolean {
-    return this.loggerInternal.hasHandler(id);
+    return this.logger.hasHandler(id);
   }
 
   public getHandler(id: string): LogHandler<Partial<TTaskContext>, TGlobalContext> | never {
-    return this.loggerInternal.getHandler(id);
+    return this.logger.getHandler(id);
   }
 
   public on<E extends keyof Events>(event: E, listener: Events[E]): void {
@@ -100,7 +96,7 @@ export class Debugr<
 
   private checkFormatters(): void | never {
     const plugins = this.pluginManager.getAll();
-    const logHandlers = this.loggerInternal.getAllHandlers();
+    const logHandlers = this.logger.getAllHandlers();
     const formatterPluginsErrors: string[] = [];
     for (const logHandler of logHandlers) {
       if (!logHandler.doesNeedFormatters) {
