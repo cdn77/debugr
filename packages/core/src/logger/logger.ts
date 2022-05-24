@@ -46,13 +46,12 @@ export class Logger<
         typeof (response as unknown as Promise<R>).then === 'function'
       ) {
         (response as unknown as Promise<R>)
-          .then(() => {
-            this.flush();
-          })
           .catch((e) => {
             this.error(e);
-            this.flush();
             throw e;
+          })
+          .finally(() => {
+            this.flush();
           });
       } else {
         this.flush();
