@@ -57,25 +57,23 @@ export class ElasticHandler<
         body: this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry),
       });
     } catch (error) {
-      if (this.opts.errorCallback) {
+      if (this.opts.errorMsThreshold) {
+        if (
+          !this.lastError ||
+          this.lastError.getTime() - new Date().getTime() > this.opts.errorMsThreshold
+        ) {
+          if (this.opts.errorCallback) {
+            this.opts.errorCallback(error);
+          } else {
+            console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
+            this.lastError = new Date();
+          }
+        }
+      } else if (this.opts.errorCallback) {
         this.opts.errorCallback(error);
       } else {
-        this.defaultErrorCallback(error);
-      }
-    }
-  }
-
-  private defaultErrorCallback(error: Error): void {
-    if (this.opts.errorMsThreshold) {
-      if (
-        !this.lastError ||
-        this.lastError.getTime() - new Date().getTime() > this.opts.errorMsThreshold
-      ) {
         console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
-        this.lastError = new Date();
       }
-    } else {
-      console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
     }
   }
 
