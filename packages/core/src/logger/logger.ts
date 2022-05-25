@@ -1,10 +1,11 @@
 /* eslint-disable guard-for-in */
 import { v4 } from 'node-uuid';
 import v8 from 'v8';
+import { vsprintf } from 'printj';
 
 import { AsyncLocalStorage } from 'async_hooks';
 import { LogLevel, TContextBase, LogEntry, TContextShape } from './types';
-import { LogHandler, TaskAwareLogHandler } from './handler';
+import { isTaskAwareLogHandler, LogHandler, TaskAwareLogHandler } from './handler';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextShape,
@@ -62,67 +63,71 @@ export class Logger<
     // @ts-ignore
     const newContext: Partial<TTaskContext> = { processId: v4() };
 
-    const callbacks: ((callback: () => R) => () => R)[] = this.logHandlers
-      .map(
-        (logHandler) => (logHandler as TaskAwareLogHandler<TTaskContext, TGlobalContext>).runTask,
-      )
-      .filter((item) => !!item) as ((callback: () => R) => () => R)[];
-    let mainCallback: () => R = envelopedCallback;
-    for (const iteratedCallback of callbacks) {
-      mainCallback = iteratedCallback(mainCallback);
-    }
+    const mainCallback = this.logHandlers.reduceRight(
+      (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),
+      envelopedCallback,
+    );
 
     return this.taskContextStorage.run(newContext, mainCallback);
   }
 
   public trace(data: Record<string, any>): void;
-  public trace(message: string, data?: Record<string, any>): void;
+  public trace(message: string | string[], data?: Record<string, any>): void;
   public trace(message: any, data?: Record<string, any>): void {
     this.log(LogLevel.TRACE, message, data);
   }
 
   public debug(data: Record<string, any> | Error): void;
-  public debug(message: string, data?: Record<string, any> | Error): void;
+  public debug(message: string | string[], data?: Record<string, any> | Error): void;
   public debug(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.DEBUG, message, data);
   }
 
   public info(data: Record<string, any> | Error): void;
-  public info(message: string, data?: Record<string, any> | Error): void;
+  public info(message: string | string[], data?: Record<string, any> | Error): void;
   public info(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.INFO, message, data);
   }
 
   public warning(data: Record<string, any> | Error): void;
-  public warning(message: string, data?: Record<string, any> | Error): void;
+  public warning(message: string | string[], data?: Record<string, any> | Error): void;
   public warning(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.WARNING, message, data);
   }
 
   public error(data: Record<string, any> | Error): void;
-  public error(message: string, data?: Record<string, any> | Error): void;
+  public error(message: string | string[], data?: Record<string, any> | Error): void;
   public error(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.ERROR, message, data);
   }
 
   public fatal(data: Record<string, any> | Error): void;
-  public fatal(message: string, data?: Record<string, any> | Error): void;
+  public fatal(message: string | string[], data?: Record<string, any> | Error): void;
   public fatal(message: any, data?: Record<string, any> | Error): void {
     this.log(LogLevel.FATAL, message, data);
   }
 
   public log(level: LogLevel | number, data: Record<string, any> | Error): void;
-  public log(level: LogLevel | number, message: string, data?: Record<string, any> | Error): void;
   public log(
     level: LogLevel | number,
-    messageOrDataOrError: Record<string, any> | Error | string,
+    message: string | string[],
+    data?: Record<string, any> | Error,
+  ): void;
+  public log(
+    level: LogLevel | number,
+    messageOrDataOrError: Record<string, any> | Error | string | string[],
     maybeDataOrError?: Record<string, any> | Error,
   ): void {
     let error: Error | undefined;
     let data: Record<string, any> | undefined;
     let message: string | undefined;
-    if (typeof messageOrDataOrError === 'string') {
-      message = messageOrDataOrError;
+    if (typeof messageOrDataOrError === 'string' || Array.isArray(messageOrDataOrError)) {
+      if (Array.isArray(messageOrDataOrError) && messageOrDataOrError.length > 0) {
+        message = vsprintf(messageOrDataOrError.shift()!, messageOrDataOrError);
+      } else if (typeof messageOrDataOrError === 'string') {
+        message = messageOrDataOrError;
+      }
+
       if (maybeDataOrError instanceof Error) {
         error = maybeDataOrError;
       } else {

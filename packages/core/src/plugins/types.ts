@@ -40,9 +40,7 @@ export function isFormatterPlugin<
   plugin: Plugin<Partial<TTaskContext>, TGlobalContext>,
 ): plugin is FormatterPlugin<Partial<TTaskContext>, TGlobalContext> {
   return (
-    typeof (plugin as FormatterPlugin<Partial<TTaskContext>, TGlobalContext>).getEntryLabel ===
-      'function' &&
-    typeof (plugin as FormatterPlugin<Partial<TTaskContext>, TGlobalContext>).formatEntry ===
-      'function'
+    typeof (plugin as any).getEntryLabel === 'function' &&
+    typeof (plugin as any).formatEntry === 'function'
   );
 }

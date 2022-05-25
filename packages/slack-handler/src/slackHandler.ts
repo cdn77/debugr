@@ -1,5 +1,9 @@
 import { LogEntry, LogLevel, TContextBase, LogHandler, TContextShape } from '@debugr/core';
-import fetch from 'node-fetch';
+
+type FetchApi = typeof import('node-fetch');
+
+// eslint-disable-next-line @typescript-eslint/no-implied-eval
+const loader: Promise<FetchApi> = new Function('return import("node-fetch")')();
 
 export interface SlackHandlerOptions<
   TTaskContext extends TContextBase = TContextShape,
@@ -39,21 +43,24 @@ export class SlackHandler<
     return instance;
   }
 
-  log(entry: LogEntry<TTaskContext, TGlobalContext>): void {
+  public async log(entry: LogEntry<TTaskContext, TGlobalContext>): Promise<void> {
     const body = this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry);
-    fetch(this.opts.webhookUrl, {
-      body: JSON.stringify({
-        channel: this.opts.channel,
-        username: this.opts.username,
-        icon_url: this.opts.iconUrl,
-        icon_emoji: this.opts.iconEmoji,
-        ...body,
-      }),
-      headers: { 'Content-Type': 'application/json' },
-      method: 'post',
-    }).catch((error) =>
-      this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
-    );
+    const api = await loader;
+    api
+      .default(this.opts.webhookUrl, {
+        body: JSON.stringify({
+          channel: this.opts.channel,
+          username: this.opts.username,
+          icon_url: this.opts.iconUrl,
+          icon_emoji: this.opts.iconEmoji,
+          ...body,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'post',
+      })
+      .catch((error) =>
+        this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
+      );
   }
 
   private defaultErrorCallback(error: Error): void {

@@ -50,24 +50,19 @@ export class ElasticHandler<
     return instance;
   }
 
-  log(entry: LogEntry<TTaskContext, TGlobalContext>): void {
-    this.elasticClient
-      .index({
-        index:
-          typeof this.opts.index === 'string'
-            ? this.defaultIndexCallback(entry)
-            : this.opts.index(entry),
+  public async log(entry: LogEntry<TTaskContext, TGlobalContext>): Promise<void> {
+    try {
+      await this.elasticClient.index({
+        index: typeof this.opts.index === 'string' ? this.opts.index : this.opts.index(entry),
         body: this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry),
-      })
-      .catch((error) =>
-        this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
-      );
-  }
-
-  private defaultIndexCallback(entry: LogEntry<TTaskContext, TGlobalContext>): string {
-    return entry.level === 10
-      ? `${this.opts.index}-trace-${new Date().toISOString().split('T')[0]}`
-      : `${this.opts.index}-log-${new Date().toISOString().split('T')[0]}`;
+      });
+    } catch (error) {
+      if (this.opts.errorCallback) {
+        this.opts.errorCallback(error);
+      } else {
+        this.defaultErrorCallback(error);
+      }
+    }
   }
 
   private defaultErrorCallback(error: Error): void {

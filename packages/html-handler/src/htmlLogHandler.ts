@@ -77,7 +77,7 @@ export class HtmlLogHandler<
     }
   }
 
-  public runTask<R>(callback: () => R): () => R {
+  public runTask<R>(callback: () => R): R {
     const now = new Date();
 
     const queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext> = {
@@ -86,9 +86,7 @@ export class HtmlLogHandler<
       lastTs: now,
     };
 
-    return () => {
-      return this.asyncStorage.run<R>(queue, callback);
-    };
+    return this.asyncStorage.run<R>(queue, callback);
   }
 
   public flush(_processId?: string, forceWrite: boolean = false): void {
