@@ -54,7 +54,7 @@ export class ElasticHandler<
     try {
       await this.elasticClient.index({
         index: typeof this.opts.index === 'string' ? this.opts.index : this.opts.index(entry),
-        body: this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry),
+        body: this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyMapper(entry),
       });
     } catch (error) {
       if (this.opts.errorMsThreshold) {
@@ -77,7 +77,7 @@ export class ElasticHandler<
     }
   }
 
-  private defaultBodyParser(entry: LogEntry<TTaskContext, TGlobalContext>): Record<string, any> {
+  private defaultBodyMapper(entry: LogEntry<TTaskContext, TGlobalContext>): Record<string, any> {
     return {
       ...entry,
       data: JSON.stringify(entry.data),

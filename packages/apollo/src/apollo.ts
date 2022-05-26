@@ -15,8 +15,6 @@ export class ApolloLogger<
 
   private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
-  private autoFlush: boolean;
-
   constructor(options?: Options) {
     this.options = {
       level: options?.level || LogLevel.INFO,
@@ -33,13 +31,12 @@ export class ApolloLogger<
     this.logger = logger;
   }
 
-  requestDidStart(): GraphQLRequestListener {
+  public requestDidStart = async (): Promise<GraphQLRequestListener> => {
     const logger = this.logger;
     const options = this.options;
-    const flush = this.autoFlush;
 
     return {
-      didResolveOperation({ request, operation, operationName }): void {
+      didResolveOperation: async ({ request, operation, operationName }): Promise<void> => {
         if (request.query) {
           const entry: Omit<GraphQlLogEntry, 'context' | 'ts'> = {
             format: 'graphql',
@@ -54,7 +51,7 @@ export class ApolloLogger<
           logger.add(entry);
         }
       },
-      didEncounterErrors({ errors }): void {
+      didEncounterErrors: async ({ errors }): Promise<void> => {
         for (const err of errors) {
           const data = err.originalError
             ? {
@@ -69,11 +66,6 @@ export class ApolloLogger<
           });
         }
       },
-      willSendResponse(): void {
-        if (flush) {
-          logger.flush();
-        }
-      },
     };
-  }
+  };
 }

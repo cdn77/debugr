@@ -15,13 +15,13 @@
     "apollo-server-types": "^3.5.3"
   },
   "devDependencies": {
-    "apollo-server-plugin-base": "^0.10.2",
+    "apollo-server-plugin-base": "^3.6.0",
     "@debugr/core": "^3.0",
     "graphql": "^15.4.0"
   },
   "peerDependencies": {
     "@debugr/core": "^3.0",
-    "apollo-server-plugin-base": "^0.10.2",
+    "apollo-server-plugin-base": "^3.6.0",
     "graphql": "^15.4.0"
 
   },
