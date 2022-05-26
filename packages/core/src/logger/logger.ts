@@ -267,17 +267,19 @@ export class Logger<
   ): Logger<TTaskContext, TGlobalContext> {
     const context: Partial<TTaskContext> = this.taskContextStorage.getStore() || {};
 
-    this.logHandlers.forEach((logHandler) => {
-      logHandler.log({
-        level: entry.level,
-        context: v8.deserialize(v8.serialize({ ...context, ...this.globalContext })),
-        message: entry.message,
-        data: entry.data,
-        format: entry.format,
-        error: entry.error,
-        ts: new Date(),
+    this.logHandlers
+      .filter((item) => entry.level >= item.threshold)
+      .forEach((logHandler) => {
+        logHandler.log({
+          level: entry.level,
+          context: v8.deserialize(v8.serialize({ ...context, ...this.globalContext })),
+          message: entry.message,
+          data: entry.data,
+          format: entry.format,
+          error: entry.error,
+          ts: new Date(),
+        });
       });
-    });
 
     return this;
   }
