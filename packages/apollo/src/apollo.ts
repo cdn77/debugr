@@ -41,6 +41,7 @@ export class ApolloLogger<
           const entry: Omit<GraphQlLogEntry, 'context' | 'ts'> = {
             format: 'graphql',
             level: options.level,
+            message: 'GraphQL request',
             data: {
               query: request.query,
               variables: request.variables,
