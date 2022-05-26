@@ -1,6 +1,6 @@
-import { TypeormLogger } from './typeorm';
+import { TypeormLogger, TypeORMLoggerOptions } from './typeorm';
 
-export { TypeormLogger };
+export { TypeormLogger, TypeORMLoggerOptions };
 
 declare module '@debugr/core' {
   export interface Plugins<
