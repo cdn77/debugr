@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sql-console-formatter",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "SQL formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -14,10 +14,10 @@
     "ansi-colors": "^4.1.1"
   },
   "devDependencies": {
-    "@debugr/core": "^2.0"
+    "@debugr/core": "^3.0"
   },
   "peerDependencies": {
-    "@debugr/core": "^2.0"
+    "@debugr/core": "^3.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

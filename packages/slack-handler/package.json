@@ -1,6 +1,6 @@
 {
   "name": "@debugr/slack-handler",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Elastic log handler to debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,8 +11,13 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^2.0",
     "node-fetch": "^3.2.4"
+  },
+  "devDependencies": {
+    "@debugr/core": "^3.0"
+  },
+  "peerDependencies": {
+    "@debugr/core": "^3.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

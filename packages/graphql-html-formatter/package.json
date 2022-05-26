@@ -1,6 +1,6 @@
 {
   "name": "@debugr/graphql-html-formatter",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "GraphQL request formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,12 +11,12 @@
     "node": ">=12.0"
   },
   "devDependencies": {
-    "@debugr/apollo": "^2.0.0",
-    "@debugr/core": "^2.0"
+    "@debugr/apollo": "^3.0.0",
+    "@debugr/core": "^3.0"
   },
   "peerDependencies": {
-    "@debugr/apollo": "^2.0.0",
-    "@debugr/core": "^2.0"
+    "@debugr/apollo": "^3.0.0",
+    "@debugr/core": "^3.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

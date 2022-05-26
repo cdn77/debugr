@@ -1,6 +1,6 @@
 {
   "name": "@debugr/apollo",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Apollo server plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -12,18 +12,18 @@
   },
   "dependencies": {
     "@apollo/utils.logger": "^1.0.0",
-    "@debugr/core": "^2.0",
     "apollo-server-types": "^3.5.3"
   },
   "devDependencies": {
-    "@debugr/core": "^2.0",
     "apollo-server-plugin-base": "^0.10.2",
+    "@debugr/core": "^3.0",
     "graphql": "^15.4.0"
   },
   "peerDependencies": {
-    "@debugr/core": "^2.0",
+    "@debugr/core": "^3.0",
     "apollo-server-plugin-base": "^0.10.2",
     "graphql": "^15.4.0"
+
   },
   "src": "src/index.ts",
   "main": "dist/index.js",
@@ -35,6 +35,7 @@
       "@apollo/utils.logger",
       "apollo-server-plugin-base",
       "apollo-server-types",
+      "graphql",
       "long"
     ]
   },

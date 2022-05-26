@@ -1,6 +1,6 @@
 {
   "name": "@debugr/console-handler",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Console log handlers to debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,8 +11,13 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^2.0",
     "ansi-colors": "^4.1.1"
+  },
+  "devDependencies": {
+    "@debugr/core": "^3.0"
+  },
+  "peerDependencies": {
+    "@debugr/core": "^3.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -20,14 +25,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "ansi-colors",
-      "node-uuid",
-      "crypto",
-      "async_hooks",
-      "events",
-      "fs",
-      "path",
-      "util"
+      "ansi-colors"
     ]
   },
   "files": [

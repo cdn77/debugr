@@ -1,6 +1,6 @@
 {
   "name": "@debugr/html-handler",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Html log handler to debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,12 +11,14 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^2.0",
-    "@debugr/http-formatter": "^2.0",
     "node-uuid": "^1.4.8"
   },
   "devDependencies": {
+    "@debugr/core": "^3.0",
     "@types/node-uuid": "0.0.29"
+  },
+  "peerDependencies": {
+    "@debugr/core": "^3.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -24,13 +26,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "node-uuid",
-      "crypto",
-      "async_hooks",
-      "events",
-      "fs",
-      "path",
-      "util"
+      "node-uuid"
     ]
   },
   "files": [

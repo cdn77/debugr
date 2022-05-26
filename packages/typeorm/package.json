@@ -1,6 +1,6 @@
 {
   "name": "@debugr/typeorm",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "TypeORM plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -10,13 +10,14 @@
   "engines": {
     "node": ">=12.0"
   },
-  "devDependencies": {
-    "@debugr/core": "^2.0",
+  "dependencies": {
     "typeorm": "^0.2.29"
   },
+  "devDependencies": {
+    "@debugr/core": "^3.0"
+  },
   "peerDependencies": {
-    "@debugr/core": "^2.0",
-    "typeorm": "^0.2.29"
+    "@debugr/core": "^3.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -24,8 +25,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "typeorm",
-      "node"
+      "typeorm"
     ]
   },
   "files": [
