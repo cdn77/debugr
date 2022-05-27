@@ -61,7 +61,6 @@ export class ApolloLogger<
     return {
       didResolveOperation: async ({ request, operation, operationName }): Promise<void> => {
         if (request.query) {
-          // logger.runTask(() => {});
           const entry: Omit<GraphQlLogEntry, 'context' | 'ts'> = {
             format: 'graphql',
             level: options.level,
