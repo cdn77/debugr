@@ -4,7 +4,7 @@ import { HttpLogEntry, NormalizedOptions, Options } from './types';
 import { filterHeaders, normalizeOptions } from './utils';
 
 export class InsanerLogger<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<Partial<TTaskContext>, TGlobalContext>
 {

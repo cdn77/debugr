@@ -6,7 +6,7 @@ type FetchApi = typeof import('node-fetch');
 const loader: Promise<FetchApi> = new Function('return import("node-fetch")')();
 
 export interface SlackHandlerOptions<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   webhookUrl: string;

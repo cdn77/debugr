@@ -2,7 +2,7 @@ import { LogEntry, LogLevel, ImmutableDate, TContextBase, TContextShape } from '
 import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
 
 export abstract class Formatter<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   readonly levelMap: Record<number, string> = {

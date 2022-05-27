@@ -3,7 +3,7 @@ import { HttpLogEntry } from '@debugr/express';
 import * as templates from './templates';
 
 export class HttpConsoleFormatter<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {

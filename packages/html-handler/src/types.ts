@@ -7,7 +7,7 @@ export type HtmlLogHandlerOptions = {
 };
 
 export type LogEntryQueue<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > = {
   id?: string;

@@ -9,7 +9,7 @@ import {
 import { GraphQlLogEntry } from '@debugr/apollo';
 
 export class GraphQLHtmlFormatter<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {

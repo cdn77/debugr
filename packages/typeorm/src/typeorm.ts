@@ -22,7 +22,7 @@ export type TypeORMLoggerOptions = {
 };
 
 export class TypeormLogger<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<Partial<TTaskContext>, TGlobalContext>, LoggerInterface
 {

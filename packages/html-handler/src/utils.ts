@@ -5,7 +5,7 @@ import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
 import { LogEntryQueue } from './types';
 
 export function findDefiningEntry<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 >(
   queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext>,

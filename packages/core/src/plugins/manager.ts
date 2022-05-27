@@ -2,7 +2,7 @@ import { Logger, TContextBase, TContextShape } from '../logger';
 import { Plugin, PluginId, Plugins } from './types';
 
 export class PluginManager<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   private readonly plugins: Plugins<Partial<TTaskContext>, TGlobalContext>;

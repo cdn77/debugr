@@ -2,7 +2,7 @@ import { PluginManager } from '../plugins';
 import { LogEntry, LogLevel, TContextBase, TContextShape } from './types';
 
 export abstract class LogHandler<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   public readonly threshold: LogLevel | number;
@@ -17,7 +17,7 @@ export abstract class LogHandler<
 }
 
 export abstract class TaskAwareLogHandler<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends LogHandler<TTaskContext, TGlobalContext> {
   public abstract flush(processId?: string, forceWrite?: boolean): void;

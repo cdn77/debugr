@@ -10,7 +10,7 @@ export type FullOptions = {
 };
 
 export interface GraphQlLogEntry<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
   format: 'graphql';

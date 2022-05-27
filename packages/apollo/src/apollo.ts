@@ -3,7 +3,7 @@ import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/c
 import { FullOptions, GraphQlLogEntry, Options } from './types';
 
 export class ApolloLogger<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<Partial<TTaskContext>, TGlobalContext>, ApolloServerPlugin
 {
@@ -31,6 +31,27 @@ export class ApolloLogger<
     this.logger = logger;
   }
 
+  public getApolloMiddleware() {
+    return async (resolve: any, root: any, args: any, context: any, info: any): Promise<any> => {
+      this.logger.runTask(() => {
+        let queryOrMutationName = 'unknown';
+        const operationNames = info.operation.selectionSet.selections.map(
+          (item: any) => item?.name?.value,
+        );
+
+        if (operationNames.length === 1) {
+          queryOrMutationName = `${operationNames[0]}`;
+        } else if (operationNames.length > 1) {
+          queryOrMutationName = JSON.stringify(operationNames);
+        }
+
+        this.logger
+          .setContextProperty('queryName', queryOrMutationName)
+          .trace('Graphql request initiated', queryOrMutationName === 'login' ? {} : args);
+      });
+    };
+  }
+
   public requestDidStart = async (): Promise<GraphQLRequestListener> => {
     const logger = this.logger;
     const options = this.options;
@@ -38,6 +59,7 @@ export class ApolloLogger<
     return {
       didResolveOperation: async ({ request, operation, operationName }): Promise<void> => {
         if (request.query) {
+          // logger.runTask(() => {});
           const entry: Omit<GraphQlLogEntry, 'context' | 'ts'> = {
             format: 'graphql',
             level: options.level,

@@ -10,7 +10,7 @@ import {
 } from './utils';
 
 export class ExpressLogger<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<Partial<TTaskContext>, TGlobalContext>
 {
@@ -54,13 +54,15 @@ export class ExpressLogger<
   }
 
   private logHttpRequest<
-    TTaskContext extends TContextBase = TContextShape,
+    TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
     logger: Logger<Partial<TTaskContext>, TGlobalContext>,
     options: NormalizedOptions,
     request: Request,
   ): void {
+    logger.setContextProperty('restRoute', request.originalUrl);
+    logger.setContextProperty('restMethod', request.method);
     const contentType = normalizeContentType(request.header('content-type'));
     const contentLength = normalizeContentLength(request.header('content-length'));
 
@@ -74,7 +76,7 @@ export class ExpressLogger<
   }
 
   private doLogRequest<
-    TTaskContext extends TContextBase = TContextShape,
+    TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
     logger: Logger<Partial<TTaskContext>, TGlobalContext>,
@@ -137,7 +139,7 @@ export class ExpressLogger<
   }
 
   private async logHttpResponse<
-    TTaskContext extends TContextBase = TContextShape,
+    TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
     logger: Logger<Partial<TTaskContext>, TGlobalContext>,

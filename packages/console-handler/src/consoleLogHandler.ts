@@ -10,8 +10,8 @@ import {
 import { ConsoleFormatter } from './consoleFormatter';
 
 export class ConsoleLogHandler<
-  TTaskContext extends TContextBase,
-  TGlobalContext extends TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
 > extends LogHandler<Partial<TTaskContext>, TGlobalContext> {
   private formatter?: ConsoleFormatter<Partial<TTaskContext>, TGlobalContext>;
 

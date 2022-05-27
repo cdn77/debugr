@@ -2,7 +2,7 @@ import { LogEntry, Logger, TContextBase, TContextShape } from '../logger';
 import { PluginManager } from './manager';
 
 export interface Plugins<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   [id: string]: Plugin<Partial<TTaskContext>, TGlobalContext>;
@@ -11,7 +11,7 @@ export interface Plugins<
 export type PluginId = Exclude<keyof Plugins, number | symbol>;
 
 export interface Plugin<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   readonly id: string;
@@ -23,7 +23,7 @@ export interface Plugin<
 }
 
 export interface FormatterPlugin<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends Plugin<Partial<TTaskContext>, TGlobalContext> {
   readonly entryFormat: string;
@@ -34,7 +34,7 @@ export interface FormatterPlugin<
 }
 
 export function isFormatterPlugin<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 >(
   plugin: Plugin<Partial<TTaskContext>, TGlobalContext>,

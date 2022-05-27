@@ -3,7 +3,7 @@ import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { LogEntry, LogLevel, TContextBase, LogHandler, TContextShape } from '@debugr/core';
 
 export interface ElasticHandlerOptions<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   threshold: LogLevel | number;
@@ -14,7 +14,7 @@ export interface ElasticHandlerOptions<
 }
 
 export type ElasticOptions<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > = {} & ClientOptions & ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 

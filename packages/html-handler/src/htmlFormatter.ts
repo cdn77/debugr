@@ -18,7 +18,7 @@ import { LogEntryQueue } from './types';
 import { findDefiningEntry } from './utils';
 
 export class HtmlFormatter<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends Formatter<Partial<TTaskContext>, TGlobalContext> {
   readonly templates: FormatterTemplateMap = templates;

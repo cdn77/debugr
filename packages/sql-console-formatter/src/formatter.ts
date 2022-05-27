@@ -10,7 +10,7 @@ import { dim } from 'ansi-colors';
 import { formatQueryTime } from './utils';
 
 export class SqlConsoleFormatter<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {

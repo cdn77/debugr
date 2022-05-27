@@ -12,7 +12,7 @@ import { identifyQueue } from './utils';
 import { LogEntryQueue, HtmlLogHandlerOptions } from './types';
 
 export class HtmlLogHandler<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends TaskAwareLogHandler<Partial<TTaskContext>, TGlobalContext> {
   public readonly identifier: string = 'html';

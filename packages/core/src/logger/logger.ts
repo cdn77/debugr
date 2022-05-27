@@ -8,7 +8,7 @@ import { LogLevel, TContextBase, LogEntry, TContextShape } from './types';
 import { isTaskAwareLogHandler, LogHandler, TaskAwareLogHandler } from './handler';
 
 export class Logger<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   private readonly globalContext: TGlobalContext;
@@ -26,10 +26,10 @@ export class Logger<
     this.taskContextStorage = new AsyncLocalStorage();
   }
 
-  public runTask<R>(callback: () => R, force?: boolean): R {
+  public runTask<R>(callback: () => R, dontOverrideTask?: boolean): R {
     const context = this.taskContextStorage.getStore();
 
-    if (context && !force) {
+    if (context && dontOverrideTask) {
       return callback();
     }
 
@@ -60,8 +60,9 @@ export class Logger<
       return response;
     };
 
-    // @ts-ignore
-    const newContext: Partial<TTaskContext> = { processId: v4() };
+    const newContext: Partial<TTaskContext> = context
+      ? v8.deserialize(v8.serialize(context))
+      : { processId: v4() };
 
     const mainCallback = this.logHandlers.reduceRight(
       (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),

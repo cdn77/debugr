@@ -3,7 +3,7 @@ import { isFormatterPlugin, Plugin, PluginId, PluginManager, Plugins } from '../
 import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
 
 export class Debugr<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   private readonly eventDispatcher: EventDispatcher;
@@ -34,7 +34,7 @@ export class Debugr<
   }
 
   public static create<
-    TTaskContext extends TContextBase = TContextShape,
+    TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
     globalContext: TGlobalContext,

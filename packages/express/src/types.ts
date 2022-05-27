@@ -34,7 +34,7 @@ export type NormalizedOptions = {
 };
 
 export interface HttpLogEntry<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
   format: 'http';

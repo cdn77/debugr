@@ -4,8 +4,13 @@ import { Options, HttpLogEntry } from './types';
 export { ExpressLogger, Options, HttpLogEntry };
 
 declare module '@debugr/core' {
+  export interface TContextBase {
+    restRoute?: string;
+    restMethod?: string;
+  }
+
   export interface Plugins<
-    TTaskContext extends TContextBase = TContextShape,
+    TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
     express: ExpressLogger<Partial<TTaskContext>, TGlobalContext>;

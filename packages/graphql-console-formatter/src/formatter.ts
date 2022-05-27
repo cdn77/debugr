@@ -2,7 +2,7 @@ import { formatData, FormatterPlugin, isEmpty, TContextBase, TContextShape } fro
 import { GraphQlLogEntry } from '@debugr/apollo';
 
 export class GraphQLConsoleFormatter<
-  TTaskContext extends TContextBase = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
 {

@@ -5,7 +5,7 @@ export { InsanerLogger, Options };
 
 declare module '@debugr/core' {
   export interface Plugins<
-    TTaskContext extends TContextBase = TContextShape,
+    TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
     insaner: InsanerLogger<Partial<TTaskContext>, TGlobalContext>;
