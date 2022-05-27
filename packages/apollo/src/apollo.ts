@@ -45,9 +45,11 @@ export class ApolloLogger<
           queryOrMutationName = JSON.stringify(operationNames);
         }
 
-        this.logger
-          .setContextProperty('queryName', queryOrMutationName)
-          .trace('Graphql request initiated', queryOrMutationName === 'login' ? {} : args);
+        this.logger.setContextProperty('queryName', queryOrMutationName).add({
+          level: this.options.level,
+          message: 'Graphql request initiated',
+          data: args,
+        });
       });
     };
   }
