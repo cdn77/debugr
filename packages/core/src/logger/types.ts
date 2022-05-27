@@ -13,9 +13,11 @@ export type TContextShape = {
   [property: string]: TContextShape | Date | string | number | boolean | undefined | null;
 };
 
-export type TContextBase = TContextShape & {
+export interface TContextFixed {
   processId?: string;
-};
+}
+
+export type TContextBase = TContextShape & TContextFixed;
 
 export type ImmutableDate = Omit<
   Date,

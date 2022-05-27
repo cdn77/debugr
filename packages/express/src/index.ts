@@ -4,7 +4,7 @@ import { Options, HttpLogEntry } from './types';
 export { ExpressLogger, Options, HttpLogEntry };
 
 declare module '@debugr/core' {
-  export interface TContextBase {
+  export interface TContextFixed {
     restRoute?: string;
     restMethod?: string;
   }

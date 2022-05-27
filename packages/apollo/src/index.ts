@@ -4,7 +4,7 @@ import { Options, GraphQlLogEntry } from './types';
 export { ApolloLogger, Options, GraphQlLogEntry };
 
 declare module '@debugr/core' {
-  export interface TContextBase {
+  export interface TContextFixed {
     queryName?: string;
   }
 
