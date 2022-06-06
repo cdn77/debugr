@@ -1,5 +1,12 @@
 import { EventDispatcher, Events } from '../events';
-import { isFormatterPlugin, Plugin, PluginId, PluginManager, Plugins } from '../plugins';
+import {
+  FormatterPlugin,
+  isFormatterPlugin,
+  Plugin,
+  PluginId,
+  PluginManager,
+  Plugins,
+} from '../plugins';
 import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
 
 export class Debugr<
@@ -95,23 +102,21 @@ export class Debugr<
   }
 
   private checkFormatters(): void | never {
-    const plugins = this.pluginManager.getAll();
+    const plugins = this.pluginManager.getAll().filter((plugin) => {
+      return isFormatterPlugin(plugin);
+    }) as FormatterPlugin<Partial<Partial<TTaskContext>>, TGlobalContext>[];
     const logHandlers = this.logger.getAllHandlers();
     const formatterPluginsErrors: string[] = [];
+    const entryFormats = new Set(...plugins.map((plugin) => plugin.entryFormat));
     for (const logHandler of logHandlers) {
       if (!logHandler.doesNeedFormatters) {
         continue;
       }
 
-      const entryFormats = new Set(...plugins.map((plugin) => plugin.entryFormat));
-
       for (const entryFormat of entryFormats) {
         const plugin = plugins.find((plugin) => {
-          if (!isFormatterPlugin(plugin)) {
-            return false;
-          }
           return (
-            plugin.handlerSupport === logHandler.identifier && entryFormat === plugin.entryFormat
+            plugin.targetHandler === logHandler.identifier && entryFormat === plugin.entryFormat
           );
         });
 

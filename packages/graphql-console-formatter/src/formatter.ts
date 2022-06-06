@@ -10,7 +10,7 @@ export class GraphQLConsoleFormatter<
 
   readonly entryFormat: string = 'graphql';
 
-  readonly handlerSupport: string = 'console';
+  readonly targetHandler: string = 'console';
 
   public static create<
     TTaskContext extends TContextBase,

@@ -18,7 +18,7 @@ export class SqlHtmlFormatter<
 
   public readonly entryFormat: string = 'sql';
 
-  public readonly handlerSupport: string = 'html';
+  public readonly targetHandler: string = 'html';
 
   public static create<
     TTaskContext extends TContextBase,

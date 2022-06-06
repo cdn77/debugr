@@ -46,8 +46,8 @@ export class SlackHandler<
   public async log(entry: LogEntry<TTaskContext, TGlobalContext>): Promise<void> {
     const body = this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry);
     const api = await loader;
-    api
-      .default(this.opts.webhookUrl, {
+    try {
+      await api.default(this.opts.webhookUrl, {
         body: JSON.stringify({
           channel: this.opts.channel,
           username: this.opts.username,
@@ -57,10 +57,14 @@ export class SlackHandler<
         }),
         headers: { 'Content-Type': 'application/json' },
         method: 'post',
-      })
-      .catch((error) =>
-        this.opts.errorCallback ? this.opts.errorCallback(error) : this.defaultErrorCallback(error),
-      );
+      });
+    } catch (error) {
+      if (this.opts.errorCallback) {
+        this.opts.errorCallback(error);
+      } else {
+        this.defaultErrorCallback(error);
+      }
+    }
   }
 
   private defaultErrorCallback(error: Error): void {

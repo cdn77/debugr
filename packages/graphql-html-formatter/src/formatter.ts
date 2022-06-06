@@ -17,7 +17,7 @@ export class GraphQLHtmlFormatter<
 
   readonly entryFormat: string = 'graphql';
 
-  readonly handlerSupport: string = 'html';
+  readonly targetHandler: string = 'html';
 
   public static create<
     TTaskContext extends TContextBase,

@@ -11,7 +11,7 @@ export class HttpConsoleFormatter<
 
   public readonly entryFormat: string = 'http';
 
-  public readonly handlerSupport: string = 'console';
+  public readonly targetHandler: string = 'console';
 
   public static create<
     TTaskContext extends TContextBase,

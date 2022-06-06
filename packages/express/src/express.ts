@@ -38,10 +38,10 @@ export class ExpressLogger<
 
   public createRequestHandler(): Handler {
     return (req, res, next) => {
-      this.logger.runTask(() => {
+      return this.logger.runTask(() => {
         this.logHttpRequest(this.logger, this.options, req);
         this.logHttpResponse(this.logger, this.options, res).finally(() => this.logger.flush());
-        next();
+        return next();
       });
     };
   }

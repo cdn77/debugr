@@ -11,7 +11,7 @@ export class HttpHtmlFormatter<
 
   public readonly entryFormat: string = 'http';
 
-  public readonly handlerSupport: string = 'html';
+  public readonly targetHandler: string = 'html';
 
   public static create<
     TTaskContext extends TContextBase,

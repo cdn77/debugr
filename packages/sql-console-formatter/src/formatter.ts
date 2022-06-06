@@ -18,7 +18,7 @@ export class SqlConsoleFormatter<
 
   public readonly entryFormat: string = 'sql';
 
-  public readonly handlerSupport: string = 'console';
+  public readonly targetHandler: string = 'console';
 
   public static create<
     TTaskContext extends TContextBase,

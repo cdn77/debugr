@@ -27,7 +27,7 @@ export interface FormatterPlugin<
   TGlobalContext extends TContextShape = {},
 > extends Plugin<Partial<TTaskContext>, TGlobalContext> {
   readonly entryFormat: string;
-  readonly handlerSupport: string;
+  readonly targetHandler: string;
   getEntryLabel(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string;
   getEntryTitle(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string;
   formatEntry(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): any;

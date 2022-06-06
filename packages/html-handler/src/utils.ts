@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import { v4 } from 'node-uuid';
 
-import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
+import { LogEntry, TContextBase, TContextShape, LogLevel } from '@debugr/core';
 import { LogEntryQueue } from './types';
 
 export function findDefiningEntry<
@@ -15,7 +15,7 @@ export function findDefiningEntry<
   } else if (!queue.entries.length) {
     return {
       ts: new Date(0),
-      level: 4,
+      level: LogLevel.WARNING,
       // @ts-ignore
       context: {
         processId: v4(),

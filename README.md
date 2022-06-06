@@ -155,28 +155,13 @@ of course, configurable.
 Outside forked jobs all messages which exceed the threshold are logged to the console
 immediately; there is no need to call `logger.flush()`.
 
-### `debugr` options
-
-| Option              | Type       | Default        | Description                                                                  |
-| ------------------- | ---------- | -------------- | ---------------------------------------------------------------------------- |
-| `global`            | `object`   |                | Options for global console logger (outside forked jobs)                      |
-| `global.threshold`  | `number`   | `Logger.INFO`  | The minimum level a log entry must have to be written to the console         |
-| `runTask`              | `object`   |                | Options for forked job logger (the one that generates HTML dumps)            |
-| `runTask.logDir`       | `string`   |                | Root directory for generated logs; this is the only required option          |
-| `runTask.threshold`    | `number`   | `Logger.ERROR` | The minimum level a log entry must have to mark a job queue for writing      |
-| `runTask.cloneData`    | `boolean`  | `false`        | Clone data of log entries using V8 serialize / deserialize                   |
-| `runTask.gc`           | `object`   |                | Garbage collection options:                                                  |
-| `runTask.gc.interval`  | `number`   | `60`           | How often GC will be run, in seconds                                         |
-| `runTask.gc.threshold` | `number`   | `300`          | How long since a logger has last been touched before GC should auto-flush it |
-| `plugins`           | `Plugin[]` |                | An array of plugins                                                          |
-
 ### `Logger` API
 
 The `Logger` instance obtained from `debug.createLogger()` has the following methods:
 
- - `log(level: number, data: Record<string, any>): void`  
-   `log(level: number, message: string, data?: Record<string, any>): void`  
-   `log(level: number, message: string, params?: any[], data?: Record<string, any>): void`
+ - `log(level: number, data: Record<string, any> | Error): void`  
+   `log(level: number, message: string | string[], data?: Record<string, any>): void`  
+   `log(level: number, message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
 
    This method pushes an arbitrary entry onto the logger's queue. There are four default
    log levels: `Logger.DEBUG`, `Logger.INFO`, `Logger.WARNING` and `Logger.ERROR`. Later

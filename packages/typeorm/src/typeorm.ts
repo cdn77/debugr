@@ -9,16 +9,16 @@ const defaultLevelMap = {
 };
 
 export type TypeORMLoggerOptions = {
-  levelMap?: {
+  mapLevel?: {
     log: LogLevel | number;
     info: LogLevel | number;
+    error: LogLevel | number;
     warn: LogLevel | number;
   };
-  levelMigration?: LogLevel | number;
-  levelQuery?: LogLevel | number;
-  levelError?: LogLevel | number;
-  levelQuerySlow?: LogLevel | number;
-  levelSchemaBuild?: LogLevel | number;
+  migrationLevel?: LogLevel | number;
+  queryLevel?: LogLevel | number;
+  slowQueryLevel?: LogLevel | number;
+  schemaBuildLevel?: LogLevel | number;
 };
 
 export class TypeormLogger<
@@ -50,19 +50,19 @@ export class TypeormLogger<
 
   log(level: 'log' | 'info' | 'warn', message: any): void {
     this.logger.log(
-      this.options?.levelMap ? this.options.levelMap[level] : defaultLevelMap[level],
+      this.options?.mapLevel ? this.options.mapLevel[level] : defaultLevelMap[level],
       message,
     );
   }
 
   logMigration(message: string): void {
-    this.logger.log(this.options?.levelMigration ?? LogLevel.DEBUG, message);
+    this.logger.log(this.options?.migrationLevel ?? LogLevel.DEBUG, message);
   }
 
   logQuery(query: string, parameters?: any[]): void {
     const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
       format: 'sql',
-      level: this.options?.levelQuery ?? LogLevel.DEBUG,
+      level: this.options?.queryLevel ?? LogLevel.DEBUG,
       data: {
         query,
         parameters,
@@ -74,7 +74,7 @@ export class TypeormLogger<
   logQueryError(error: string, query: string, parameters?: any[]): void {
     const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
       format: 'sql',
-      level: this.options?.levelError ?? LogLevel.ERROR,
+      level: this.options?.mapLevel?.error ?? LogLevel.ERROR,
       data: {
         query,
         parameters,
@@ -88,7 +88,7 @@ export class TypeormLogger<
   logQuerySlow(time: number, query: string, parameters?: any[]): void {
     const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
       format: 'sql',
-      level: this.options?.levelQuerySlow ?? LogLevel.WARNING,
+      level: this.options?.slowQueryLevel ?? LogLevel.WARNING,
       message: 'Slow query',
       data: {
         query,
@@ -100,6 +100,6 @@ export class TypeormLogger<
   }
 
   logSchemaBuild(message: string): void {
-    this.logger.log(this.options?.levelSchemaBuild ?? LogLevel.DEBUG, message);
+    this.logger.log(this.options?.schemaBuildLevel ?? LogLevel.DEBUG, message);
   }
 }
