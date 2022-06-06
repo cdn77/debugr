@@ -163,68 +163,59 @@ The `Logger` instance obtained from `debug.createLogger()` has the following met
    `log(level: number, message: string | string[], data?: Record<string, any>): void`  
    `log(level: number, message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
 
-   This method pushes an arbitrary entry onto the logger's queue. There are four default
-   log levels: `Logger.DEBUG`, `Logger.INFO`, `Logger.WARNING` and `Logger.ERROR`. Later
+   This method pushes an arbitrary entry onto the logger's queue. There are six default
+   log levels: `LogLevel.TRACE`, `LogLevel.DEBUG`, `LogLevel.INFO`, `LogLevel.WARNING`, `LogLevel.ERROR` and `LogLevel.FATAL`. Later
    you'll learn how you can use your own arbitrary log levels.
 
    The `message` string can contain `printf`-style placeholders like `%s`, `%.3f` etc.
-   These will be processed only if `params` is specified. Internally this uses [`printj`],
+   These will be processed only if `message` is type `string[]`. Internally this uses [`printj`],
    so see its documentation to check what is possible.
 
    The `data` argument can contain any arbitrary data you wish to include in your dump.
-   However: by default only a *reference* to the passed object is stored - meaning that
-   the dump will contain a snapshot of the data at the moment `logger.flush()` is called.
-   This should usually be okay; but if for some reason you need to you can turn on data
-   cloning by setting the `cloneData` option to `true` when calling `debugr()`. If this
-   option is set then the object passed to the `data` argument will be cloned using the
-   V8 serialize / deserialize functions, which should be reasonably fast and supports
-   complicated things like cyclic references and so on.
 
- - `debug(data: Record<string, any>): void`  
-   `debug(message: string, data?: Record<string, any>): void`  
-   `debug(message: string, params?: any[], data?: Record<string, any>): void`
+ - `trace(data: Record<string, any> | Error): void`  
+   `trace(message: string, data?: Record<string, any> | Error): void`  
+   `trace(message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
+
+   Shortcut for `logger.log(Logger.TRACE, ...)`.
+
+ - `debug(data: Record<string, any> | Error): void`  
+   `debug(message: string, data?: Record<string, any> | Error): void`  
+   `debug(message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.DEBUG, ...)`.
 
- - `info(data: Record<string, any>): void`  
-   `info(message: string, data?: Record<string, any>): void`  
-   `info(message: string, params?: any[], data?: Record<string, any>): void`
+ - `info(data: Record<string, any> | Error): void`  
+   `info(message: string, data?: Record<string, any> | Error): void`  
+   `info(message: string, error: Error, additionalData?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.INFO, ...)`.
 
- - `warning(data: Record<string, any>): void`  
-   `warning(message: string, data?: Record<string, any>): void`  
-   `warning(message: string, params?: any[], data?: Record<string, any>): void`
+ - `warning(data: Record<string, any> | Error): void`  
+   `warning(message: string, data?: Record<string, any> | Error): void`  
+   `warning(message: string,, error: Error, additionalData?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.WARNING, ...)`.
 
- - `error(data: Record<string, any>): void`  
-   `error(message: string, data?: Record<string, any>): void`  
-   `error(message: string, params?: any[], data?: Record<string, any>): void`
+ - `error(data: Record<string, any> | Error): void`  
+   `error(message: string, data?: Record<string, any> | Error): void`  
+   `error(message: string, error: Error, additionalData?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.ERROR, ...)`.
 
- - `setId(id: string): void`
+ - `fatal(data: Record<string, any> | Error): void`  
+   `fatal(message: string, data?: Record<string, any> | Error): void`  
+   `fatal(message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
 
-   Sets the ID that will be used as part of the filename if the dump ends up
-   getting written when `logger.flush()` is called.
+   Shortcut for `logger.log(Logger.FATAL, ...)`.
 
- - `markForWriting(): void`
+ - `setContextProperty<T extends keyof TTaskContext>(key: T, value: NonNullable<TTaskContext>[T]): Logger<TTaskContext, TGlobalContext>`
 
-   Marks the logger for writing, i.e. when `logger.flush()` is called, the dump
-   will be created regardless of whether an entry exceeding the threshold has
-   been logged.
-
- - `markAsIgnored(): void`
-
-   The inverse of `markForWriting()` - when `logger.flush()` is called, just
-   forget the logger and don't write anything, no matter what has been logged.
+   Sets the property to log context which is added to every entry.
 
  - `flush(): void`
 
-   Writes the logger to the disk if an entry exceeding the threshold has been
-   logged or if the logger has been marked for writing.
-
+   calls flush method of all logHandlers which has it implemented. For example it writes all data to disk with HtmlHandler
 
 ## Development
 
