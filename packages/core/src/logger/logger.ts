@@ -74,11 +74,11 @@ export class Logger<
 
   public trace(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
   public trace(
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public trace(
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
@@ -97,11 +97,11 @@ export class Logger<
 
   public debug(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
   public debug(
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public debug(
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
@@ -120,11 +120,11 @@ export class Logger<
 
   public info(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
   public info(
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public info(
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
@@ -143,11 +143,11 @@ export class Logger<
 
   public warning(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
   public warning(
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public warning(
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
@@ -166,11 +166,11 @@ export class Logger<
 
   public error(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
   public error(
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public error(
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
@@ -189,11 +189,11 @@ export class Logger<
 
   public fatal(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
   public fatal(
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public fatal(
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
@@ -216,18 +216,18 @@ export class Logger<
   ): Logger<TTaskContext, TGlobalContext>;
   public log(
     level: LogLevel | number,
-    message: string | string[],
+    message: string | [string, ...any],
     data?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public log(
     level: LogLevel | number,
-    message: string | string[],
+    message: string | [string, ...any],
     error: Error,
     additionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext>;
   public log(
     level: LogLevel | number,
-    messageOrDataOrError: Record<string, any> | Error | string | string[],
+    messageOrDataOrError: Record<string, any> | Error | string | [string, ...any],
     maybeDataOrError?: Record<string, any> | Error,
     maybeAdditionalData?: Record<string, any>,
   ): Logger<TTaskContext, TGlobalContext> {

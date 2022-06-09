@@ -160,28 +160,28 @@ immediately; there is no need to call `logger.flush()`.
 The `Logger` instance obtained from `debug.createLogger()` has the following methods:
 
  - `log(level: number, data: Record<string, any> | Error): void`  
-   `log(level: number, message: string | string[], data?: Record<string, any>): void`  
-   `log(level: number, message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
+   `log(level: number, message: string | [string, ...any], data?: Record<string, any>): void`  
+   `log(level: number, message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    This method pushes an arbitrary entry onto the logger's queue. There are six default
    log levels: `LogLevel.TRACE`, `LogLevel.DEBUG`, `LogLevel.INFO`, `LogLevel.WARNING`, `LogLevel.ERROR` and `LogLevel.FATAL`. Later
    you'll learn how you can use your own arbitrary log levels.
 
    The `message` string can contain `printf`-style placeholders like `%s`, `%.3f` etc.
-   These will be processed only if `message` is type `string[]`. Internally this uses [`printj`],
+   These will be processed only if `message` is type `[string, ...any]`. Internally this uses [`printj`],
    so see its documentation to check what is possible.
 
    The `data` argument can contain any arbitrary data you wish to include in your dump.
 
  - `trace(data: Record<string, any> | Error): void`  
    `trace(message: string, data?: Record<string, any> | Error): void`  
-   `trace(message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
+   `trace(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.TRACE, ...)`.
 
  - `debug(data: Record<string, any> | Error): void`  
    `debug(message: string, data?: Record<string, any> | Error): void`  
-   `debug(message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
+   `debug(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.DEBUG, ...)`.
 
@@ -205,7 +205,7 @@ The `Logger` instance obtained from `debug.createLogger()` has the following met
 
  - `fatal(data: Record<string, any> | Error): void`  
    `fatal(message: string, data?: Record<string, any> | Error): void`  
-   `fatal(message: string | string[], error: Error, additionalData?: Record<string, any>): void`  
+   `fatal(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.FATAL, ...)`.
 
