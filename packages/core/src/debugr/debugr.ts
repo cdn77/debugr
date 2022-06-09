@@ -1,4 +1,3 @@
-import { EventDispatcher, Events } from '../events';
 import {
   FormatterPlugin,
   isFormatterPlugin,
@@ -13,19 +12,15 @@ export class Debugr<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
-  private readonly eventDispatcher: EventDispatcher;
-
   public readonly pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>;
 
   public readonly logger: Logger<Partial<TTaskContext>, TGlobalContext>;
 
   public constructor(
-    eventDispatcher: EventDispatcher,
     pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>,
     logger: Logger<Partial<TTaskContext>, TGlobalContext>,
     plugins: Plugin<Partial<TTaskContext>, TGlobalContext>[],
   ) {
-    this.eventDispatcher = eventDispatcher;
     this.pluginManager = pluginManager;
     this.logger = logger;
 
@@ -59,7 +54,6 @@ export class Debugr<
     }
 
     const debugr = new Debugr<Partial<TTaskContext>, TGlobalContext>(
-      new EventDispatcher(1000),
       pluginManager,
       logger,
       plugins || [],
@@ -83,22 +77,6 @@ export class Debugr<
 
   public getHandler(id: string): LogHandler<Partial<TTaskContext>, TGlobalContext> | never {
     return this.logger.getHandler(id);
-  }
-
-  public on<E extends keyof Events>(event: E, listener: Events[E]): void {
-    this.eventDispatcher.on(event, listener);
-  }
-
-  public once<E extends keyof Events>(event: E, listener: Events[E]): void {
-    this.eventDispatcher.once(event, listener);
-  }
-
-  public off<E extends keyof Events>(event: E, listener?: Events[E]): void {
-    this.eventDispatcher.off(event, listener);
-  }
-
-  public registerListeners(listeners: Partial<Events>): void {
-    this.eventDispatcher.register(listeners);
   }
 
   private checkFormatters(): void | never {

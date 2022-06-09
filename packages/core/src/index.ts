@@ -1,5 +1,4 @@
 export { Debugr } from './debugr';
-export { Events, EventDispatcher } from './events';
 export {
   Formatter,
   LayoutTemplate,

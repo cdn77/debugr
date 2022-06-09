@@ -61,8 +61,6 @@ export class ExpressLogger<
     options: NormalizedOptions,
     request: Request,
   ): void {
-    logger.setContextProperty('restRoute', request.originalUrl);
-    logger.setContextProperty('restMethod', request.method);
     const contentType = normalizeContentType(request.header('content-type'));
     const contentLength = normalizeContentLength(request.header('content-length'));
 
