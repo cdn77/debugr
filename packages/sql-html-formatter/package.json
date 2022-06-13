@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sql-html-formatter",
-  "version": "3.0.0",
+  "version": "3.0.0-rc.1",
   "description": "SQL formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",

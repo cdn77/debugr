@@ -12,6 +12,7 @@ import {
   ImmutableDate,
   TContextBase,
   TContextShape,
+  ReadonlyRecursive,
 } from '@debugr/core';
 import * as templates from './templates';
 import { LogEntryQueue } from './types';
@@ -33,9 +34,11 @@ export class HtmlFormatter<
     );
   }
 
-  private formatEntries(entries: LogEntry<Partial<TTaskContext>, TGlobalContext>[]): string {
+  private formatEntries(
+    entries: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>[],
+  ): string {
     const chunks: string[] = [];
-    let previous: LogEntry<Partial<TTaskContext>, TGlobalContext> | undefined;
+    let previous: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>> | undefined;
 
     for (const entry of entries) {
       chunks.push(...this.format(entry, previous?.ts));
@@ -45,7 +48,9 @@ export class HtmlFormatter<
     return chunks.join('\n');
   }
 
-  private getEntryTitle(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string {
+  private getEntryTitle(
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
+  ): string {
     try {
       const plugin = entry.format ? this.pluginManager.get(entry.format) : undefined;
 
@@ -62,7 +67,7 @@ export class HtmlFormatter<
   }
 
   protected formatEntry(
-    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
     previousTs?: ImmutableDate,
     plugin?: FormatterPlugin<Partial<TTaskContext>, TGlobalContext>,
   ): string {

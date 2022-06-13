@@ -5,6 +5,7 @@ import {
   LogHandler,
   PluginManager,
   TContextShape,
+  ReadonlyRecursive,
 } from '@debugr/core';
 
 import { ConsoleFormatter } from './consoleFormatter';
@@ -46,7 +47,7 @@ export class ConsoleLogHandler<
     return new ConsoleLogHandler<Partial<TTaskContext>, TGlobalContext>(threshold, writeTimestamp);
   }
 
-  public log(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): void {
+  public log(entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>): void {
     if (!this.formatter) {
       throw new Error('Logger was incorrectly initialized, no formatter found');
     }

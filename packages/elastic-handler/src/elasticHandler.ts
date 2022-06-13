@@ -1,15 +1,24 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 
-import { LogEntry, LogLevel, TContextBase, LogHandler, TContextShape } from '@debugr/core';
+import {
+  LogEntry,
+  LogLevel,
+  TContextBase,
+  LogHandler,
+  TContextShape,
+  ReadonlyRecursive,
+} from '@debugr/core';
 
 export interface ElasticHandlerOptions<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
   threshold: LogLevel | number;
-  index: string | ((entry: LogEntry<TTaskContext, TGlobalContext>) => string);
+  index: string | ((entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>) => string);
   errorCallback?: (error: Error) => void;
-  bodyMapper?: (entry: LogEntry<TTaskContext, TGlobalContext>) => Record<string, any>;
+  bodyMapper?: (
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  ) => Record<string, any>;
   errorMsThreshold?: number;
 }
 
@@ -50,7 +59,9 @@ export class ElasticHandler<
     return instance;
   }
 
-  public async log(entry: LogEntry<TTaskContext, TGlobalContext>): Promise<void> {
+  public async log(
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  ): Promise<void> {
     try {
       await this.elasticClient.index({
         index: typeof this.opts.index === 'string' ? this.opts.index : this.opts.index(entry),
@@ -77,7 +88,9 @@ export class ElasticHandler<
     }
   }
 
-  private defaultBodyMapper(entry: LogEntry<TTaskContext, TGlobalContext>): Record<string, any> {
+  private defaultBodyMapper(
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  ): Record<string, any> {
     return {
       ...entry,
       data: JSON.stringify(entry.data),

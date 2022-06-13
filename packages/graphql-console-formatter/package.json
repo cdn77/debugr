@@ -1,6 +1,6 @@
 {
   "name": "@debugr/graphql-console-formatter",
-  "version": "3.0.0",
+  "version": "3.0.0-rc.1",
   "description": "GraphQL request formatter plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",

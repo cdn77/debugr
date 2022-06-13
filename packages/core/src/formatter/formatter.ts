@@ -1,4 +1,11 @@
-import { LogEntry, LogLevel, ImmutableDate, TContextBase, TContextShape } from '../logger/types';
+import {
+  LogEntry,
+  LogLevel,
+  ImmutableDate,
+  TContextBase,
+  TContextShape,
+  ReadonlyRecursive,
+} from '../logger/types';
 import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
 
 export abstract class Formatter<
@@ -22,7 +29,7 @@ export abstract class Formatter<
   }
 
   protected abstract formatEntry(
-    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
     previousTs?: ImmutableDate,
     plugin?: FormatterPlugin<Partial<TTaskContext>, TGlobalContext>,
   ): string;
@@ -30,7 +37,7 @@ export abstract class Formatter<
   protected abstract formatError(e: Error, message: string): string;
 
   *format(
-    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
     previousTs?: ImmutableDate,
   ): Generator<string> {
     try {
@@ -47,7 +54,7 @@ export abstract class Formatter<
   }
 
   private tryFormatEntry(
-    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
     previousTs?: ImmutableDate,
     noPlugin: boolean = false,
   ): string {

@@ -4,6 +4,7 @@ import {
   LogEntry,
   PluginManager,
   TContextShape,
+  ReadonlyRecursive,
 } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
 import { HtmlFormatter } from './htmlFormatter';
@@ -58,7 +59,7 @@ export class HtmlLogHandler<
     );
   }
 
-  public log(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): void {
+  public log(entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>): void {
     const queue = this.asyncStorage.getStore();
 
     if (!queue) {

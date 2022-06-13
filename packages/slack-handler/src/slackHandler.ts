@@ -1,4 +1,11 @@
-import { LogEntry, LogLevel, TContextBase, LogHandler, TContextShape } from '@debugr/core';
+import {
+  LogEntry,
+  LogLevel,
+  TContextBase,
+  LogHandler,
+  TContextShape,
+  ReadonlyRecursive,
+} from '@debugr/core';
 
 type FetchApi = typeof import('node-fetch');
 
@@ -16,7 +23,9 @@ export interface SlackHandlerOptions<
   iconUrl?: string;
   iconEmoji?: string;
   errorCallback?: (error: Error) => void;
-  bodyMapper?: (entry: LogEntry<Partial<TTaskContext>, TGlobalContext>) => Record<string, any>;
+  bodyMapper?: (
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
+  ) => Record<string, any>;
 }
 
 export class SlackHandler<
@@ -43,7 +52,9 @@ export class SlackHandler<
     return instance;
   }
 
-  public async log(entry: LogEntry<TTaskContext, TGlobalContext>): Promise<void> {
+  public async log(
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  ): Promise<void> {
     const body = this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry);
     const api = await loader;
     try {
@@ -71,7 +82,9 @@ export class SlackHandler<
     console.log('SLACK CONNECTION ERROR HAPPENED', error);
   }
 
-  private defaultBodyParser(entry: LogEntry<TTaskContext, TGlobalContext>): Record<string, any> {
+  private defaultBodyParser(
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  ): Record<string, any> {
     return {
       text: `
 :warning: *Alert* :warning:

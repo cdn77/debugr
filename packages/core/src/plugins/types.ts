@@ -1,4 +1,4 @@
-import { LogEntry, Logger, TContextBase, TContextShape } from '../logger';
+import { LogEntry, Logger, ReadonlyRecursive, TContextBase, TContextShape } from '../logger';
 import { PluginManager } from './manager';
 
 export interface Plugins<
@@ -28,9 +28,9 @@ export interface FormatterPlugin<
 > extends Plugin<Partial<TTaskContext>, TGlobalContext> {
   readonly entryFormat: string;
   readonly targetHandler: string;
-  getEntryLabel(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string;
-  getEntryTitle(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): string;
-  formatEntry(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): any;
+  getEntryLabel(entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>): string;
+  getEntryTitle(entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>): string;
+  formatEntry(entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>): any;
 }
 
 export function isFormatterPlugin<

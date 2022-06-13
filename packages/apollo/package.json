@@ -1,6 +1,6 @@
 {
   "name": "@debugr/apollo",
-  "version": "3.0.0",
+  "version": "3.0.0-rc.1",
   "description": "Apollo server plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",

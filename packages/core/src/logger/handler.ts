@@ -1,5 +1,5 @@
 import { PluginManager } from '../plugins';
-import { LogEntry, LogLevel, TContextBase, TContextShape } from './types';
+import { LogEntry, LogLevel, ReadonlyRecursive, TContextBase, TContextShape } from './types';
 
 export abstract class LogHandler<
   TTaskContext extends TContextBase = TContextBase,
@@ -11,7 +11,9 @@ export abstract class LogHandler<
 
   public readonly doesNeedFormatters: boolean;
 
-  public abstract log(entry: LogEntry<Partial<TTaskContext>, TGlobalContext>): void | Promise<void>;
+  public abstract log(
+    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
+  ): void | Promise<void>;
 
   public abstract injectPluginManager(pluginManager: PluginManager): void;
 }

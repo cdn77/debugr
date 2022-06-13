@@ -21,5 +21,6 @@ export {
   LogEntry,
   ImmutableDate,
   TContextShape,
+  ReadonlyRecursive,
 } from './logger';
 export { Plugins, PluginManager, FormatterPlugin, Plugin, isFormatterPlugin } from './plugins';

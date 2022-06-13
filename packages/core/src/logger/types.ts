@@ -19,6 +19,10 @@ export interface TContextFixed {
 
 export type TContextBase = TContextShape & TContextFixed;
 
+export type ReadonlyRecursive<T> = {
+  readonly [P in keyof T]: Readonly<T[P]>;
+};
+
 export type ImmutableDate = Omit<
   Date,
   | 'setTime'

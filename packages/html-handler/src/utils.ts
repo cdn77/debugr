@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import { v4 } from 'node-uuid';
 
-import { LogEntry, TContextBase, TContextShape, LogLevel } from '@debugr/core';
+import { LogEntry, TContextBase, TContextShape, LogLevel, ReadonlyRecursive } from '@debugr/core';
 import { LogEntryQueue } from './types';
 
 export function findDefiningEntry<
@@ -9,7 +9,7 @@ export function findDefiningEntry<
   TGlobalContext extends TContextShape = {},
 >(
   queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext>,
-): LogEntry<Partial<TTaskContext>, TGlobalContext> {
+): ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>> {
   if (queue.firstOverThreshold !== undefined) {
     return queue.entries[queue.firstOverThreshold];
   } else if (!queue.entries.length) {

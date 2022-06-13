@@ -1,4 +1,11 @@
-import { LogEntry, ImmutableDate, TContextBase, LogLevel, TContextShape } from '@debugr/core';
+import {
+  LogEntry,
+  ImmutableDate,
+  TContextBase,
+  LogLevel,
+  TContextShape,
+  ReadonlyRecursive,
+} from '@debugr/core';
 
 export type HtmlLogHandlerOptions = {
   threshold: LogLevel | number;
@@ -11,7 +18,7 @@ export type LogEntryQueue<
   TGlobalContext extends TContextShape = {},
 > = {
   id?: string;
-  entries: LogEntry<Partial<TTaskContext>, TGlobalContext>[];
+  entries: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>[];
   write?: boolean;
   threshold?: number;
   firstOverThreshold?: number;
