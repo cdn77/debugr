@@ -5,8 +5,8 @@ import {
   isEmpty,
   TContextBase,
   TContextShape,
+  GraphQlLogEntry,
 } from '@debugr/core';
-import { GraphQlLogEntry } from '@debugr/apollo';
 
 export class GraphQLHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,

@@ -11,16 +11,15 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@apollo/utils.logger": "^1.0.0",
-    "apollo-server-types": "^3.5.3"
+    "@apollo/utils.logger": "^1.0.0"
   },
   "devDependencies": {
     "apollo-server-plugin-base": "^3.6.0",
-    "@debugr/core": "^3.0",
+    "@debugr/core": "3.0.0-rc.1",
     "graphql": "^15.4.0"
   },
   "peerDependencies": {
-    "@debugr/core": "^3.0",
+    "@debugr/core": "3.0.0-rc.1",
     "apollo-server-plugin-base": "^3.6.0",
     "graphql": "^15.4.0"
 
@@ -34,7 +33,6 @@
     "externals": [
       "@apollo/utils.logger",
       "apollo-server-plugin-base",
-      "apollo-server-types",
       "graphql",
       "long"
     ]

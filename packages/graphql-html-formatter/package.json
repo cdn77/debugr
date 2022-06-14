@@ -11,12 +11,10 @@
     "node": ">=12.0"
   },
   "devDependencies": {
-    "@debugr/apollo": "^3.0.0",
-    "@debugr/core": "^3.0"
+    "@debugr/core": "3.0.0-rc.1"
   },
   "peerDependencies": {
-    "@debugr/apollo": "^3.0.0",
-    "@debugr/core": "^3.0"
+    "@debugr/core": "3.0.0-rc.1"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

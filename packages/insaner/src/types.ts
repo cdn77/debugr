@@ -1,6 +1,3 @@
-import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
-import { OutgoingHttpHeaders } from 'http';
-
 export type CaptureBodyOption = boolean | number | string | string[] | Record<string, number>;
 
 export type Options = {
@@ -32,22 +29,3 @@ export type NormalizedOptions = {
     excludeHeaders?: RegExp;
   };
 };
-
-export interface HttpLogEntry<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
-> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
-  format: 'http';
-  data: {
-    type: string;
-    status?: number;
-    message?: string;
-    headers: OutgoingHttpHeaders;
-    body?: string;
-    bodyLength?: number;
-    lengthMismatch?: boolean;
-    method?: string;
-    uri?: string;
-    ip?: string;
-  };
-}

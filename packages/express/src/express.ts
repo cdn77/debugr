@@ -1,6 +1,6 @@
-import { Plugin, Logger, LogLevel, TContextBase, TContextShape } from '@debugr/core';
+import { Plugin, Logger, LogLevel, TContextBase, TContextShape, HttpLogEntry } from '@debugr/core';
 import { Handler, ErrorRequestHandler, Request, Response } from 'express';
-import { HttpLogEntry, NormalizedOptions, Options } from './types';
+import { NormalizedOptions, Options } from './types';
 import {
   filterHeaders,
   isCaptureEnabled,

@@ -1,5 +1,4 @@
-import { FormatterPlugin, TContextBase, TContextShape } from '@debugr/core';
-import { HttpLogEntry } from '@debugr/express';
+import { FormatterPlugin, TContextBase, TContextShape, HttpLogEntry } from '@debugr/core';
 import * as templates from './templates';
 
 export class HttpHtmlFormatter<

@@ -1,7 +1,7 @@
 import { ApolloLogger } from './apollo';
-import { Options, GraphQlLogEntry } from './types';
+import { Options } from './types';
 
-export { ApolloLogger, Options, GraphQlLogEntry };
+export { ApolloLogger, Options };
 
 declare module '@debugr/core' {
   export interface TContextFixed {

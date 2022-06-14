@@ -1,6 +1,5 @@
 import { Logger as LoggerInterface } from 'typeorm';
-import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/core';
-import { SqlLogEntry } from './types';
+import { Logger, Plugin, LogLevel, TContextBase, TContextShape, SqlLogEntry } from '@debugr/core';
 
 const defaultLevelMap = {
   log: LogLevel.INFO,

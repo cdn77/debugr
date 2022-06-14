@@ -14,10 +14,10 @@
     "insaner": "^1.1.7"
   },
   "devDependencies": {
-    "@debugr/core": "^3.0"
+    "@debugr/core": "3.0.0-rc.1"
   },
   "peerDependencies": {
-    "@debugr/core": "^3.0"
+    "@debugr/core": "3.0.0-rc.1"
   },
   "src": "src/index.ts",
   "main": "dist/index.js",

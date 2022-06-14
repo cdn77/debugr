@@ -14,10 +14,10 @@
     "@elastic/elasticsearch": "^7.15.0"
   },
   "devDependencies": {
-    "@debugr/core": "^3.0"
+    "@debugr/core": "3.0.0-rc.1"
   },
   "peerDependencies": {
-    "@debugr/core": "^3.0"
+    "@debugr/core": "3.0.0-rc.1"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

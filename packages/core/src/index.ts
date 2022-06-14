@@ -22,5 +22,8 @@ export {
   ImmutableDate,
   TContextShape,
   ReadonlyRecursive,
+  GraphQlLogEntry,
+  HttpLogEntry,
+  SqlLogEntry,
 } from './logger';
 export { Plugins, PluginManager, FormatterPlugin, Plugin, isFormatterPlugin } from './plugins';

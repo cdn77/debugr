@@ -1,5 +1,11 @@
-import { formatData, FormatterPlugin, isEmpty, TContextBase, TContextShape } from '@debugr/core';
-import { GraphQlLogEntry } from '@debugr/apollo';
+import {
+  formatData,
+  FormatterPlugin,
+  isEmpty,
+  TContextBase,
+  TContextShape,
+  GraphQlLogEntry,
+} from '@debugr/core';
 
 export class GraphQLConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,

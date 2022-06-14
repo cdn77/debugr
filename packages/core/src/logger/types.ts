@@ -1,3 +1,6 @@
+import { VariableValues } from 'apollo-server-types';
+import { OutgoingHttpHeaders } from 'http';
+
 import { PluginId } from '../plugins';
 
 export enum LogLevel {
@@ -54,3 +57,48 @@ export type LogEntry<
   format?: PluginId;
   ts: ImmutableDate;
 };
+
+export interface GraphQlLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+  format: 'graphql';
+  data: {
+    query?: string;
+    variables?: VariableValues;
+    operation?: string;
+  };
+}
+
+export interface HttpLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+  format: 'http';
+  data: {
+    type: string;
+    status?: number;
+    message?: string;
+    headers: OutgoingHttpHeaders;
+    body?: string;
+    bodyLength?: number;
+    lengthMismatch?: boolean;
+    method?: string;
+    uri?: string;
+    ip?: string;
+  };
+}
+
+export interface SqlLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+  format: 'sql';
+  data: {
+    query: string;
+    parameters?: any[];
+    error?: string;
+    stack?: string;
+    time?: number;
+  };
+}

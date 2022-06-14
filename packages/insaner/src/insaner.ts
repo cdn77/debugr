@@ -1,6 +1,6 @@
-import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape, HttpLogEntry } from '@debugr/core';
 import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'insaner';
-import { HttpLogEntry, NormalizedOptions, Options } from './types';
+import { NormalizedOptions, Options } from './types';
 import { filterHeaders, normalizeOptions } from './utils';
 
 export class InsanerLogger<

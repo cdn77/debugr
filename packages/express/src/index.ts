@@ -1,7 +1,7 @@
 import { ExpressLogger } from './express';
-import { Options, HttpLogEntry } from './types';
+import { Options } from './types';
 
-export { ExpressLogger, Options, HttpLogEntry };
+export { ExpressLogger, Options };
 
 declare module '@debugr/core' {
   export interface Plugins<
