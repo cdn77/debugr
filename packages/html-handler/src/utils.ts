@@ -18,7 +18,7 @@ export function findDefiningEntry<
       level: LogLevel.WARNING,
       // @ts-ignore
       context: {
-        processId: v4(),
+        taskId: v4(),
       },
       message: 'EMPTY QUEUE!',
       data: queue,

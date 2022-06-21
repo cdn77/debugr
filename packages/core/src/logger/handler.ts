@@ -22,7 +22,7 @@ export abstract class TaskAwareLogHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends LogHandler<TTaskContext, TGlobalContext> {
-  public abstract flush(processId?: string, forceWrite?: boolean): void;
+  public abstract flush(taskId?: string, forceWrite?: boolean): void;
 
   public abstract runTask<R>(callback: () => R): R;
 }

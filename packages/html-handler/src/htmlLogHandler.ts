@@ -90,7 +90,7 @@ export class HtmlLogHandler<
     return this.asyncStorage.run<R>(queue, callback);
   }
 
-  public flush(_processId?: string, forceWrite: boolean = false): void {
+  public flush(_taskId?: string, forceWrite: boolean = false): void {
     const queue = this.asyncStorage.getStore();
 
     if (!queue) {

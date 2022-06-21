@@ -17,7 +17,7 @@ export type TContextShape = {
 };
 
 export interface TContextFixed {
-  processId?: string;
+  taskId?: string;
 }
 
 export type TContextBase = TContextShape & TContextFixed;

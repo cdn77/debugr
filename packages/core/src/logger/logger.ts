@@ -62,7 +62,7 @@ export class Logger<
 
     const newContext: Partial<TTaskContext> = context
       ? v8.deserialize(v8.serialize(context))
-      : { processId: v4() };
+      : { taskId: v4() };
 
     const mainCallback = this.logHandlers.reduceRight(
       (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),
@@ -301,7 +301,7 @@ export class Logger<
 
     this.logHandlers.forEach((logHandler) => {
       (logHandler as TaskAwareLogHandler<TTaskContext, TGlobalContext>).flush &&
-        (logHandler as TaskAwareLogHandler<TTaskContext, TGlobalContext>).flush(context?.processId);
+        (logHandler as TaskAwareLogHandler<TTaskContext, TGlobalContext>).flush(context?.taskId);
     });
 
     return this;
