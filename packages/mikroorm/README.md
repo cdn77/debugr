@@ -1,13 +1,13 @@
-TypeORM plugin for Debugr
+MikroORM plugin for Debugr
 =========================
 
-This plugin provides a `Logger` implementation compatible with TypeORM,
+This plugin provides a `Logger` implementation compatible with MikroORM,
 allowing you to add SQL logging to your tasks.
 
 ## Installation
 
 ```bash
-npm install --save @debugr/typeorm
+npm install --save @debugr/mikroorm
 ```
 
 ## Usage
@@ -18,10 +18,10 @@ import {
   Debugr, 
   LogLevel,
 } from '@debugr/core';
-import { TypeormLogger } from '@debugr/typeorm';
+import { MikroORMLogger } from '@debugr/mikroorm';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 import { SqlConsoleFormatter } from '@debugr/sql-console-formatter';
-import { createConnection } from 'typeorm';
+import { MikroORM } from '@mikro-orm/core';
 
 const globalContext = {
   applicationName: 'example',
@@ -35,15 +35,17 @@ const debugr = Debugr.create(globalContext,
     ),
   ],
   [
-    TypeormLogger.create(),
-    // Need to add formatter between TypeormLogger and ConsoleLogHandler
+    MikroORMLogger.create(),
+    // Need to add formatter between MikroORMLogger and ConsoleLogHandler
     SqlConsoleFormatter.create(),
   ],
 );
 
-// inject the plugin into your TypeORM connection options
-const connection = await createConnection({
+// inject the plugin into your MikroORM connection options
+const connection = await MikroORM.init({
   // ...
-  logger: debugr.getPlugin('typeorm'),
+  getLogger() {
+    return debugr.getPlugin('mikroorm');
+  },
 });
 ```
