@@ -3,6 +3,24 @@
   "description": "Advanced application logger",
   "license": "MIT",
   "private": true,
+  "workspaces": [
+    "packages/apollo",
+    "packages/console-handler",
+    "packages/core",
+    "packages/elastic-handler",
+    "packages/express",
+    "packages/graphql-console-formatter",
+    "packages/graphql-html-formatter",
+    "packages/html-handler",
+    "packages/http-console-formatter",
+    "packages/http-html-formatter",
+    "packages/insaner",
+    "packages/mikroorm",
+    "packages/slack-handler",
+    "packages/sql-console-formatter",
+    "packages/sql-html-formatter",
+    "packages/typeorm"
+  ],
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/plugin-transform-runtime": "^7.14.3",
@@ -37,7 +55,6 @@
     "lint": "lerna run lint",
     "prepare": "husky install",
     "preversion": "lerna run preversion",
-    "postinstall": "lerna bootstrap --no-ci",
     "release": "lerna publish from-package"
   },
   "lint-staged": {
