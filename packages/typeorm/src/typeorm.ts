@@ -23,13 +23,13 @@ export type TypeORMLoggerOptions = {
 export class TypeormLogger<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements Plugin<Partial<TTaskContext>, TGlobalContext>, LoggerInterface
+> implements Plugin<TTaskContext, TGlobalContext>, LoggerInterface
 {
   public readonly id: string = 'typeorm';
 
   public readonly entryFormat: string = 'sql';
 
-  private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
+  private logger: Logger<TTaskContext, TGlobalContext>;
 
   private options?: TypeORMLoggerOptions;
 
@@ -39,11 +39,11 @@ export class TypeormLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: TypeORMLoggerOptions,
-  ): TypeormLogger<Partial<TTaskContext>, TGlobalContext> {
-    return new TypeormLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  ): TypeormLogger<TTaskContext, TGlobalContext> {
+    return new TypeormLogger<TTaskContext, TGlobalContext>(options);
   }
 
-  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
+  injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
   }
 
@@ -59,7 +59,7 @@ export class TypeormLogger<
   }
 
   logQuery(query: string, parameters?: any[]): void {
-    const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
+    const entry: Omit<SqlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
       format: 'sql',
       level: this.options?.queryLevel ?? LogLevel.DEBUG,
       data: {
@@ -71,7 +71,7 @@ export class TypeormLogger<
   }
 
   logQueryError(error: string, query: string, parameters?: any[]): void {
-    const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
+    const entry: Omit<SqlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
       format: 'sql',
       level: this.options?.mapLevel?.error ?? LogLevel.ERROR,
       data: {
@@ -85,7 +85,7 @@ export class TypeormLogger<
   }
 
   logQuerySlow(time: number, query: string, parameters?: any[]): void {
-    const entry: Omit<SqlLogEntry, 'context' | 'ts'> = {
+    const entry: Omit<SqlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
       format: 'sql',
       level: this.options?.slowQueryLevel ?? LogLevel.WARNING,
       message: 'Slow query',

@@ -1,5 +1,5 @@
-import { LogLevel } from '@debugr/core';
-import { OutgoingHttpHeaders } from 'http';
+import { HttpHeaders, LogLevel } from '@debugr/core';
+
 import {
   CaptureBodyOption,
   NormalizedCaptureBodyOption,
@@ -115,7 +115,7 @@ function normalizeHeaderPattern(headers?: string[]): RegExp | undefined {
   return new RegExp(`^(?:${patterns.join('|')})$`, 'i');
 }
 
-export function filterHeaders(headers: OutgoingHttpHeaders, exclude?: RegExp): OutgoingHttpHeaders {
+export function filterHeaders(headers: HttpHeaders, exclude?: RegExp): HttpHeaders {
   if (!exclude) {
     return headers;
   }

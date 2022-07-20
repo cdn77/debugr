@@ -12,7 +12,7 @@ import { FullOptions, Options } from './types';
 export class ApolloLogger<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements Plugin<Partial<TTaskContext>, TGlobalContext>, ApolloServerPlugin
+> implements Plugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
 {
   readonly id: string = 'apollo';
 
@@ -20,7 +20,7 @@ export class ApolloLogger<
 
   private readonly options: FullOptions;
 
-  private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
+  private logger: Logger<TTaskContext, TGlobalContext>;
 
   constructor(options?: Options) {
     this.options = {
@@ -30,11 +30,11 @@ export class ApolloLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: Options,
-  ): ApolloLogger<Partial<TTaskContext>, TGlobalContext> {
-    return new ApolloLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  ): ApolloLogger<TTaskContext, TGlobalContext> {
+    return new ApolloLogger<TTaskContext, TGlobalContext>(options);
   }
 
-  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
+  injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
   }
 
@@ -68,7 +68,7 @@ export class ApolloLogger<
     return {
       didResolveOperation: async ({ request, operation, operationName }): Promise<void> => {
         if (request.query) {
-          const entry: Omit<GraphQlLogEntry, 'context' | 'ts'> = {
+          const entry: Omit<GraphQlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
             format: this.entryFormat,
             level: options.level,
             message: 'GraphQL request',

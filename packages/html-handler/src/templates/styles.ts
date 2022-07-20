@@ -1,26 +1,24 @@
-const colorMap: Record<string, string> = {
-  debug: '#c8edff',
-  info: '#ffffaa',
-  warning: '#ffaa00',
-  error: '#ff4444',
-  internal: '#da47ff',
-  unknown: '#4747ff',
-};
+// noinspection CssInvalidPropertyValue
 
-function generateColorMap(selector: string): string {
-  return Object.entries(colorMap)
-    .map(
-      ([level, color]) =>
-        `${selector.replace(/%/g, level)} {
-        background: ${color};
-       }`,
-    )
-    .join('\n\n       ');
-}
+export class StylesTemplate {
+  readonly levelMap: Map<number, string>;
 
-export function styles(): string {
-  return `
-    <style type="text/css">
+  readonly colorMap: Map<number, string>;
+
+  constructor(levelMap: Map<number, string>, colorMap: Map<number, string>) {
+    this.levelMap = levelMap;
+    this.colorMap = colorMap;
+  }
+
+  public render(totalTasks: number, maxParallelTasks: number): string {
+    const tasks = totalTasks > 1 ? new Array(totalTasks).fill(null).map((_, i) => i) : [];
+    const levels = [...this.levelMap.values()];
+    const levelColors = [...this.colorMap.entries()]
+      .filter(([k]) => this.levelMap.has(k))
+      .map(([k, v]) => [this.levelMap.get(k)!, v]);
+
+    return `
+    <style>
       *, *:before, *:after {
         box-sizing: border-box;
       }
@@ -44,7 +42,7 @@ export function styles(): string {
       }
 
       main {
-        padding: 2em;
+        padding: 1em 2em 2em;
       }
 
       pre {
@@ -75,7 +73,44 @@ export function styles(): string {
         user-select: none;
       }
 
-      ${generateColorMap('.bg-%')}
+      input {
+        position: absolute;
+        left: -100vw;
+        top: -100vw;
+        opacity: 0;
+      }
+
+      label > i {
+        display: inline-block;
+        width: 1.25em;
+        height: 1.25em;
+        margin: -3px 0.25em 0;
+        border-radius: 3px;
+        font-style: normal;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .spacer {
+        display: inline-block;
+        width: 2em;
+      }
+
+${generateRules('      .bg-% { background: %; }', levelColors)}
+      .bg-grey { background: #bbb; }
+
+      .controls {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: 0.5em 0;
+        background: #fff;
+      }
+
+      .entries {
+        margin: 1em 0 2em;
+        border-top: 1px dotted #777;
+      }
 
       .entry {
         display: flex;
@@ -83,8 +118,43 @@ export function styles(): string {
         border-bottom: 1px dotted #777;
       }
 
-      .spacer {
-        height: 2em;
+      .entry.entry-meta {
+        height: 60px;
+      }
+
+      .entry-tasks {
+        position: relative;
+        flex: 0 0 ${20 + (maxParallelTasks - 1) * 15}px;
+      }
+
+      .entry-tasks svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .entry-tasks path {
+        stroke: #777;
+        stroke-dasharray: 1, 1;
+        fill: none;
+      }
+
+      .entry-tasks circle {
+        stroke: #777;
+        stroke-width: 2;
+        fill: #fff;
+      }
+
+      .entry-tasks text {
+        text-anchor: middle;
+        font-size: 10px;
+        fill: #888;
+      }
+
+      .entry.defining-entry .entry-tasks circle {
+        stroke: #f00;
       }
 
       .entry-time {
@@ -119,27 +189,35 @@ export function styles(): string {
         margin-bottom: -0.25em;
       }
 
-      ${generateColorMap('.entry.entry-% .entry-label')}
+${generateRules('      .entry.entry-% .entry-label { background: %; }', levelColors)}
 
       .text-muted {
         color: #777;
       }
 
-      #toggle-error:not(:checked) ~ .entry.entry-error {
-        display: none;
-      }
+${generateRules(
+  `      #toggle-%:checked ~ .controls label[for="toggle-%"] i::before { content: '✔'; }`,
+  levels,
+)}
+${generateRules('      #toggle-%:not(:checked) ~ .entries .entry-% { display: none; }', levels)}
 
-      #toggle-warning:not(:checked) ~ .entry.entry-warning {
-        display: none;
-      }
+${generateRules(
+  `      #toggle-task-%:checked ~ .controls label[for="toggle-task-%"] i::before { content: '✔'; }`,
+  tasks,
+)}
+${generateRules('      #toggle-task-%:not(:checked) ~ .entries .task-% { display: none; }', tasks)}
+    </style>`;
+  }
+}
 
-      #toggle-info:not(:checked) ~ .entry.entry-info {
-        display: none;
-      }
+function generateRules(template: string, values: any[]): string {
+  const rules: string[] = [];
 
-      #toggle-debug:not(:checked) ~ .entry.entry-debug {
-        display: none;
-      }
-    </style>
-  `;
+  for (const value of values) {
+    const arr = Array.isArray(value);
+    let i = 0;
+    rules.push(template.replace(/%/g, () => (arr ? value[i++] : value)));
+  }
+
+  return rules.join('\n');
 }

@@ -5,7 +5,7 @@ import {
   TContextBase,
   TContextShape,
   ReadonlyRecursive,
-} from '../logger/types';
+} from '../logger';
 import { FormatterPlugin, isFormatterPlugin, PluginManager } from '../plugins';
 
 export abstract class Formatter<

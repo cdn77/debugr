@@ -2,18 +2,6 @@ export function isEmpty(o: Record<string, any> | undefined): boolean {
   return !o || !Object.keys(o).length;
 }
 
-const entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-};
-
-export function escapeHtml(str: string): string {
-  return `${str}`.replace(/[&<>"']/g, (c) => entityMap[c]);
-}
-
 export function indent(str: string, level: number = 1): string {
   const indent: string = Array(level).fill('  ').join('');
   return unindent(str).replace(/^(?!$)/gm, indent);

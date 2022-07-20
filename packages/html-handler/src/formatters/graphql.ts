@@ -1,5 +1,4 @@
 import {
-  escapeHtml,
   formatData,
   FormatterPlugin,
   isEmpty,
@@ -7,13 +6,14 @@ import {
   TContextShape,
   GraphQlLogEntry,
 } from '@debugr/core';
+import { escapeHtml, renderCode, renderDetails } from '../templates';
 
 export class GraphQLHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
+> implements FormatterPlugin<TTaskContext, TGlobalContext>
 {
-  readonly id: string = 'graphql';
+  readonly id: string = 'graphql-html';
 
   readonly entryFormat: string = 'graphql';
 
@@ -22,8 +22,8 @@ export class GraphQLHtmlFormatter<
   public static create<
     TTaskContext extends TContextBase,
     TGlobalContext extends TContextShape,
-  >(): GraphQLHtmlFormatter<Partial<TTaskContext>, TGlobalContext> {
-    return new GraphQLHtmlFormatter<Partial<TTaskContext>, TGlobalContext>();
+  >(): GraphQLHtmlFormatter<TTaskContext, TGlobalContext> {
+    return new GraphQLHtmlFormatter<TTaskContext, TGlobalContext>();
   }
 
   injectLogger(): void {}
@@ -32,7 +32,7 @@ export class GraphQLHtmlFormatter<
     return 'GraphQL request';
   }
 
-  getEntryTitle(entry: GraphQlLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
+  getEntryTitle(entry: GraphQlLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }
@@ -40,7 +40,7 @@ export class GraphQLHtmlFormatter<
     return entry.data.operation || entry.data.query.replace(/{[\s\S]*$/, '').trim();
   }
 
-  formatEntry(entry: GraphQlLogEntry<Partial<TTaskContext>, TGlobalContext>): string {
+  formatEntry(entry: GraphQlLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }
@@ -48,30 +48,18 @@ export class GraphQLHtmlFormatter<
     const parts: string[] = [];
 
     if (entry.data.operation) {
-      parts.push(`
-        <p>
-          <strong>Operation:</strong>
-          <span class="mono">${escapeHtml(entry.data.operation)}</span>
-        </p>
-      `);
+      parts.push(`<p>
+            <strong>Operation:</strong>
+            <span class="mono">${escapeHtml(entry.data.operation)}</span>
+          </p>`);
     }
 
-    parts.push(`
-      <details>
-        <summary>Query:</summary>
-        <pre><code class="graphql">${escapeHtml(entry.data.query)}</code></pre>
-      </details>
-    `);
+    parts.push(renderDetails('Query:', renderCode(entry.data.query, 'graphql')));
 
     if (!isEmpty(entry.data.variables)) {
-      parts.push(`
-        <details>
-          <summary>Variables:</summary>
-          <pre><code>${escapeHtml(formatData(entry.data.variables))}</code></pre>
-        </details>
-      `);
+      parts.push(renderDetails('Variables:', renderCode(formatData(entry.data.variables))));
     }
 
-    return parts.join('');
+    return parts.join('\n            ');
   }
 }

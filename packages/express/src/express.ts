@@ -1,6 +1,6 @@
 import { Plugin, Logger, LogLevel, TContextBase, TContextShape, HttpLogEntry } from '@debugr/core';
-import { Handler, ErrorRequestHandler, Request, Response } from 'express';
-import { NormalizedOptions, Options } from './types';
+import type { Handler, ErrorRequestHandler, Request, Response } from 'express';
+import { NormalizedOptions, Options, ResponseInfo } from './types';
 import {
   filterHeaders,
   isCaptureEnabled,
@@ -12,7 +12,7 @@ import {
 export class ExpressLogger<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements Plugin<Partial<TTaskContext>, TGlobalContext>
+> implements Plugin<TTaskContext, TGlobalContext>
 {
   public readonly id: string = 'express';
 
@@ -20,7 +20,7 @@ export class ExpressLogger<
 
   private readonly options: NormalizedOptions;
 
-  private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
+  private logger: Logger<TTaskContext, TGlobalContext>;
 
   public constructor(options?: Options) {
     this.options = normalizeOptions(options);
@@ -28,21 +28,24 @@ export class ExpressLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: Options,
-  ): ExpressLogger<Partial<TTaskContext>, TGlobalContext> {
-    return new ExpressLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  ): ExpressLogger<TTaskContext, TGlobalContext> {
+    return new ExpressLogger<TTaskContext, TGlobalContext>(options);
   }
 
-  public injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
+  public injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
   }
 
   public createRequestHandler(): Handler {
     return (req, res, next) => {
-      return this.logger.runTask(() => {
-        this.logHttpRequest(this.logger, this.options, req);
-        this.logHttpResponse(this.logger, this.options, res).finally(() => this.logger.flush());
-        return next();
-      });
+      return this.logger.runTask(
+        async () =>
+          new Promise((resolve, reject) => {
+            this.logHttpRequest(this.logger, this.options, req);
+            this.logHttpResponse(this.logger, this.options, res).then(resolve, reject);
+            return next();
+          }),
+      );
     };
   }
 
@@ -57,7 +60,7 @@ export class ExpressLogger<
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
-    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
+    logger: Logger<TTaskContext, TGlobalContext>,
     options: NormalizedOptions,
     request: Request,
   ): void {
@@ -77,7 +80,7 @@ export class ExpressLogger<
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
-    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
+    logger: Logger<TTaskContext, TGlobalContext>,
     options: NormalizedOptions,
     request: Request,
     contentType?: string,
@@ -88,7 +91,7 @@ export class ExpressLogger<
     const canCapture = isCaptureEnabled(options.request.captureBody, contentType, bodyLength);
     const lengthMismatch = !!body && !canCapture;
 
-    const entry: Omit<HttpLogEntry, 'ts' | 'context'> = {
+    const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
       format: this.entryFormat,
       level: options.level,
       data: {
@@ -102,6 +105,7 @@ export class ExpressLogger<
         lengthMismatch,
       },
     };
+
     logger.add(entry);
   }
 
@@ -112,26 +116,48 @@ export class ExpressLogger<
     request.once('end', () => cb(null, buffer));
   }
 
-  private async captureResponseBody(response: Response): Promise<string> {
+  private async captureResponseBody(
+    response: Response,
+    options: NormalizedOptions,
+  ): Promise<ResponseInfo> {
     const write = response.write;
     const end = response.end;
-    let buffer: string = '';
+    let info: ResponseInfo | undefined;
+    let capture: boolean | undefined;
+
+    function handleChunk(chunk: any): void {
+      if (!info) {
+        const headers = response.getHeaders();
+        const contentType = normalizeContentType(headers['content-type']);
+        const contentLength = normalizeContentLength(headers['content-length']);
+        capture = isCaptureEnabled(options.response.captureBody, contentType, contentLength);
+
+        info = {
+          headers,
+          contentLength,
+          body: capture ? '' : undefined,
+          bodyLength: 0,
+        };
+      }
+
+      if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
+        capture && (info.body += chunk.toString());
+        info.bodyLength += Buffer.isBuffer(chunk) ? chunk.byteLength : chunk.length;
+      }
+    }
 
     response.write = (chunk: any, encoding?: any, cb?: any) => {
-      buffer += chunk.toString();
+      handleChunk(chunk);
       return write.call(response, chunk, encoding, cb);
     };
 
     response.end = (chunk: any, encoding?: any, cb?: any) => {
-      if (chunk && typeof chunk !== 'function') {
-        buffer += chunk.toString();
-      }
-
+      handleChunk(chunk);
       return end.call(response, chunk, encoding, cb);
     };
 
     return new Promise((resolve, reject) => {
-      response.once('finish', () => resolve(buffer));
+      response.once('finish', () => (info ? resolve(info) : reject()));
       response.once('error', reject);
     });
   }
@@ -140,22 +166,21 @@ export class ExpressLogger<
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   >(
-    logger: Logger<Partial<TTaskContext>, TGlobalContext>,
+    logger: Logger<TTaskContext, TGlobalContext>,
     options: NormalizedOptions,
     response: Response,
   ): Promise<void> {
-    const body = await this.captureResponseBody(response);
-    const headers = response.getHeaders();
-    const contentType = normalizeContentType(headers['content-type']);
-    const contentLength = normalizeContentLength(headers['content-length']);
-    const canCapture = isCaptureEnabled(options.response.captureBody, contentType, contentLength);
-    const bodyLength = body ? body.length : undefined;
+    const { headers, contentLength, body, bodyLength } = await this.captureResponseBody(
+      response,
+      options,
+    );
+
     const lengthMismatch =
       bodyLength !== undefined && contentLength !== undefined && bodyLength !== contentLength;
     const level =
       response.statusCode >= (options.e4xx ? 400 : 500) ? LogLevel.ERROR : options.level;
 
-    const entry: Omit<HttpLogEntry, 'ts' | 'context'> = {
+    const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
       format: this.entryFormat,
       level,
       data: {
@@ -163,11 +188,12 @@ export class ExpressLogger<
         status: response.statusCode,
         message: response.statusMessage,
         headers: filterHeaders(headers, options.response.excludeHeaders),
-        body: canCapture ? body : undefined,
+        body,
         bodyLength,
         lengthMismatch,
       },
     };
+
     logger.add(entry);
   }
 }

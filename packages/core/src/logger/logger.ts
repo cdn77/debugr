@@ -1,11 +1,10 @@
-/* eslint-disable guard-for-in */
-import { v4 } from 'node-uuid';
-import v8 from 'v8';
-import { vsprintf } from 'printj';
-
 import { AsyncLocalStorage } from 'async_hooks';
-import { LogLevel, TContextBase, LogEntry, TContextShape } from './types';
-import { isTaskAwareLogHandler, LogHandler, TaskAwareLogHandler } from './handler';
+import { v4 } from 'node-uuid';
+import { sprintf } from 'printj';
+import { PluginManager } from '../plugins';
+import { clone, SmartMap, wrapPossiblePromise } from '../utils';
+import { isTaskAwareLogHandler, LogHandler } from './handler';
+import { LogEntry, LogLevel, TContextBase, TContextShape } from './types';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextBase,
@@ -13,16 +12,16 @@ export class Logger<
 > {
   private readonly globalContext: TGlobalContext;
 
-  private readonly logHandlers: LogHandler<Partial<TTaskContext>, TGlobalContext>[];
+  private readonly logHandlers: SmartMap<string, LogHandler<TTaskContext, TGlobalContext>>;
 
   private readonly taskContextStorage: AsyncLocalStorage<Partial<TTaskContext>>;
 
   public constructor(
-    logHandlers: LogHandler<Partial<TTaskContext>, TGlobalContext>[],
+    logHandlers: LogHandler<TTaskContext, TGlobalContext>[],
     globalContext: TGlobalContext,
   ) {
     this.globalContext = globalContext;
-    this.logHandlers = logHandlers;
+    this.logHandlers = new SmartMap(logHandlers.map((handler) => [handler.identifier, handler]));
     this.taskContextStorage = new AsyncLocalStorage();
   }
 
@@ -34,35 +33,18 @@ export class Logger<
     }
 
     const envelopedCallback = () => {
-      let response: R | Promise<R>;
-      try {
-        response = callback();
-      } catch (e) {
-        this.error(e);
-        this.flush();
-        throw e;
-      }
-      if (
-        typeof response === 'object' &&
-        typeof (response as unknown as Promise<R>).then === 'function'
-      ) {
-        (response as unknown as Promise<R>)
-          .catch((e) => {
-            this.error(e);
-            throw e;
-          })
-          .finally(() => {
-            this.flush();
-          });
-      } else {
-        this.flush();
-      }
-      return response;
+      return wrapPossiblePromise(callback, {
+        catch: (e) => {
+          this.error(e);
+          throw e;
+        },
+        finally: () => {
+          this.flush();
+        },
+      });
     };
 
-    const newContext: Partial<TTaskContext> = context
-      ? v8.deserialize(v8.serialize(context))
-      : { taskId: v4() };
+    const newContext: Partial<TTaskContext> = context ? clone(context) : ({ taskId: v4() } as any);
 
     const mainCallback = this.logHandlers.reduceRight(
       (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),
@@ -72,178 +54,84 @@ export class Logger<
     return this.taskContextStorage.run(newContext, mainCallback);
   }
 
-  public trace(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
-  public trace(
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public trace(
-    message: string | [string, ...any],
-    error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public trace(
-    message: any,
-    dataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    if (dataOrError instanceof Error) {
-      this.log(LogLevel.TRACE, message, dataOrError, maybeAdditionalData);
-    } else {
-      this.log(LogLevel.TRACE, message, dataOrError);
-    }
-    return this;
+  public trace(data: Record<string, any> | Error): this;
+  public trace(message: string | [string, ...any], data?: Record<string, any>): this;
+  public trace(message: string | [string, ...any], error: Error, data?: Record<string, any>): this;
+  public trace(message: any, dataOrError?: any, maybeData?: any): this {
+    return this.log(LogLevel.TRACE, message, dataOrError, maybeData);
   }
 
-  public debug(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
-  public debug(
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public debug(
-    message: string | [string, ...any],
-    error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public debug(
-    message: any,
-    dataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    if (dataOrError instanceof Error) {
-      this.log(LogLevel.DEBUG, message, dataOrError, maybeAdditionalData);
-    } else {
-      this.log(LogLevel.DEBUG, message, dataOrError);
-    }
-    return this;
+  public debug(data: Record<string, any> | Error): this;
+  public debug(message: string | [string, ...any], data?: Record<string, any>): this;
+  public debug(message: string | [string, ...any], error: Error, data?: Record<string, any>): this;
+  public debug(message: any, dataOrError?: any, maybeData?: any): this {
+    return this.log(LogLevel.DEBUG, message, dataOrError, maybeData);
   }
 
-  public info(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
-  public info(
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public info(
-    message: string | [string, ...any],
-    error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public info(
-    message: any,
-    dataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    if (dataOrError instanceof Error) {
-      this.log(LogLevel.INFO, message, dataOrError, maybeAdditionalData);
-    } else {
-      this.log(LogLevel.INFO, message, dataOrError);
-    }
-    return this;
+  public info(data: Record<string, any> | Error): this;
+  public info(message: string | [string, ...any], data?: Record<string, any>): this;
+  public info(message: string | [string, ...any], error: Error, data?: Record<string, any>): this;
+  public info(message: any, dataOrError?: any, maybeData?: any): this {
+    return this.log(LogLevel.INFO, message, dataOrError, maybeData);
   }
 
-  public warning(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
-  public warning(
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
+  public warning(data: Record<string, any> | Error): this;
+  public warning(message: string | [string, ...any], data?: Record<string, any>): this;
   public warning(
     message: string | [string, ...any],
     error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public warning(
-    message: any,
-    dataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    if (dataOrError instanceof Error) {
-      this.log(LogLevel.WARNING, message, dataOrError, maybeAdditionalData);
-    } else {
-      this.log(LogLevel.WARNING, message, dataOrError);
-    }
-    return this;
-  }
-
-  public error(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
-  public error(
-    message: string | [string, ...any],
     data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public error(
-    message: string | [string, ...any],
-    error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public error(
-    message: any,
-    dataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    if (dataOrError instanceof Error) {
-      this.log(LogLevel.ERROR, message, dataOrError, maybeAdditionalData);
-    } else {
-      this.log(LogLevel.ERROR, message, dataOrError);
-    }
-    return this;
+  ): this;
+  public warning(message: any, dataOrError?: any, maybeData?: any): this {
+    return this.log(LogLevel.WARNING, message, dataOrError, maybeData);
   }
 
-  public fatal(data: Record<string, any> | Error): Logger<TTaskContext, TGlobalContext>;
-  public fatal(
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public fatal(
-    message: string | [string, ...any],
-    error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
-  public fatal(
-    message: any,
-    dataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    if (dataOrError instanceof Error) {
-      this.log(LogLevel.FATAL, message, dataOrError, maybeAdditionalData);
-    } else {
-      this.log(LogLevel.FATAL, message, dataOrError);
-    }
-    return this;
+  public error(data: Record<string, any> | Error): this;
+  public error(message: string | [string, ...any], data?: Record<string, any>): this;
+  public error(message: string | [string, ...any], error: Error, data?: Record<string, any>): this;
+  public error(message: any, dataOrError?: any, maybeData?: any): this {
+    return this.log(LogLevel.ERROR, message, dataOrError, maybeData);
   }
 
-  public log(
-    level: LogLevel | number,
-    data: Record<string, any> | Error,
-  ): Logger<TTaskContext, TGlobalContext>;
+  public fatal(data: Record<string, any> | Error): this;
+  public fatal(message: string | [string, ...any], data?: Record<string, any>): this;
+  public fatal(message: string | [string, ...any], error: Error, data?: Record<string, any>): this;
+  public fatal(message: any, dataOrError?: any, maybeData?: any): this {
+    return this.log(LogLevel.FATAL, message, dataOrError, maybeData);
+  }
+
+  public log(level: LogLevel | number, data: Record<string, any> | Error): this;
   public log(
     level: LogLevel | number,
     message: string | [string, ...any],
     data?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
+  ): this;
   public log(
     level: LogLevel | number,
     message: string | [string, ...any],
     error: Error,
-    additionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext>;
+    data?: Record<string, any>,
+  ): this;
   public log(
     level: LogLevel | number,
     messageOrDataOrError: Record<string, any> | Error | string | [string, ...any],
     maybeDataOrError?: Record<string, any> | Error,
-    maybeAdditionalData?: Record<string, any>,
-  ): Logger<TTaskContext, TGlobalContext> {
+    maybeData?: Record<string, any>,
+  ): this {
     let error: Error | undefined;
     let data: Record<string, any> | undefined;
     let message: string | undefined;
+
     if (typeof messageOrDataOrError === 'string' || Array.isArray(messageOrDataOrError)) {
       if (Array.isArray(messageOrDataOrError) && messageOrDataOrError.length > 0) {
-        message = vsprintf(messageOrDataOrError.shift()!, messageOrDataOrError);
+        message = sprintf(...messageOrDataOrError);
       } else if (typeof messageOrDataOrError === 'string') {
         message = messageOrDataOrError;
       }
 
       if (maybeDataOrError instanceof Error) {
         error = maybeDataOrError;
-        data = maybeAdditionalData;
+        data = maybeData;
       } else {
         data = maybeDataOrError;
       }
@@ -253,32 +141,27 @@ export class Logger<
       data = messageOrDataOrError;
     }
 
-    this.add({
+    return this.add({
       level,
       message,
       data,
       error,
     });
-
-    return this;
   }
 
-  public add(
-    entry: Omit<LogEntry<Partial<TTaskContext>, TGlobalContext>, 'context' | 'ts'>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    const context: Partial<TTaskContext> = this.taskContextStorage.getStore() || {};
+  public add<
+    TEntry extends LogEntry<TTaskContext, TGlobalContext> = LogEntry<TTaskContext, TGlobalContext>,
+  >(entry: Omit<TEntry, 'taskContext' | 'globalContext' | 'ts'>): this {
+    const ts = new Date();
 
     this.logHandlers
-      .filter((item) => entry.level >= item.threshold)
-      .forEach((logHandler) => {
-        logHandler.log({
-          level: entry.level,
-          context: v8.deserialize(v8.serialize({ ...context, ...this.globalContext })),
-          message: entry.message,
-          data: entry.data,
-          format: entry.format,
-          error: entry.error,
-          ts: new Date(),
+      .filter((handler) => entry.level >= handler.threshold)
+      .forEach((handler) => {
+        handler.log({
+          ...entry,
+          taskContext: this.taskContextStorage.getStore(),
+          globalContext: this.globalContext,
+          ts,
         });
       });
 
@@ -288,47 +171,51 @@ export class Logger<
   public setContextProperty<T extends keyof TTaskContext>(
     key: T,
     value: NonNullable<TTaskContext>[T],
-  ): Logger<TTaskContext, TGlobalContext> {
+  ): this {
     const context = this.taskContextStorage.getStore();
+
     if (context) {
       context[key] = value;
     }
+
     return this;
   }
 
-  public flush(): Logger<TTaskContext, TGlobalContext> {
+  public flush(): this {
     const context = this.taskContextStorage.getStore();
 
-    this.logHandlers.forEach((logHandler) => {
-      (logHandler as TaskAwareLogHandler<TTaskContext, TGlobalContext>).flush &&
-        (logHandler as TaskAwareLogHandler<TTaskContext, TGlobalContext>).flush(context?.taskId);
-    });
+    this.logHandlers
+      .filter(isTaskAwareLogHandler)
+      .forEach((handler) => handler.flush(context?.taskId));
 
     return this;
   }
 
-  public registerHandler(
-    logHandler: LogHandler<Partial<TTaskContext>, TGlobalContext>,
-  ): Logger<TTaskContext, TGlobalContext> {
-    this.logHandlers.push(logHandler);
+  public registerHandler(logHandler: LogHandler<TTaskContext, TGlobalContext>): this {
+    this.logHandlers.set(logHandler.identifier, logHandler);
+    return this;
+  }
+
+  public injectPluginManager(pluginManager: PluginManager<TTaskContext, TGlobalContext>): this {
+    for (const handler of this.logHandlers.values()) {
+      handler.injectPluginManager(pluginManager);
+    }
+
+    pluginManager.checkRequiredPlugins(this.logHandlers.values());
     return this;
   }
 
   public hasHandler(id: string): boolean {
-    return id in this.logHandlers.map((logHandler) => logHandler.identifier);
+    return this.logHandlers.has(id);
   }
 
-  public getHandler(id: string): LogHandler<Partial<TTaskContext>, TGlobalContext> | never {
-    const logHandler = this.logHandlers.find((logHandler) => logHandler.identifier === id);
+  public getHandler(id: string): LogHandler<TTaskContext, TGlobalContext> {
+    const logHandler = this.logHandlers.get(id);
 
     if (!logHandler) {
       throw new Error(`Unknown plugin: ${id}`);
     }
 
     return logHandler;
-  }
-
-  public getAllHandlers(): LogHandler<Partial<TTaskContext>, TGlobalContext>[] {
-    return this.logHandlers;
   }
 }

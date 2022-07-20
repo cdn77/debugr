@@ -15,5 +15,6 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "types": ["node"]
-  }
+  },
+  "exclude": ["packages/*/dist/*.d.ts"]
 }

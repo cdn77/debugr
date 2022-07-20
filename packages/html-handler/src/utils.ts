@@ -1,37 +1,104 @@
 import * as crypto from 'crypto';
-import { v4 } from 'node-uuid';
 
-import { LogEntry, TContextBase, TContextShape, LogLevel, ReadonlyRecursive } from '@debugr/core';
-import { LogEntryQueue } from './types';
+import {
+  LogEntry,
+  TContextBase,
+  TContextShape,
+  LogLevel,
+  ReadonlyRecursive,
+  SmartMap,
+} from '@debugr/core';
+import { isTaskBoundary, TaskData, TaskLogEntry, TaskLogInfo } from './types';
+
+export function getTaskLogInfo(entries: SmartMap<TaskLogEntry, TaskData>): TaskLogInfo {
+  const tasks: number[] = [];
+  const levels: Set<number> = new Set();
+  let max: number = 0;
+
+  for (const [entry, task] of entries) {
+    if (!isTaskBoundary(entry)) {
+      levels.add(entry.level);
+      continue;
+    }
+
+    const idx = tasks.indexOf(task.index);
+
+    if (entry.type === 'task:start' && idx < 0) {
+      tasks.push(task.index);
+      max = Math.max(max, tasks.length);
+    } else if (entry.type === 'task:end' && idx > -1) {
+      tasks[idx] = -1;
+
+      for (let i = tasks.length - 1; i >= 0 && tasks[i] < 0; --i) {
+        tasks.pop();
+      }
+    }
+  }
+
+  return {
+    maxParallelTasks: max,
+    usedLevels: [...levels.values()],
+  };
+}
 
 export function findDefiningEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 >(
-  queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext>,
-): ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>> {
-  if (queue.firstOverThreshold !== undefined) {
-    return queue.entries[queue.firstOverThreshold];
-  } else if (!queue.entries.length) {
+  task: TaskData<TTaskContext, TGlobalContext>,
+): ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>> {
+  if (task.firstOverThreshold) {
+    return task.firstOverThreshold;
+  } else if (!task.log.entries.size) {
     return {
-      ts: new Date(0),
+      ts: task.ts,
       level: LogLevel.WARNING,
-      // @ts-ignore
-      context: {
-        taskId: v4(),
-      },
+      taskContext: {} as any,
+      globalContext: {} as any,
       message: 'EMPTY QUEUE!',
-      data: queue,
     };
   }
 
-  return queue.entries.reduce((a, b) => (b.level > a.level ? b : a));
+  return task.log.entries
+    .filter((v) => !isTaskBoundary(v))
+    .reduceKeys((a: any, b: any) => (b.level > a.level ? b : a)) as any;
 }
 
-export function identifyQueue(queue: LogEntryQueue): string {
-  const entry = findDefiningEntry(queue);
+export function computeTaskHash<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+>(task: TaskData<TTaskContext, TGlobalContext>): string {
+  const entry = findDefiningEntry(task);
   const key = JSON.stringify([entry.level, entry.message, entry.data]);
   const sha1 = crypto.createHash('sha1');
   sha1.update(key);
   return sha1.digest('hex').substring(0, 16);
+}
+
+export function normalizeMap(map: Record<number, string>): Map<number, string> {
+  return new Map(
+    Object.entries(map)
+      .map(([level, value]) => [parseInt(level, 10), value] as const)
+      .sort(([a], [b]) => a - b),
+  );
+}
+
+export function levelToValue(
+  map: Map<number, string>,
+  level: number,
+  fallback: string = 'unknown',
+): string {
+  const exact = map.get(level);
+
+  if (exact) {
+    return exact;
+  }
+
+  for (const [l, v] of map.entries()) {
+    if (level > l) {
+      return v;
+    }
+  }
+
+  return fallback;
 }

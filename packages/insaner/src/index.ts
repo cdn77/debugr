@@ -8,6 +8,6 @@ declare module '@debugr/core' {
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    insaner: InsanerLogger<Partial<TTaskContext>, TGlobalContext>;
+    insaner: InsanerLogger<TTaskContext, TGlobalContext>;
   }
 }

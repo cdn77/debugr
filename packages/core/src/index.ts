@@ -1,17 +1,5 @@
 export { Debugr } from './debugr';
-export {
-  Formatter,
-  LayoutTemplate,
-  EntryTemplate,
-  formatData,
-  escapeHtml,
-  indent,
-  unindent,
-  isEmpty,
-  pad,
-  pad3,
-  FormatterTemplateMap,
-} from './formatter';
+export { Formatter, formatData, indent, unindent, isEmpty, pad, pad3 } from './formatter';
 export {
   Logger,
   LogHandler,
@@ -27,3 +15,4 @@ export {
   SqlLogEntry,
 } from './logger';
 export { Plugins, PluginManager, FormatterPlugin, Plugin, isFormatterPlugin } from './plugins';
+export * from './utils';

@@ -15,10 +15,12 @@
   },
   "devDependencies": {
     "@debugr/core": "3.0.0-rc.1",
+    "@sqltools/formatter": "^1.2.3",
     "@types/node-uuid": "0.0.29"
   },
   "peerDependencies": {
-    "@debugr/core": "3.0.0-rc.1"
+    "@debugr/core": "3.0.0-rc.1",
+    "@sqltools/formatter": "^1.2.3"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -26,7 +28,12 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "node-uuid"
+      "async_hooks",
+      "crypto",
+      "fs",
+      "node-uuid",
+      "path",
+      "util"
     ]
   },
   "files": [

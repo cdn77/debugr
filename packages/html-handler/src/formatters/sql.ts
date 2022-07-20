@@ -1,30 +1,35 @@
 import {
-  escapeHtml,
   formatData,
   isEmpty,
   FormatterPlugin,
-  LogEntry,
   TContextBase,
   TContextShape,
+  SqlLogEntry,
 } from '@debugr/core';
-import { formatQueryTime } from './utils';
+import { escapeHtml, renderCode, renderDetails } from '../templates';
 
 export class SqlHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements FormatterPlugin<Partial<TTaskContext>, TGlobalContext>
+> implements FormatterPlugin<TTaskContext, TGlobalContext>
 {
-  public readonly id: string = 'sql';
+  public readonly id: string = 'sql-html';
 
   public readonly entryFormat: string = 'sql';
 
   public readonly targetHandler: string = 'html';
 
+  private readonly formatQuery: QueryFormatter;
+
   public static create<
     TTaskContext extends TContextBase,
     TGlobalContext extends TContextShape,
-  >(): SqlHtmlFormatter<Partial<TTaskContext>, TGlobalContext> {
-    return new SqlHtmlFormatter<Partial<TTaskContext>, TGlobalContext>();
+  >(): SqlHtmlFormatter<TTaskContext, TGlobalContext> {
+    return new SqlHtmlFormatter<TTaskContext, TGlobalContext>();
+  }
+
+  constructor() {
+    this.formatQuery = createQueryFormatter();
   }
 
   injectLogger(): void {}
@@ -33,7 +38,7 @@ export class SqlHtmlFormatter<
     return 'SQL query';
   }
 
-  getEntryTitle(entry: LogEntry): string {
+  getEntryTitle(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
     }
@@ -47,7 +52,7 @@ export class SqlHtmlFormatter<
     }
   }
 
-  formatEntry(entry: LogEntry): string {
+  formatEntry(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
     }
@@ -58,7 +63,7 @@ export class SqlHtmlFormatter<
       parts.push(`<p>${escapeHtml(entry.message)}</p>`);
     }
 
-    parts.push(`<pre><code class="sql">${escapeHtml(entry.data.query)}</code></pre>`);
+    parts.push(renderCode(this.formatQuery(entry.data.query), 'sql'));
 
     if (
       entry.data.parameters &&
@@ -66,17 +71,11 @@ export class SqlHtmlFormatter<
         ? entry.data.parameters.length
         : !isEmpty(entry.data.parameters))
     ) {
-      parts.push(`
-      <details>
-        <summary>Parameters:</summary>
-        <pre><code>${escapeHtml(formatData(entry.data.parameters))}</code></pre>
-      </details>`);
+      parts.push(renderDetails('Parameters:', renderCode(formatData(entry.data.parameters))));
     }
 
     if (typeof entry.data.error === 'string') {
-      parts.push(`
-      <p><strong>Error:</strong> ${escapeHtml(entry.data.error)}</p>
-      `);
+      parts.push(`<p><strong>Error:</strong> ${escapeHtml(entry.data.error)}</p>`);
     }
 
     const details: string[] = [];
@@ -97,6 +96,25 @@ export class SqlHtmlFormatter<
       parts.push(`<p class="text-muted"><small>${details.join(' | ')}</small></p>`);
     }
 
-    return parts.join('');
+    return parts.join('\n            ');
   }
+}
+
+type QueryFormatter = (query: string) => string;
+
+function createQueryFormatter(): QueryFormatter {
+  try {
+    // eslint-disable-next-line global-require
+    const { format } = require('@sqltools/formatter');
+    return (query) => format(query, { language: 'sql', reservedWordCase: 'upper' });
+  } catch (e) {
+    return (query) => query;
+  }
+}
+
+function formatQueryTime(ms: number, html: boolean = false): string {
+  const value = ms > 1000 ? ms / 1000 : ms;
+  const unit = ms > 1000 ? 's' : 'ms';
+  const [p, s] = html ? ['<strong>', '</strong>'] : ['', ''];
+  return `${p}${value.toFixed(2)}${s} ${unit}`;
 }

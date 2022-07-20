@@ -12,6 +12,6 @@ declare module '@debugr/core' {
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    apollo: ApolloLogger<Partial<TTaskContext>, TGlobalContext>;
+    apollo: ApolloLogger<TTaskContext, TGlobalContext>;
   }
 }

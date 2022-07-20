@@ -7,6 +7,7 @@ import {
   LogHandler,
   TContextShape,
   ReadonlyRecursive,
+  clone,
 } from '@debugr/core';
 
 export interface ElasticHandlerOptions<
@@ -55,8 +56,7 @@ export class ElasticHandler<
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     opts: ElasticOptions<TTaskContext, TGlobalContext>,
   ): ElasticHandler<TTaskContext, TGlobalContext> {
-    const instance = new ElasticHandler<TTaskContext, TGlobalContext>(opts, new Client(opts));
-    return instance;
+    return new ElasticHandler<TTaskContext, TGlobalContext>(opts, new Client(opts));
   }
 
   public async log(
@@ -88,12 +88,16 @@ export class ElasticHandler<
     }
   }
 
-  private defaultBodyMapper(
-    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-  ): Record<string, any> {
+  private defaultBodyMapper({
+    data,
+    taskContext,
+    globalContext,
+    ...entry
+  }: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): Record<string, any> {
     return {
       ...entry,
-      data: JSON.stringify(entry.data),
+      context: clone({ ...(taskContext || {}), ...globalContext }),
+      data: JSON.stringify(data),
     };
   }
 }

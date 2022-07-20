@@ -1,3 +1,5 @@
+import { HttpHeaders } from '@debugr/core';
+
 export type CaptureBodyOption = boolean | number | string | string[] | Record<string, number>;
 
 export type Options = {
@@ -28,4 +30,11 @@ export type NormalizedOptions = {
     captureBody: NormalizedCaptureBodyOption;
     excludeHeaders?: RegExp;
   };
+};
+
+export type ResponseInfo = {
+  headers: HttpHeaders;
+  contentLength?: number;
+  body?: string;
+  bodyLength: number;
 };

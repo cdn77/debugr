@@ -12,16 +12,11 @@
   },
   "dependencies": {
     "ansi-colors": "^4.1.1",
-    "apollo-server-types": "^3.6.0",
     "node-uuid": "^1.4.8",
     "printj": "^1.2.2"
   },
   "devDependencies": {
-    "@types/node-uuid": "0.0.29",
-    "graphql": "^15.4.0"
-  },
-  "peerDependencies": {
-    "graphql": "^15.4.0"
+    "@types/node-uuid": "0.0.29"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -32,16 +27,15 @@
       "ansi-colors",
       "node-uuid",
       "async_hooks",
-      "apollo-server-types",
       "crypto",
       "http",
-      "graphql",
       "events",
       "fs",
       "path",
       "printj",
       "v8",
-      "util"
+      "util",
+      "util/types"
     ]
   },
   "files": [

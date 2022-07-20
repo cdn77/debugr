@@ -8,6 +8,6 @@ declare module '@debugr/core' {
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    express: ExpressLogger<Partial<TTaskContext>, TGlobalContext>;
+    express: ExpressLogger<TTaskContext, TGlobalContext>;
   }
 }

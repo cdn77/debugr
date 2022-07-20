@@ -1,123 +1,134 @@
 import {
+  LogEntry,
+  LogLevel,
+  PluginManager,
+  ReadonlyRecursive,
+  SmartMap,
   TaskAwareLogHandler,
   TContextBase,
-  LogEntry,
-  PluginManager,
   TContextShape,
-  ReadonlyRecursive,
+  wrapPossiblePromise,
 } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
-import { HtmlFormatter } from './htmlFormatter';
+import { HtmlRenderer } from './htmlRenderer';
+import { HtmlLogHandlerOptions, TaskData } from './types';
+import { computeTaskHash } from './utils';
 import { Writer } from './writer';
-import { identifyQueue } from './utils';
-import { LogEntryQueue, HtmlLogHandlerOptions } from './types';
 
 export class HtmlLogHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> extends TaskAwareLogHandler<Partial<TTaskContext>, TGlobalContext> {
+> extends TaskAwareLogHandler<TTaskContext, TGlobalContext> {
+  public readonly threshold: LogLevel | number = 0;
+
   public readonly identifier: string = 'html';
 
   public readonly doesNeedFormatters: boolean = true;
 
-  private formatter?: HtmlFormatter<Partial<TTaskContext>, TGlobalContext>;
+  private renderer?: HtmlRenderer<TTaskContext, TGlobalContext>;
 
   private readonly writer: Writer;
 
   private readonly options: HtmlLogHandlerOptions;
 
-  private readonly asyncStorage: AsyncLocalStorage<
-    LogEntryQueue<Partial<TTaskContext>, TGlobalContext>
-  >;
+  private readonly asyncStorage: AsyncLocalStorage<TaskData<TTaskContext, TGlobalContext>>;
 
   public constructor(
     writer: Writer,
     options: HtmlLogHandlerOptions,
-    formatter?: HtmlFormatter<Partial<TTaskContext>, TGlobalContext>,
+    renderer?: HtmlRenderer<TTaskContext, TGlobalContext>,
   ) {
     super();
-    this.formatter = formatter;
+    this.renderer = renderer;
     this.writer = writer;
     this.options = options;
-    this.asyncStorage = new AsyncLocalStorage<
-      LogEntryQueue<Partial<TTaskContext>, TGlobalContext>
-    >();
+    this.asyncStorage = new AsyncLocalStorage();
   }
 
-  public injectPluginManager(pluginManager: PluginManager<TContextShape, {}>): void {
-    if (!this.formatter) {
-      this.formatter = new HtmlFormatter<Partial<TTaskContext>, TGlobalContext>(pluginManager);
+  public injectPluginManager(pluginManager: PluginManager<TTaskContext, TGlobalContext>): void {
+    if (!this.renderer) {
+      this.renderer = HtmlRenderer.create(
+        pluginManager,
+        this.options.levelMap,
+        this.options.colorMap,
+      );
     }
   }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options: HtmlLogHandlerOptions,
-  ): HtmlLogHandler<Partial<TTaskContext>, TGlobalContext> {
-    return new HtmlLogHandler<Partial<TTaskContext>, TGlobalContext>(
-      new Writer(options.outputDir),
-      options,
-    );
+  ): HtmlLogHandler<TTaskContext, TGlobalContext> {
+    return new HtmlLogHandler<TTaskContext, TGlobalContext>(new Writer(options.outputDir), options);
   }
 
-  public log(entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>): void {
-    const queue = this.asyncStorage.getStore();
+  public log(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): void {
+    const task = this.asyncStorage.getStore();
 
-    if (!queue) {
+    if (!task) {
       return;
     }
 
-    const entryId = queue.entries.length;
+    task.log.entries.set(entry, task);
+    task.lastTs = entry.ts;
 
-    queue.entries.push(entry);
-    queue.lastTs = entry.ts;
+    const threshold = task.threshold ?? this.options.threshold ?? LogLevel.ERROR;
 
-    const threshold = queue.threshold !== undefined ? queue.threshold : this.options.threshold;
-
-    if (entry.level >= threshold && queue.firstOverThreshold === undefined) {
-      queue.firstOverThreshold = entryId;
+    if (entry.level >= threshold && task.firstOverThreshold === undefined) {
+      task.firstOverThreshold = entry;
     }
   }
 
   public runTask<R>(callback: () => R): R {
     const now = new Date();
+    const parent = this.asyncStorage.getStore();
 
-    const queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext> = {
-      entries: [],
+    const task: TaskData<TTaskContext, TGlobalContext> = {
+      parent: parent?.index,
+      index: parent ? parent.log.tasks++ : 0,
+      log: parent
+        ? parent.log
+        : {
+            entries: new SmartMap(),
+            tasks: 1,
+          },
+      threshold: parent?.threshold,
       ts: now,
       lastTs: now,
     };
 
-    return this.asyncStorage.run<R>(queue, callback);
+    task.log.entries.set({ type: 'task:start', ts: now }, task);
+
+    return wrapPossiblePromise(() => this.asyncStorage.run(task, callback), {
+      finally: () => task.log.entries.set({ type: 'task:end', ts: new Date() }, task),
+    });
   }
 
-  public flush(_taskId?: string, forceWrite: boolean = false): void {
-    const queue = this.asyncStorage.getStore();
+  public flush(): void {
+    const task = this.asyncStorage.getStore();
 
-    if (!queue) {
+    if (!task || task.parent !== undefined) {
       return;
     }
 
-    Promise.resolve().then(() => this.doFlushQueue(queue, forceWrite));
+    Promise.resolve().then(() => this.flushTask(task));
   }
 
-  private async doFlushQueue(
-    queue: LogEntryQueue<Partial<TTaskContext>, TGlobalContext>,
-    forceWrite: boolean = false,
-  ): Promise<void> {
-    if (!this.formatter) {
-      throw new Error('Logger was incorrectly initialized, no formatter found');
-    }
-    if (queue.id === undefined) {
-      queue.id = identifyQueue(queue);
+  private async flushTask(task: TaskData<TTaskContext, TGlobalContext>): Promise<void> {
+    if (!this.renderer) {
+      throw new Error('Logger was incorrectly initialized, no renderer found');
     }
 
-    if (queue.write === undefined) {
-      queue.write = queue.firstOverThreshold !== undefined;
+    if (task.log.id === undefined) {
+      task.log.id = computeTaskHash(task);
     }
 
-    if (forceWrite || queue.write) {
-      const content = this.formatter.formatQueue(queue);
-      await this.writer.write(queue.ts, queue.id, content);
+    if (task.log.write === undefined) {
+      task.log.write = task.firstOverThreshold !== undefined;
+    }
+
+    if (task.log.write) {
+      const content = this.renderer.renderTask(task);
+      await this.writer.write(task.ts, task.log.id, content);
     }
   }
 }

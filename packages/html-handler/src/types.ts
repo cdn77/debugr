@@ -5,23 +5,58 @@ import {
   LogLevel,
   TContextShape,
   ReadonlyRecursive,
+  SmartMap,
 } from '@debugr/core';
 
 export type HtmlLogHandlerOptions = {
-  threshold: LogLevel | number;
+  threshold?: LogLevel | number;
   cloneData?: boolean;
   outputDir: string;
+  levelMap?: Record<number, string>;
+  colorMap?: Record<number, string>;
 };
 
-export type LogEntryQueue<
+export type TaskBoundary = {
+  type: 'task:start' | 'task:end';
+  ts: ImmutableDate;
+};
+
+export function isTaskBoundary(value: any): value is TaskBoundary {
+  return (value as any).type === 'task:start' || (value as any).type === 'task:end';
+}
+
+export type TaskLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+> = ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>> | TaskBoundary;
+
+export type TaskLog<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > = {
   id?: string;
-  entries: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>[];
+  entries: SmartMap<
+    TaskLogEntry<TTaskContext, TGlobalContext>,
+    TaskData<TTaskContext, TGlobalContext>
+  >;
+  tasks: number;
   write?: boolean;
+};
+
+export type TaskLogInfo = {
+  maxParallelTasks: number;
+  usedLevels: number[];
+};
+
+export type TaskData<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+> = {
+  index: number;
+  parent?: number;
+  log: TaskLog<TTaskContext, TGlobalContext>;
   threshold?: number;
-  firstOverThreshold?: number;
+  firstOverThreshold?: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>;
   ts: ImmutableDate;
   lastTs: ImmutableDate;
 };

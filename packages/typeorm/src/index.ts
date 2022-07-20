@@ -7,6 +7,6 @@ declare module '@debugr/core' {
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    typeorm: TypeormLogger<Partial<TTaskContext>, TGlobalContext>;
+    typeorm: TypeormLogger<TTaskContext, TGlobalContext>;
   }
 }

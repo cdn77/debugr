@@ -12,17 +12,19 @@ export abstract class LogHandler<
   public readonly doesNeedFormatters: boolean;
 
   public abstract log(
-    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): void | Promise<void>;
 
-  public abstract injectPluginManager(pluginManager: PluginManager): void;
+  public abstract injectPluginManager(
+    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+  ): void;
 }
 
 export abstract class TaskAwareLogHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > extends LogHandler<TTaskContext, TGlobalContext> {
-  public abstract flush(taskId?: string, forceWrite?: boolean): void;
+  public abstract flush(taskId?: string): void;
 
   public abstract runTask<R>(callback: () => R): R;
 }

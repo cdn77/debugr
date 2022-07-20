@@ -1,6 +1,3 @@
-import { VariableValues } from 'apollo-server-types';
-import { OutgoingHttpHeaders } from 'http';
-
 import { PluginId } from '../plugins';
 
 export enum LogLevel {
@@ -50,7 +47,8 @@ export type LogEntry<
   TGlobalContext extends TContextShape = {},
 > = {
   level: LogLevel | number;
-  context: Partial<TTaskContext> & TGlobalContext;
+  taskContext?: Partial<TTaskContext>;
+  globalContext: TGlobalContext;
   message?: string;
   error?: Error;
   data?: Record<string, any>;
@@ -58,47 +56,67 @@ export type LogEntry<
   ts: ImmutableDate;
 };
 
+export interface GraphQLQueryData {
+  query: string;
+  variables?: Record<string, any>;
+  operation?: string;
+}
+
 export interface GraphQlLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+> extends LogEntry<TTaskContext, TGlobalContext> {
   format: 'graphql';
-  data: {
-    query?: string;
-    variables?: VariableValues;
-    operation?: string;
-  };
+  data: GraphQLQueryData;
+}
+
+export interface HttpHeaders {
+  [header: string]: number | string | string[] | undefined;
+}
+
+export interface HttpRequestData {
+  type: 'request';
+  method: string;
+  uri: string;
+  headers?: HttpHeaders;
+  ip?: string;
+  body?: string;
+  bodyLength?: number;
+  lengthMismatch?: boolean;
+}
+
+export interface HttpResponseData {
+  type: 'response';
+  status: number;
+  message?: string;
+  headers?: HttpHeaders;
+  body?: string;
+  bodyLength?: number;
+  lengthMismatch?: boolean;
 }
 
 export interface HttpLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+> extends LogEntry<TTaskContext, TGlobalContext> {
   format: 'http';
-  data: {
-    type: string;
-    status?: number;
-    message?: string;
-    headers: OutgoingHttpHeaders;
-    body?: string;
-    bodyLength?: number;
-    lengthMismatch?: boolean;
-    method?: string;
-    uri?: string;
-    ip?: string;
-  };
+  data: HttpRequestData | HttpResponseData;
+}
+
+export interface SqlQueryData {
+  query: string;
+  parameters?: any[];
+  error?: string;
+  stack?: string;
+  affectedRows?: number;
+  rows?: number;
+  time?: number;
 }
 
 export interface SqlLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> extends LogEntry<Partial<TTaskContext>, TGlobalContext> {
+> extends LogEntry<TTaskContext, TGlobalContext> {
   format: 'sql';
-  data: {
-    query: string;
-    parameters?: any[];
-    error?: string;
-    stack?: string;
-    time?: number;
-  };
+  data: SqlQueryData;
 }

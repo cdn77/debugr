@@ -1,21 +1,6 @@
 import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import { LogContext, Logger as MikroORMLoggerInterface, LoggerNamespace } from '@mikro-orm/core';
-
-export type MikroORMLogNamespace = LoggerNamespace;
-export type MikroORMLogLevel = 'info' | 'warning' | 'error';
-
-export type MikroORMNamespaceMap = {
-  [namespace in MikroORMLogNamespace]: LogLevel;
-};
-
-export type MikroORMLevelMap = {
-  [level in MikroORMLogLevel]: LogLevel;
-};
-
-export type MikroORMLoggerOptions = {
-  namespaces?: Partial<MikroORMNamespaceMap>;
-  levels?: Partial<MikroORMLevelMap>;
-};
+import { MikroORMLevelMap, MikroORMLoggerOptions, MikroORMNamespaceMap } from './types';
 
 const defaultNamespaceMap: MikroORMNamespaceMap = {
   discovery: LogLevel.DEBUG,
@@ -34,7 +19,7 @@ const defaultLevelMap: MikroORMLevelMap = {
 export class MikroORMLogger<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements Plugin<Partial<TTaskContext>, TGlobalContext>, MikroORMLoggerInterface
+> implements Plugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
 {
   public readonly id: string = 'mikroorm';
 
@@ -48,8 +33,8 @@ export class MikroORMLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: MikroORMLoggerOptions,
-  ): MikroORMLogger<Partial<TTaskContext>, TGlobalContext> {
-    return new MikroORMLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  ): MikroORMLogger<TTaskContext, TGlobalContext> {
+    return new MikroORMLogger<TTaskContext, TGlobalContext>(options);
   }
 
   constructor({ namespaces = {}, levels = {} }: MikroORMLoggerOptions = {}) {
@@ -57,7 +42,7 @@ export class MikroORMLogger<
     this.levelMap = { ...defaultLevelMap, ...levels };
   }
 
-  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
+  injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
   }
 

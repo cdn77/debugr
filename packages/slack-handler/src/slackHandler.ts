@@ -24,7 +24,7 @@ export interface SlackHandlerOptions<
   iconEmoji?: string;
   errorCallback?: (error: Error) => void;
   bodyMapper?: (
-    entry: ReadonlyRecursive<LogEntry<Partial<TTaskContext>, TGlobalContext>>,
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ) => Record<string, any>;
 }
 
@@ -48,8 +48,7 @@ export class SlackHandler<
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     opts: SlackHandlerOptions<TTaskContext, TGlobalContext>,
   ): SlackHandler<TTaskContext, TGlobalContext> {
-    const instance = new SlackHandler<TTaskContext, TGlobalContext>(opts);
-    return instance;
+    return new SlackHandler<TTaskContext, TGlobalContext>(opts);
   }
 
   public async log(

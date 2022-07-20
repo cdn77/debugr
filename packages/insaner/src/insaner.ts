@@ -6,7 +6,7 @@ import { filterHeaders, normalizeOptions } from './utils';
 export class InsanerLogger<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements Plugin<Partial<TTaskContext>, TGlobalContext>
+> implements Plugin<TTaskContext, TGlobalContext>
 {
   public readonly id: string = 'insaner';
 
@@ -14,20 +14,20 @@ export class InsanerLogger<
 
   private readonly options: NormalizedOptions;
 
-  private logger: Logger<Partial<TTaskContext>, TGlobalContext>;
+  private logger: Logger<TTaskContext, TGlobalContext>;
 
   constructor(options?: Options) {
     this.options = normalizeOptions(options);
   }
 
-  injectLogger(logger: Logger<Partial<TTaskContext>, TGlobalContext>): void {
+  injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
   }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: Options,
-  ): InsanerLogger<Partial<TTaskContext>, TGlobalContext> {
-    return new InsanerLogger<Partial<TTaskContext>, TGlobalContext>(options);
+  ): InsanerLogger<TTaskContext, TGlobalContext> {
+    return new InsanerLogger<TTaskContext, TGlobalContext>(options);
   }
 
   createMiddlewareHandler() {
@@ -38,7 +38,7 @@ export class InsanerLogger<
 
   createRequestHandler() {
     return (request: HttpRequest) => {
-      const entry: Omit<HttpLogEntry, 'ts' | 'context'> = {
+      const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
         format: 'http',
         level: this.options.level,
         data: {
@@ -65,19 +65,17 @@ export class InsanerLogger<
       const level =
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
-      const entry: Omit<HttpLogEntry, 'ts' | 'context'> = {
+      const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
         format: 'http',
         level,
         data: {
           type: 'response',
           status: response.status,
-          message: '',
           headers: filterHeaders(response.headers, this.options.response.excludeHeaders),
         },
       };
-      this.logger.add(entry);
 
-      this.logger.flush();
+      this.logger.add(entry);
     };
   }
 }
