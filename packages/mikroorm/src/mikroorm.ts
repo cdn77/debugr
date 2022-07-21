@@ -17,7 +17,7 @@ const defaultLevelMap: MikroORMLevelMap = {
   error: LogLevel.ERROR,
 };
 
-export class MikroORMLogger<
+export class MikroORMPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
@@ -34,8 +34,8 @@ export class MikroORMLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: MikroORMLoggerOptions,
-  ): MikroORMLogger<TTaskContext, TGlobalContext> {
-    return new MikroORMLogger<TTaskContext, TGlobalContext>(options);
+  ): MikroORMPlugin<TTaskContext, TGlobalContext> {
+    return new MikroORMPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   constructor({ namespaces = {}, levels = {} }: MikroORMLoggerOptions = {}) {

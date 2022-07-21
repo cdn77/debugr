@@ -3,7 +3,7 @@ import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/c
 import { GraphQlLogEntry } from '@debugr/graphql-common';
 import { FullOptions, Options } from './types';
 
-export class ApolloLogger<
+export class ApolloPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
@@ -24,8 +24,8 @@ export class ApolloLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: Options,
-  ): ApolloLogger<TTaskContext, TGlobalContext> {
-    return new ApolloLogger<TTaskContext, TGlobalContext>(options);
+  ): ApolloPlugin<TTaskContext, TGlobalContext> {
+    return new ApolloPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {

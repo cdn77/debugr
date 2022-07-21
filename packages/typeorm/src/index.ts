@@ -1,12 +1,12 @@
-import { TypeormLogger, TypeORMLoggerOptions } from './typeorm';
+import { TypeORMPlugin, TypeORMLoggerOptions } from './typeorm';
 
-export { TypeormLogger, TypeORMLoggerOptions };
+export { TypeORMPlugin, TypeORMLoggerOptions };
 
 declare module '@debugr/core' {
   export interface Plugins<
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    typeorm: TypeormLogger<TTaskContext, TGlobalContext>;
+    typeorm: TypeORMPlugin<TTaskContext, TGlobalContext>;
   }
 }

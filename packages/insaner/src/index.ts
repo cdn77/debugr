@@ -1,13 +1,13 @@
-import { InsanerLogger } from './insaner';
+import { InsanerPlugin } from './insaner';
 import { Options } from './types';
 
-export { InsanerLogger, Options };
+export { InsanerPlugin, Options };
 
 declare module '@debugr/core' {
   export interface Plugins<
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    insaner: InsanerLogger<TTaskContext, TGlobalContext>;
+    insaner: InsanerPlugin<TTaskContext, TGlobalContext>;
   }
 }

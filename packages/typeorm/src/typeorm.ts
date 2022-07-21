@@ -21,7 +21,7 @@ export type TypeORMLoggerOptions = {
   schemaBuildLevel?: LogLevel | number;
 };
 
-export class TypeormLogger<
+export class TypeORMPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<TTaskContext, TGlobalContext>, LoggerInterface
@@ -40,8 +40,8 @@ export class TypeormLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: TypeORMLoggerOptions,
-  ): TypeormLogger<TTaskContext, TGlobalContext> {
-    return new TypeormLogger<TTaskContext, TGlobalContext>(options);
+  ): TypeORMPlugin<TTaskContext, TGlobalContext> {
+    return new TypeORMPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {

@@ -10,7 +10,7 @@ import type { Handler, ErrorRequestHandler, Request, Response } from 'express';
 import { NormalizedOptions, Options, ResponseInfo } from './types';
 import { normalizeOptions } from './utils';
 
-export class ExpressLogger<
+export class ExpressPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<TTaskContext, TGlobalContext>
@@ -29,8 +29,8 @@ export class ExpressLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: Options,
-  ): ExpressLogger<TTaskContext, TGlobalContext> {
-    return new ExpressLogger<TTaskContext, TGlobalContext>(options);
+  ): ExpressPlugin<TTaskContext, TGlobalContext> {
+    return new ExpressPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   public injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {

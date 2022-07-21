@@ -4,7 +4,7 @@ import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'i
 import { NormalizedOptions, Options } from './types';
 import { normalizeOptions } from './utils';
 
-export class InsanerLogger<
+export class InsanerPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > implements Plugin<TTaskContext, TGlobalContext>
@@ -27,8 +27,8 @@ export class InsanerLogger<
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options?: Options,
-  ): InsanerLogger<TTaskContext, TGlobalContext> {
-    return new InsanerLogger<TTaskContext, TGlobalContext>(options);
+  ): InsanerPlugin<TTaskContext, TGlobalContext> {
+    return new InsanerPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   createMiddlewareHandler() {

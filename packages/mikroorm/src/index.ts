@@ -1,6 +1,6 @@
-import { MikroORMLogger } from './mikroorm';
+import { MikroORMPlugin } from './mikroorm';
 
-export { MikroORMLogger };
+export { MikroORMPlugin };
 export * from './types';
 
 declare module '@debugr/core' {
@@ -8,6 +8,6 @@ declare module '@debugr/core' {
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = {},
   > {
-    mikroorm: MikroORMLogger<TTaskContext, TGlobalContext>;
+    mikroorm: MikroORMPlugin<TTaskContext, TGlobalContext>;
   }
 }
