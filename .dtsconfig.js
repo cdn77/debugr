@@ -2,21 +2,19 @@ const path = require('path');
 const pkg = require(path.resolve('package.json'));
 
 const importedLibraries = [
-  '@debugr/core',
-  '@debugr/graphql-console-formatter',
-  '@debugr/graphql-html-formatter',
-  '@debugr/http-console-formatter',
-  '@debugr/http-html-formatter',
-  '@debugr/sql-console-formatter',
-  '@debugr/sql-html-formatter',
   '@debugr/apollo',
-  '@debugr/express',
-  '@debugr/insaner',
-  '@debugr/typeorm',
-  '@debugr/elastic-handler',
-  '@debugr/html-handler',
   '@debugr/console-handler',
+  '@debugr/core',
+  '@debugr/elastic-handler',
+  '@debugr/express',
+  '@debugr/graphql-common',
+  '@debugr/html-handler',
+  '@debugr/http-common',
+  '@debugr/insaner',
+  '@debugr/mikroorm',
   '@debugr/slack-handler',
+  '@debugr/sql-common',
+  '@debugr/typeorm',
 ];
 
 if (pkg.build.externals) {

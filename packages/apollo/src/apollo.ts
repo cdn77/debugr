@@ -1,12 +1,6 @@
 import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import {
-  Logger,
-  Plugin,
-  LogLevel,
-  TContextBase,
-  TContextShape,
-  GraphQlLogEntry,
-} from '@debugr/core';
+import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/core';
+import { GraphQlLogEntry } from '@debugr/graphql-common';
 import { FullOptions, Options } from './types';
 
 export class ApolloLogger<
@@ -68,7 +62,7 @@ export class ApolloLogger<
     return {
       didResolveOperation: async ({ request, operation, operationName }): Promise<void> => {
         if (request.query) {
-          const entry: Omit<GraphQlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+          logger.add<GraphQlLogEntry>({
             format: this.entryFormat,
             level: options.level,
             message: 'GraphQL request',
@@ -78,8 +72,7 @@ export class ApolloLogger<
               operation:
                 [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
             },
-          };
-          logger.add(entry);
+          });
         }
       },
       didEncounterErrors: async ({ errors }): Promise<void> => {

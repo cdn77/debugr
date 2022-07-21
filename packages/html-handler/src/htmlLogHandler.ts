@@ -33,6 +33,12 @@ export class HtmlLogHandler<
 
   private readonly asyncStorage: AsyncLocalStorage<TaskData<TTaskContext, TGlobalContext>>;
 
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    options: HtmlLogHandlerOptions,
+  ): HtmlLogHandler<TTaskContext, TGlobalContext> {
+    return new HtmlLogHandler<TTaskContext, TGlobalContext>(new Writer(options.outputDir), options);
+  }
+
   public constructor(
     writer: Writer,
     options: HtmlLogHandlerOptions,
@@ -53,12 +59,6 @@ export class HtmlLogHandler<
         this.options.colorMap,
       );
     }
-  }
-
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options: HtmlLogHandlerOptions,
-  ): HtmlLogHandler<TTaskContext, TGlobalContext> {
-    return new HtmlLogHandler<TTaskContext, TGlobalContext>(new Writer(options.outputDir), options);
   }
 
   public log(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): void {

@@ -1,7 +1,8 @@
-import { Logger, LogLevel, Plugin, TContextBase, TContextShape, HttpLogEntry } from '@debugr/core';
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { filterHeaders, HttpLogEntry } from '@debugr/http-common';
 import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'insaner';
 import { NormalizedOptions, Options } from './types';
-import { filterHeaders, normalizeOptions } from './utils';
+import { normalizeOptions } from './utils';
 
 export class InsanerLogger<
   TTaskContext extends TContextBase = TContextBase,
@@ -38,7 +39,7 @@ export class InsanerLogger<
 
   createRequestHandler() {
     return (request: HttpRequest) => {
-      const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+      this.logger.add<HttpLogEntry>({
         format: 'http',
         level: this.options.level,
         data: {
@@ -47,8 +48,7 @@ export class InsanerLogger<
           uri: request.url.toString(),
           headers: filterHeaders(request.headers, this.options.request.excludeHeaders),
         },
-      };
-      this.logger.add(entry);
+      });
     };
   }
 
@@ -65,7 +65,7 @@ export class InsanerLogger<
       const level =
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
-      const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+      this.logger.add<HttpLogEntry>({
         format: 'http',
         level,
         data: {
@@ -73,9 +73,7 @@ export class InsanerLogger<
           status: response.status,
           headers: filterHeaders(response.headers, this.options.response.excludeHeaders),
         },
-      };
-
-      this.logger.add(entry);
+      });
     };
   }
 }

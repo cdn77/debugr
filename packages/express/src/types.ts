@@ -1,6 +1,4 @@
-import { HttpHeaders } from '@debugr/core';
-
-export type CaptureBodyOption = boolean | number | string | string[] | Record<string, number>;
+import { CaptureBodyOption, HttpHeaders, NormalizedCaptureBodyOption } from '@debugr/http-common';
 
 export type Options = {
   level?: number;
@@ -16,8 +14,6 @@ export type Options = {
     excludeHeaders?: string[];
   };
 };
-
-export type NormalizedCaptureBodyOption = boolean | number | RegExp | Map<RegExp, number>;
 
 export type NormalizedOptions = {
   level: number;

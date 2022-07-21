@@ -1,13 +1,14 @@
-import { Plugin, Logger, LogLevel, TContextBase, TContextShape, HttpLogEntry } from '@debugr/core';
-import type { Handler, ErrorRequestHandler, Request, Response } from 'express';
-import { NormalizedOptions, Options, ResponseInfo } from './types';
+import { Plugin, Logger, LogLevel, TContextBase, TContextShape } from '@debugr/core';
 import {
+  HttpLogEntry,
   filterHeaders,
   isCaptureEnabled,
   normalizeContentLength,
   normalizeContentType,
-  normalizeOptions,
-} from './utils';
+} from '@debugr/http-common';
+import type { Handler, ErrorRequestHandler, Request, Response } from 'express';
+import { NormalizedOptions, Options, ResponseInfo } from './types';
+import { normalizeOptions } from './utils';
 
 export class ExpressLogger<
   TTaskContext extends TContextBase = TContextBase,
@@ -91,7 +92,7 @@ export class ExpressLogger<
     const canCapture = isCaptureEnabled(options.request.captureBody, contentType, bodyLength);
     const lengthMismatch = !!body && !canCapture;
 
-    const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+    logger.add<HttpLogEntry>({
       format: this.entryFormat,
       level: options.level,
       data: {
@@ -104,9 +105,7 @@ export class ExpressLogger<
         bodyLength,
         lengthMismatch,
       },
-    };
-
-    logger.add(entry);
+    });
   }
 
   private captureRequestBody(request: Request, cb: (err: any | null, body?: string) => void): void {
@@ -180,7 +179,7 @@ export class ExpressLogger<
     const level =
       response.statusCode >= (options.e4xx ? 400 : 500) ? LogLevel.ERROR : options.level;
 
-    const entry: Omit<HttpLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+    logger.add<HttpLogEntry>({
       format: this.entryFormat,
       level,
       data: {
@@ -192,8 +191,6 @@ export class ExpressLogger<
         bodyLength,
         lengthMismatch,
       },
-    };
-
-    logger.add(entry);
+    });
   }
 }

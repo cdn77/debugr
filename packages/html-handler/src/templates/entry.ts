@@ -1,6 +1,5 @@
-import { ImmutableDate, LogEntry, formatData, isEmpty, pad, pad3 } from '@debugr/core';
-import { levelToValue } from '../utils';
-import { escapeHtml, renderCode, renderDetails } from './utils';
+import { ImmutableDate, levelToValue, pad, pad3 } from '@debugr/core';
+import { escapeHtml } from './utils';
 
 export class EntryTemplate {
   readonly levelMap: Map<number, string>;
@@ -12,8 +11,8 @@ export class EntryTemplate {
   public render(
     ts: string,
     level: number,
-    label: string,
     content: string,
+    label?: string,
     task?: number,
     defining: boolean = false,
     taskStates?: string,
@@ -25,7 +24,7 @@ export class EntryTemplate {
     return `<div class="${classes.join(' ')}">
           ${taskStates ?? ''}
           <div class="entry-time">${ts}</div>
-          <div class="entry-label">${escapeHtml(label)}</div>
+          <div class="entry-label">${label ? escapeHtml(label) : ''}</div>
           <div class="entry-content">
             ${content}
           </div>
@@ -48,37 +47,5 @@ export class EntryTemplate {
     const ms = `<small>.${pad3(ts.getMilliseconds())}</small>`;
     const str = `${date}${time}${ms}`;
     return relativeTo ? `${str} <small>(+${ts.getTime() - relativeTo.getTime()}ms)</small>` : str;
-  }
-
-  public renderStackTrace(trace: string): string {
-    return renderDetails('Stack trace:', renderCode(trace));
-  }
-
-  public renderDefaultContent(entry: Pick<LogEntry, 'message' | 'data' | 'error'>): string {
-    const { stack, ...data } = entry.data ?? {};
-    const chunks: string[] = [];
-
-    if (entry.error) {
-      chunks.push(`<p>${escapeHtml(entry.error.message)}</p>`);
-
-      if (entry.error.stack) {
-        chunks.push(this.renderStackTrace(entry.error.stack));
-      }
-    }
-
-    if (entry.message) {
-      chunks.push(`<p>${escapeHtml(entry.message)}</p>`);
-    }
-
-    if (!isEmpty(data)) {
-      const formattedData = renderCode(formatData(data));
-      chunks.push(entry.message ? renderDetails('Data:', formattedData) : formattedData);
-    }
-
-    if (typeof stack === 'string') {
-      chunks.push(this.renderStackTrace(stack));
-    }
-
-    return chunks.join('\n            ');
   }
 }

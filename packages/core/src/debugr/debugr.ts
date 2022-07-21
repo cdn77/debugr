@@ -34,11 +34,6 @@ export class Debugr<
   ): Debugr<TTaskContext, TGlobalContext> {
     const logger = new Logger<TTaskContext, TGlobalContext>(logHandlers, globalContext);
     const pluginManager = new PluginManager<TTaskContext, TGlobalContext>(logger);
-
-    for (const logHandler of logHandlers) {
-      logHandler.injectPluginManager(pluginManager);
-    }
-
     return new Debugr<TTaskContext, TGlobalContext>(pluginManager, logger, plugins);
   }
 

@@ -1,2 +1,4 @@
-export { ConsoleFormatter } from './consoleFormatter';
-export { ConsoleLogHandler } from './consoleLogHandler';
+export * from './formatters';
+export * from './consoleFormatter';
+export * from './consoleLogHandler';
+export * from './types';

@@ -7,7 +7,4 @@ export {
   TContextBase,
   TContextShape,
   ReadonlyRecursive,
-  GraphQlLogEntry,
-  HttpLogEntry,
-  SqlLogEntry,
 } from './types';

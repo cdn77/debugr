@@ -1,6 +1,6 @@
+import { levelToValue } from '@debugr/core';
 import { StylesTemplate } from './styles';
 import { escapeHtml } from './utils';
-import { levelToValue } from '../utils';
 
 export class LayoutTemplate {
   readonly levelMap: Map<number, string>;

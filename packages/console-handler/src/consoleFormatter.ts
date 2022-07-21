@@ -1,96 +1,101 @@
-import { dim, gray, yellow, red, white, blue, unstyle } from 'ansi-colors';
+import { dim, unstyle } from 'ansi-colors';
 import {
-  FormatterPlugin,
+  ImmutableDate,
   PluginManager,
   LogEntry,
-  Formatter,
-  formatData,
-  isEmpty,
   TContextBase,
   TContextShape,
+  normalizeMap,
+  levelToValue,
 } from '@debugr/core';
+import { ConsoleFormatterPlugin, DefaultConsoleFormatter } from './formatters';
+import { ConsoleColor, defaultColorMap, defaultLevelMap } from './maps';
+import { getFormatters } from './utils';
 
 export class ConsoleFormatter<
   TTaskContext extends TContextBase,
   TGlobalContext extends TContextShape,
-> extends Formatter<Partial<TTaskContext>, TGlobalContext> {
+> {
   private readonly writeTimestamp: boolean;
 
+  private readonly levelMap: Map<number, string>;
+
+  private readonly colorMap: Map<number, ConsoleColor>;
+
+  private readonly formatters: Record<string, ConsoleFormatterPlugin<TTaskContext, TGlobalContext>>;
+
+  private readonly defaultFormatter: DefaultConsoleFormatter<TTaskContext, TGlobalContext>;
+
+  public static create<
+    TTaskContext extends TContextBase = TContextBase,
+    TGlobalContext extends TContextShape = {},
+  >(
+    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+    levelMap?: Record<number, string>,
+    colorMap?: Record<number, ConsoleColor>,
+    writeTimestamp?: boolean,
+  ): ConsoleFormatter<TTaskContext, TGlobalContext> {
+    return new ConsoleFormatter(pluginManager, levelMap, colorMap, writeTimestamp);
+  }
+
   constructor(
-    pluginManager: PluginManager<Partial<TTaskContext>, TGlobalContext>,
+    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+    levelMap: Record<number, string> = {},
+    colorMap: Record<number, ConsoleColor> = {},
     writeTimestamp: boolean = true,
   ) {
-    super(pluginManager);
+    this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
+    this.colorMap = normalizeMap({ ...defaultColorMap, ...colorMap });
     this.writeTimestamp = writeTimestamp;
+    this.formatters = getFormatters(pluginManager);
+    this.defaultFormatter = new DefaultConsoleFormatter();
+  }
+
+  public format(entry: LogEntry<TTaskContext, TGlobalContext>): string {
+    return [...this.tryFormatEntry(entry)].join('\n');
+  }
+
+  protected formatError(e: Error): string {
+    return this.formatLines(-1, this.defaultFormatter.formatError(e));
+  }
+
+  protected *tryFormatEntry(entry: LogEntry<TTaskContext, TGlobalContext>): Generator<string> {
+    try {
+      yield this.formatEntry(entry);
+    } catch (e) {
+      try {
+        const content = this.formatEntry(entry, true);
+        yield this.formatError(e);
+        yield content;
+      } catch (e2) {
+        yield this.formatError(e);
+      }
+    }
   }
 
   protected formatEntry(
-    entry: LogEntry<Partial<TTaskContext>, TGlobalContext>,
-    _previousTs?: Date,
-    plugin?: FormatterPlugin,
+    entry: LogEntry<TTaskContext, TGlobalContext>,
+    noPlugin: boolean = false,
   ): string {
-    return formatEntry(
-      this.levelMap[entry.level] || 'unknown',
-      plugin ? plugin.formatEntry(entry) : formatDefaultContent(entry.message, entry.data),
-      plugin && plugin.getEntryLabel(entry),
-      this.writeTimestamp ? entry.ts.getTime() : false,
-    );
+    const formatter =
+      !noPlugin && entry.format ? this.formatters[entry.format] : this.defaultFormatter;
+
+    return this.formatLines(entry.level, formatter.formatEntry(entry), entry.ts);
   }
 
-  protected formatError(e: Error, message: string): string {
-    return formatEntry(
-      'internal',
-      formatDefaultContent(`${message} ${e.message}`, { stack: e.stack }),
-      undefined,
-      this.writeTimestamp ? undefined : false,
-    );
+  protected formatLines(level: number, content: string, ts?: ImmutableDate): string {
+    const color = levelToValue(this.colorMap, level);
+    const lvl = levelToValue(this.levelMap, level);
+    const prefix = `${formatDate(this.writeTimestamp && ts)}[${color(lvl)}] `;
+    const indent = unstyle(prefix).replace(/./g, ' ');
+    return `${prefix}${content.split(/\n/g).join(`\n${indent}`)}`;
   }
 }
 
-const colorMap: Record<string, (str: string) => string> = {
-  internal: blue,
-  debug: gray,
-  info: white,
-  warning: yellow,
-  error: red,
-};
-
-function formatEntry(level: string, content: string, label?: string, ts?: number | false): string {
-  const levelColor = colorMap[level] || ((s: string) => s);
-  const prefix = `${formatDate(ts)}${levelColor(level)} `;
-  const indent = new Array(unstyle(prefix).length + 1).join(' ');
-  const lines = content.split(/\n/g);
-
-  if (label) {
-    lines.unshift(label);
-  }
-
-  return `${prefix}${lines.join(`\n${indent}`)}`;
-}
-
-function formatDate(ts?: number | false): string {
+function formatDate(ts?: ImmutableDate | false): string {
   if (ts === false) {
     return '';
   }
 
-  return `${dim(ts ? `[${new Date(ts).toISOString()}]` : '[------------------------]')} `;
-}
-
-function formatDefaultContent(message?: string, data?: Record<string, any>): string {
-  const { stack, ...otherData } = data || {};
-  const parts: string[] = [];
-
-  if (message) {
-    parts.push(message);
-  }
-
-  if (!isEmpty(otherData)) {
-    parts.push('Data:', dim(formatData(otherData)));
-  }
-
-  if (stack) {
-    parts.push('Stack trace:', dim(stack));
-  }
-
-  return parts.join('\n');
+  return `${dim(ts ? ts.toISOString() : '------------------------')} `;
 }

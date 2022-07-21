@@ -7,8 +7,47 @@ import {
   LogLevel,
   ReadonlyRecursive,
   SmartMap,
+  PluginManager,
 } from '@debugr/core';
+import {
+  GraphQLHtmlFormatter,
+  HtmlFormatterPlugin,
+  HttpHtmlFormatter,
+  SqlHtmlFormatter,
+  isHtmlFormatter,
+} from './formatters';
 import { isTaskBoundary, TaskData, TaskLogEntry, TaskLogInfo } from './types';
+
+export function getFormatters<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = {},
+>(
+  pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+): Record<string, HtmlFormatterPlugin<TTaskContext, TGlobalContext>> {
+  const formatters = Object.fromEntries(
+    pluginManager.find(isHtmlFormatter).map((p) => [p.entryFormat, p]),
+  );
+
+  for (const format of pluginManager.getKnownEntryFormats()) {
+    if (!formatters[format]) {
+      switch (format) {
+        case 'graphql':
+          formatters[format] = new GraphQLHtmlFormatter();
+          break;
+        case 'http':
+          formatters[format] = new HttpHtmlFormatter();
+          break;
+        case 'sql':
+          formatters[format] = new SqlHtmlFormatter();
+          break;
+        default:
+          throw new Error(`Missing HTML formatter plugin for the '${format}' entry format`);
+      }
+    }
+  }
+
+  return formatters;
+}
 
 export function getTaskLogInfo(entries: SmartMap<TaskLogEntry, TaskData>): TaskLogInfo {
   const tasks: number[] = [];
@@ -73,32 +112,4 @@ export function computeTaskHash<
   const sha1 = crypto.createHash('sha1');
   sha1.update(key);
   return sha1.digest('hex').substring(0, 16);
-}
-
-export function normalizeMap(map: Record<number, string>): Map<number, string> {
-  return new Map(
-    Object.entries(map)
-      .map(([level, value]) => [parseInt(level, 10), value] as const)
-      .sort(([a], [b]) => a - b),
-  );
-}
-
-export function levelToValue(
-  map: Map<number, string>,
-  level: number,
-  fallback: string = 'unknown',
-): string {
-  const exact = map.get(level);
-
-  if (exact) {
-    return exact;
-  }
-
-  for (const [l, v] of map.entries()) {
-    if (level > l) {
-      return v;
-    }
-  }
-
-  return fallback;
 }

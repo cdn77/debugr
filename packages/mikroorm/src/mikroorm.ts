@@ -1,4 +1,5 @@
 import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { SqlLogEntry } from '@debugr/sql-common';
 import { LogContext, Logger as MikroORMLoggerInterface, LoggerNamespace } from '@mikro-orm/core';
 import { MikroORMLevelMap, MikroORMLoggerOptions, MikroORMNamespaceMap } from './types';
 
@@ -63,15 +64,17 @@ export class MikroORMLogger<
   }
 
   logQuery(context: LogContext): void {
-    this.logger.add({
-      format: 'sql',
-      level: this.levelMap[context.level ?? 'info'],
-      data: {
-        query: context.query,
-        parameters: context.params,
-        time: context.took,
-      },
-    });
+    if (context.query) {
+      this.logger.add<SqlLogEntry>({
+        format: 'sql',
+        level: this.levelMap[context.level ?? 'info'],
+        data: {
+          query: context.query,
+          parameters: context.params,
+          time: context.took,
+        },
+      });
+    }
   }
 
   setDebugMode(): void {

@@ -1,5 +1,4 @@
 import {
-  isFormatterPlugin,
   LogEntry,
   ImmutableDate,
   TContextBase,
@@ -7,7 +6,9 @@ import {
   ReadonlyRecursive,
   PluginManager,
   SmartMap,
+  normalizeMap,
 } from '@debugr/core';
+import { DefaultHtmlFormatter, HtmlFormatterPlugin } from './formatters';
 import {
   LayoutTemplate,
   EntryTemplate,
@@ -16,19 +17,19 @@ import {
   defaultLevelMap,
 } from './templates';
 import { isTaskBoundary, TaskBoundary, TaskData, TaskLogEntry } from './types';
-import { normalizeMap, levelToValue, findDefiningEntry, getTaskLogInfo } from './utils';
+import { findDefiningEntry, getTaskLogInfo, getFormatters } from './utils';
 
 export class HtmlRenderer<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
 > {
-  private readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
-
   private readonly layout: LayoutTemplate;
 
   private readonly entry: EntryTemplate;
 
-  private readonly levelMap: Map<number, string>;
+  private readonly formatters: Record<string, HtmlFormatterPlugin<TTaskContext, TGlobalContext>>;
+
+  private readonly defaultFormatter: DefaultHtmlFormatter<TTaskContext, TGlobalContext>;
 
   public static create<
     TTaskContext extends TContextBase = TContextBase,
@@ -49,10 +50,10 @@ export class HtmlRenderer<
     const levels = normalizeMap({ ...defaultLevelMap, ...levelMap });
     const colors = normalizeMap({ ...defaultColorMap, ...colorMap });
 
-    this.pluginManager = pluginManager;
     this.layout = new LayoutTemplate(levels, colors);
     this.entry = new EntryTemplate(levels);
-    this.levelMap = levels;
+    this.formatters = getFormatters(pluginManager);
+    this.defaultFormatter = new DefaultHtmlFormatter(levels);
   }
 
   renderTask(task: TaskData<TTaskContext, TGlobalContext>): string {
@@ -98,21 +99,15 @@ export class HtmlRenderer<
   protected getEntryTitle(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): string {
-    const plugin = entry.format ? this.pluginManager.get(entry.format) : undefined;
-
-    if (plugin && isFormatterPlugin(plugin)) {
-      return plugin.getEntryTitle(entry);
+    if (entry.format) {
+      try {
+        return this.formatters[entry.format].getEntryTitle(entry);
+      } catch (e) {
+        /* noop */
+      }
     }
 
-    if (entry.message) {
-      return entry.message;
-    }
-
-    if (entry.error && entry.error.message) {
-      return entry.error.message;
-    }
-
-    return `Unknown ${levelToValue(this.levelMap, entry.level, 'entry')}`;
+    return this.defaultFormatter.getEntryTitle(entry);
   }
 
   protected renderTaskBoundary(
@@ -168,17 +163,13 @@ export class HtmlRenderer<
     noPlugin: boolean = false,
   ): string {
     const plugin =
-      !noPlugin && entry.format ? this.pluginManager.get(`${entry.format}-html`) : undefined;
-
-    if (plugin && !isFormatterPlugin(plugin)) {
-      throw new Error(`Invalid plugin: ${entry.format} is not a Formatter plugin`);
-    }
+      !noPlugin && entry.format ? this.formatters[entry.format] : this.defaultFormatter;
 
     return this.entry.render(
       this.entry.formatTimestamp(entry.ts, previousTs),
       entry.level,
-      plugin ? plugin.getEntryLabel(entry) : '',
-      plugin ? plugin.formatEntry(entry) : this.entry.renderDefaultContent(entry),
+      plugin.renderEntry(entry),
+      plugin.getEntryLabel && plugin.getEntryLabel(entry),
       task.index,
       entry === task.firstOverThreshold,
       taskRenderer?.renderTaskStates(task.index),
@@ -189,8 +180,8 @@ export class HtmlRenderer<
     return this.entry.render(
       '',
       -1,
-      '',
-      this.entry.renderDefaultContent({ error }),
+      this.defaultFormatter.renderError(error, false),
+      undefined,
       task,
       false,
       taskRenderer?.renderTaskStates(task),

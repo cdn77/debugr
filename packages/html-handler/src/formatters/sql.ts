@@ -1,25 +1,22 @@
+import { formatData, isEmpty, TContextBase, TContextShape } from '@debugr/core';
 import {
-  formatData,
-  isEmpty,
-  FormatterPlugin,
-  TContextBase,
-  TContextShape,
   SqlLogEntry,
-} from '@debugr/core';
+  SqlQueryFormatter,
+  formatQueryTime,
+  createQueryFormatter,
+} from '@debugr/sql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
+import { AbstractHtmlFormatter } from './abstract';
 
 export class SqlHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = {},
-> implements FormatterPlugin<TTaskContext, TGlobalContext>
-{
-  public readonly id: string = 'sql-html';
+> extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
+  public readonly id: string = 'debugr-sql-html-formatter';
 
   public readonly entryFormat: string = 'sql';
 
-  public readonly targetHandler: string = 'html';
-
-  private readonly formatQuery: QueryFormatter;
+  private readonly formatQuery: SqlQueryFormatter;
 
   public static create<
     TTaskContext extends TContextBase,
@@ -29,10 +26,9 @@ export class SqlHtmlFormatter<
   }
 
   constructor() {
+    super();
     this.formatQuery = createQueryFormatter();
   }
-
-  injectLogger(): void {}
 
   getEntryLabel(): string {
     return 'SQL query';
@@ -52,69 +48,32 @@ export class SqlHtmlFormatter<
     }
   }
 
-  formatEntry(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
+  renderEntry(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
     }
 
-    const parts: string[] = [];
-
-    if (entry.message) {
-      parts.push(`<p>${escapeHtml(entry.message)}</p>`);
-    }
-
-    parts.push(renderCode(this.formatQuery(entry.data.query), 'sql'));
-
-    if (
+    const parameters =
       entry.data.parameters &&
       (Array.isArray(entry.data.parameters)
         ? entry.data.parameters.length
         : !isEmpty(entry.data.parameters))
-    ) {
-      parts.push(renderDetails('Parameters:', renderCode(formatData(entry.data.parameters))));
-    }
+        ? entry.data.parameters
+        : undefined;
 
-    if (typeof entry.data.error === 'string') {
-      parts.push(`<p><strong>Error:</strong> ${escapeHtml(entry.data.error)}</p>`);
-    }
+    const details = this.renderParts(' | ', [
+      typeof entry.data.time === 'number' && formatQueryTime(entry.data.time, true),
+      typeof entry.data.affectedRows === 'number' &&
+        `<strong>${entry.data.affectedRows}</strong> rows affected`,
+      typeof entry.data.rows === 'number' && `<strong>${entry.data.rows}</strong> rows`,
+    ]);
 
-    const details: string[] = [];
-
-    if (typeof entry.data.time === 'number') {
-      details.push(formatQueryTime(entry.data.time, true));
-    }
-
-    if (typeof entry.data.affectedRows === 'number') {
-      details.push(`<strong>${entry.data.affectedRows}</strong> rows affected`);
-    }
-
-    if (typeof entry.data.rows === 'number') {
-      details.push(`<strong>${entry.data.rows}</strong> rows`);
-    }
-
-    if (details.length) {
-      parts.push(`<p class="text-muted"><small>${details.join(' | ')}</small></p>`);
-    }
-
-    return parts.join('\n            ');
+    return this.renderParts(
+      entry.message && `<p>${escapeHtml(entry.message)}</p>`,
+      renderCode(this.formatQuery(entry.data.query), 'sql'),
+      parameters && renderDetails('Parameters:', renderCode(formatData(entry.data.parameters))),
+      entry.data.error && `<p><strong>Error:</strong> ${escapeHtml(entry.data.error)}</p>`,
+      details && `<p class="text-muted"><small>${details}</small></p>`,
+    );
   }
-}
-
-type QueryFormatter = (query: string) => string;
-
-function createQueryFormatter(): QueryFormatter {
-  try {
-    // eslint-disable-next-line global-require
-    const { format } = require('@sqltools/formatter');
-    return (query) => format(query, { language: 'sql', reservedWordCase: 'upper' });
-  } catch (e) {
-    return (query) => query;
-  }
-}
-
-function formatQueryTime(ms: number, html: boolean = false): string {
-  const value = ms > 1000 ? ms / 1000 : ms;
-  const unit = ms > 1000 ? 's' : 'ms';
-  const [p, s] = html ? ['<strong>', '</strong>'] : ['', ''];
-  return `${p}${value.toFixed(2)}${s} ${unit}`;
 }

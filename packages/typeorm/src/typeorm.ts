@@ -1,5 +1,6 @@
 import { Logger as LoggerInterface } from 'typeorm';
-import { Logger, Plugin, LogLevel, TContextBase, TContextShape, SqlLogEntry } from '@debugr/core';
+import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/core';
+import { SqlLogEntry } from '@debugr/sql-common';
 
 const defaultLevelMap = {
   log: LogLevel.INFO,
@@ -59,19 +60,18 @@ export class TypeormLogger<
   }
 
   logQuery(query: string, parameters?: any[]): void {
-    const entry: Omit<SqlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+    this.logger.add<SqlLogEntry>({
       format: 'sql',
       level: this.options?.queryLevel ?? LogLevel.DEBUG,
       data: {
         query,
         parameters,
       },
-    };
-    this.logger.add(entry);
+    });
   }
 
   logQueryError(error: string, query: string, parameters?: any[]): void {
-    const entry: Omit<SqlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+    this.logger.add<SqlLogEntry>({
       format: 'sql',
       level: this.options?.mapLevel?.error ?? LogLevel.ERROR,
       data: {
@@ -80,12 +80,11 @@ export class TypeormLogger<
         error,
         stack: Error().stack,
       },
-    };
-    this.logger.add(entry);
+    });
   }
 
   logQuerySlow(time: number, query: string, parameters?: any[]): void {
-    const entry: Omit<SqlLogEntry, 'ts' | 'taskContext' | 'globalContext'> = {
+    this.logger.add<SqlLogEntry>({
       format: 'sql',
       level: this.options?.slowQueryLevel ?? LogLevel.WARNING,
       message: 'Slow query',
@@ -94,8 +93,7 @@ export class TypeormLogger<
         parameters,
         time,
       },
-    };
-    this.logger.add(entry);
+    });
   }
 
   logSchemaBuild(message: string): void {

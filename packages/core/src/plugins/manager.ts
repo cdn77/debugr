@@ -1,5 +1,5 @@
-import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
-import { isFormatterPlugin, Plugin, PluginId, Plugins } from './types';
+import { Logger, TContextBase, TContextShape } from '../logger';
+import { Plugin, PluginId, Plugins } from './types';
 
 export class PluginManager<
   TTaskContext extends TContextBase = TContextBase,
@@ -33,48 +33,14 @@ export class PluginManager<
     return plugin;
   }
 
-  public checkRequiredPlugins(handlers: Iterable<LogHandler<TTaskContext, TGlobalContext>>): void {
-    this.checkRequiredFormatterPlugins(handlers);
+  public find<T extends Plugin<TTaskContext, TGlobalContext>>(
+    predicate: (plugin: Plugin<TTaskContext, TGlobalContext>) => plugin is T,
+  ): T[] {
+    return Object.values(this.plugins).filter(predicate);
   }
 
-  private checkRequiredFormatterPlugins(
-    handlers: Iterable<LogHandler<TTaskContext, TGlobalContext>>,
-  ): void {
-    const requiredFormats: Set<string> = new Set();
-    const installedFormatters: Set<string> = new Set();
-
-    for (const plugin of Object.values(this.plugins)) {
-      if (isFormatterPlugin(plugin)) {
-        installedFormatters.add(`${plugin.targetHandler}\0${plugin.entryFormat}`);
-      } else {
-        requiredFormats.add(plugin.entryFormat);
-      }
-    }
-
-    const errors: string[] = [];
-
-    for (const handler of handlers) {
-      if (!handler.doesNeedFormatters) {
-        continue;
-      }
-
-      const missing: string[] = [];
-
-      for (const format of requiredFormats) {
-        if (!installedFormatters.has(`${handler.identifier}\0${format}`)) {
-          missing.push(format);
-        }
-      }
-
-      if (missing.length) {
-        errors.push(`${handler.identifier}: ${missing.join(', ')}`);
-      }
-    }
-
-    if (errors.length) {
-      throw new Error(
-        `Missing formatters for some handler and plugin combinations: ${errors.join('; ')}`,
-      );
-    }
+  public getKnownEntryFormats(): string[] {
+    const formats = new Set(Object.values(this.plugins).map((p) => p.entryFormat));
+    return [...formats];
   }
 }

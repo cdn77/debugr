@@ -149,9 +149,9 @@ export class Logger<
     });
   }
 
-  public add<
-    TEntry extends LogEntry<TTaskContext, TGlobalContext> = LogEntry<TTaskContext, TGlobalContext>,
-  >(entry: Omit<TEntry, 'taskContext' | 'globalContext' | 'ts'>): this {
+  public add<TEntry extends LogEntry<any, any> = LogEntry<any, any>>(
+    entry: Omit<TEntry, 'taskContext' | 'globalContext' | 'ts'>,
+  ): this {
     const ts = new Date();
 
     this.logHandlers
@@ -201,7 +201,6 @@ export class Logger<
       handler.injectPluginManager(pluginManager);
     }
 
-    pluginManager.checkRequiredPlugins(this.logHandlers.values());
     return this;
   }
 
