@@ -12,7 +12,7 @@ export type MikroORMLevelMap = {
   [level in MikroORMLogLevel]: LogLevel;
 };
 
-export type MikroORMLoggerOptions = {
+export type MikroORMPluginOptions = {
   namespaces?: Partial<MikroORMNamespaceMap>;
   levels?: Partial<MikroORMLevelMap>;
 };

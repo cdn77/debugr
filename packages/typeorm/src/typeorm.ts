@@ -8,7 +8,7 @@ const defaultLevelMap = {
   warn: LogLevel.WARNING,
 };
 
-export type TypeORMLoggerOptions = {
+export type TypeORMPluginOptions = {
   mapLevel?: {
     log: LogLevel | number;
     info: LogLevel | number;
@@ -32,14 +32,14 @@ export class TypeORMPlugin<
 
   private logger: Logger<TTaskContext, TGlobalContext>;
 
-  private options?: TypeORMLoggerOptions;
+  private options?: TypeORMPluginOptions;
 
-  public constructor(options?: TypeORMLoggerOptions) {
+  public constructor(options?: TypeORMPluginOptions) {
     this.options = options;
   }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options?: TypeORMLoggerOptions,
+    options?: TypeORMPluginOptions,
   ): TypeORMPlugin<TTaskContext, TGlobalContext> {
     return new TypeORMPlugin<TTaskContext, TGlobalContext>(options);
   }
