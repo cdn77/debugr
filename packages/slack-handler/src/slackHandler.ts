@@ -1,20 +1,16 @@
 import {
   LogEntry,
-  LogLevel,
-  TContextBase,
   LogHandler,
-  TContextShape,
+  LogLevel,
   ReadonlyRecursive,
+  TContextBase,
+  TContextShape,
 } from '@debugr/core';
-
-type FetchApi = typeof import('node-fetch');
-
-// eslint-disable-next-line @typescript-eslint/no-implied-eval
-const loader: Promise<FetchApi> = new Function('return import("node-fetch")')();
+import fetch from 'node-fetch';
 
 export interface SlackHandlerOptions<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   webhookUrl: string;
   threshold: LogLevel | number;
@@ -55,9 +51,8 @@ export class SlackHandler<
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
     const body = this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry);
-    const api = await loader;
     try {
-      await api.default(this.opts.webhookUrl, {
+      await fetch(this.opts.webhookUrl, {
         body: JSON.stringify({
           channel: this.opts.channel,
           username: this.opts.username,

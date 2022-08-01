@@ -1,11 +1,11 @@
 import { formatData, isEmpty, TContextBase, TContextShape } from '@debugr/core';
-import { GraphQlLogEntry, getGraphQLOperation } from '@debugr/graphql-common';
+import { getGraphQLOperation,GraphQlLogEntry } from '@debugr/graphql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
 export class GraphQLHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-graphql-html-formatter';
 

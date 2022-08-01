@@ -3,7 +3,7 @@ import { PluginManager } from './manager';
 
 export interface Plugins<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   [id: string]: Plugin<TTaskContext, TGlobalContext>;
 }
@@ -12,7 +12,7 @@ export type PluginId = Exclude<keyof Plugins, number | symbol>;
 
 export interface Plugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   readonly id: string;
   readonly entryFormat: string;
@@ -24,14 +24,14 @@ export interface Plugin<
 
 export interface FormatterPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends Plugin<TTaskContext, TGlobalContext> {
   readonly targetHandler: string;
 }
 
 export function isFormatterPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(
   plugin: Plugin<TTaskContext, TGlobalContext>,
 ): plugin is FormatterPlugin<TTaskContext, TGlobalContext> {

@@ -1,16 +1,16 @@
 import { formatData, isEmpty, TContextBase, TContextShape } from '@debugr/core';
 import {
-  SqlLogEntry,
-  SqlQueryFormatter,
   createQueryFormatter,
   formatQueryTime,
+  SqlLogEntry,
+  SqlQueryFormatter,
 } from '@debugr/sql-common';
 import { dim } from 'ansi-colors';
 import { AbstractConsoleFormatter } from './abstract';
 
 export class SqlConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-sql-console-formatter';
 

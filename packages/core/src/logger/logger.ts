@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { v4 } from 'node-uuid';
 import { sprintf } from 'printj';
+import { v4 } from 'uuid';
 import { PluginManager } from '../plugins';
 import { clone, SmartMap, wrapPossiblePromise } from '../utils';
 import { isTaskAwareLogHandler, LogHandler } from './handler';
@@ -8,7 +8,7 @@ import { LogEntry, LogLevel, TContextBase, TContextShape } from './types';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   private readonly globalContext: TGlobalContext;
 

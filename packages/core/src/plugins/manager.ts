@@ -3,7 +3,7 @@ import { Plugin, PluginId, Plugins } from './types';
 
 export class PluginManager<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   private readonly plugins: Plugins<TTaskContext, TGlobalContext>;
 

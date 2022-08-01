@@ -2,7 +2,7 @@ export type SqlQueryFormatter = (query: string) => string;
 
 export function createQueryFormatter(): SqlQueryFormatter {
   try {
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { format } = require('@sqltools/formatter');
     return (query) => format(query, { language: 'sql', reservedWordCase: 'upper' });
   } catch (e) {

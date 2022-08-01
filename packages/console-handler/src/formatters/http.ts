@@ -1,16 +1,16 @@
-import { TContextBase, TContextShape, formatBytes } from '@debugr/core';
+import { formatBytes,TContextBase, TContextShape } from '@debugr/core';
 import {
+  formatHttpHeaders,
   HttpLogEntry,
   HttpRequestData,
   HttpResponseData,
-  formatHttpHeaders,
 } from '@debugr/http-common';
 import { dim, yellow } from 'ansi-colors';
 import { AbstractConsoleFormatter } from './abstract';
 
 export class HttpConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-http-console-formatter';
 

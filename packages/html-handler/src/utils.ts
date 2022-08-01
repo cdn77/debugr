@@ -1,26 +1,25 @@
-import * as crypto from 'crypto';
-
 import {
   LogEntry,
-  TContextBase,
-  TContextShape,
   LogLevel,
+  PluginManager,
   ReadonlyRecursive,
   SmartMap,
-  PluginManager,
+  TContextBase,
+  TContextShape,
 } from '@debugr/core';
+import * as crypto from 'crypto';
 import {
   GraphQLHtmlFormatter,
   HtmlFormatterPlugin,
   HttpHtmlFormatter,
-  SqlHtmlFormatter,
   isHtmlFormatter,
+  SqlHtmlFormatter,
 } from './formatters';
 import { isTaskBoundary, TaskData, TaskLogEntry, TaskLogInfo } from './types';
 
 export function getFormatters<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(
   pluginManager: PluginManager<TTaskContext, TGlobalContext>,
 ): Record<string, HtmlFormatterPlugin<TTaskContext, TGlobalContext>> {
@@ -82,7 +81,7 @@ export function getTaskLogInfo(entries: SmartMap<TaskLogEntry, TaskData>): TaskL
 
 export function findDefiningEntry<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(
   task: TaskData<TTaskContext, TGlobalContext>,
 ): ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>> {
@@ -105,7 +104,7 @@ export function findDefiningEntry<
 
 export function computeTaskHash<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(task: TaskData<TTaskContext, TGlobalContext>): string {
   const entry = findDefiningEntry(task);
   const key = JSON.stringify([entry.level, entry.message, entry.data]);

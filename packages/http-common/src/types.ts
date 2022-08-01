@@ -27,7 +27,7 @@ export interface HttpResponseData {
 
 export interface HttpLogEntry<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
   format: 'http';
   data: HttpRequestData | HttpResponseData;

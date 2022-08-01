@@ -1,16 +1,16 @@
 import {
+  cleanUpStackTrace,
   LogEntry,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
-  cleanUpStackTrace,
 } from '@debugr/core';
 import { dim, red } from 'ansi-colors';
 import { ConsoleFormatterPlugin } from './types';
 
 export abstract class AbstractConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements ConsoleFormatterPlugin<TTaskContext, TGlobalContext>
 {
   abstract readonly id: string;

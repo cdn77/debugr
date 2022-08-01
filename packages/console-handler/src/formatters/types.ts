@@ -1,6 +1,6 @@
 import {
-  LogEntry,
   FormatterPlugin,
+  LogEntry,
   Plugin,
   ReadonlyRecursive,
   TContextBase,
@@ -9,7 +9,7 @@ import {
 
 export interface ConsoleFormatterPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends FormatterPlugin<TTaskContext, TGlobalContext> {
   readonly targetHandler: 'console';
   formatEntry(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string;
@@ -17,7 +17,7 @@ export interface ConsoleFormatterPlugin<
 
 export function isConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(
   plugin: Plugin<TTaskContext, TGlobalContext>,
 ): plugin is ConsoleFormatterPlugin<TTaskContext, TGlobalContext> {

@@ -1,7 +1,7 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import { promisify } from 'util';
 import { ImmutableDate } from '@debugr/core';
+import * as fs from 'fs';
+import * as path from 'path';
+import { promisify } from 'util';
 
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);

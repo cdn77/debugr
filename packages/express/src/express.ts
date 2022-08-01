@@ -1,18 +1,18 @@
-import { Plugin, Logger, LogLevel, TContextBase, TContextShape } from '@debugr/core';
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import {
-  HttpLogEntry,
   filterHeaders,
+  HttpLogEntry,
   isCaptureEnabled,
   normalizeContentLength,
   normalizeContentType,
 } from '@debugr/http-common';
-import type { Handler, ErrorRequestHandler, Request, Response } from 'express';
+import type { ErrorRequestHandler, Handler, Request, Response } from 'express';
 import { NormalizedOptions, Options, ResponseInfo } from './types';
 import { normalizeOptions } from './utils';
 
 export class ExpressPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements Plugin<TTaskContext, TGlobalContext>
 {
   public readonly id: string = 'express';
@@ -59,7 +59,7 @@ export class ExpressPlugin<
 
   private logHttpRequest<
     TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = {},
+    TGlobalContext extends TContextShape = TContextShape,
   >(
     logger: Logger<TTaskContext, TGlobalContext>,
     options: NormalizedOptions,
@@ -79,7 +79,7 @@ export class ExpressPlugin<
 
   private doLogRequest<
     TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = {},
+    TGlobalContext extends TContextShape = TContextShape,
   >(
     logger: Logger<TTaskContext, TGlobalContext>,
     options: NormalizedOptions,
@@ -163,7 +163,7 @@ export class ExpressPlugin<
 
   private async logHttpResponse<
     TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = {},
+    TGlobalContext extends TContextShape = TContextShape,
   >(
     logger: Logger<TTaskContext, TGlobalContext>,
     options: NormalizedOptions,

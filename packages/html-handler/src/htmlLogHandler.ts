@@ -17,7 +17,7 @@ import { Writer } from './writer';
 
 export class HtmlLogHandler<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends TaskAwareLogHandler<TTaskContext, TGlobalContext> {
   public readonly threshold: LogLevel | number = 0;
 

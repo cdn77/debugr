@@ -1,9 +1,9 @@
-import { Plugin, PluginId, PluginManager, Plugins } from '../plugins';
 import { Logger, LogHandler, TContextBase, TContextShape } from '../logger';
+import { Plugin, PluginId, PluginManager, Plugins } from '../plugins';
 
 export class Debugr<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   public readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
 
@@ -26,7 +26,7 @@ export class Debugr<
 
   public static create<
     TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = {},
+    TGlobalContext extends TContextShape = TContextShape,
   >(
     globalContext: TGlobalContext,
     logHandlers: LogHandler<TTaskContext, TGlobalContext>[] = [],

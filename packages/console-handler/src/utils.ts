@@ -1,7 +1,7 @@
 import { PluginManager, TContextBase, TContextShape } from '@debugr/core';
 import {
-  GraphQLConsoleFormatter,
   ConsoleFormatterPlugin,
+  GraphQLConsoleFormatter,
   HttpConsoleFormatter,
   isConsoleFormatter,
   SqlConsoleFormatter,
@@ -9,7 +9,7 @@ import {
 
 export function getFormatters<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(
   pluginManager: PluginManager<TTaskContext, TGlobalContext>,
 ): Record<string, ConsoleFormatterPlugin<TTaskContext, TGlobalContext>> {

@@ -8,7 +8,7 @@ export interface GraphQLQueryData {
 
 export interface GraphQlLogEntry<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
   format: 'graphql';
   data: GraphQLQueryData;

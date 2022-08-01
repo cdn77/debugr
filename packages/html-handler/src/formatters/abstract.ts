@@ -1,16 +1,16 @@
 import {
+  cleanUpStackTrace,
   LogEntry,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
-  cleanUpStackTrace,
 } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { HtmlFormatterPlugin } from './types';
 
 export abstract class AbstractHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements HtmlFormatterPlugin<TTaskContext, TGlobalContext>
 {
   abstract readonly id: string;

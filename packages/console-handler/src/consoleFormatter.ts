@@ -1,13 +1,13 @@
-import { dim, unstyle } from 'ansi-colors';
 import {
   ImmutableDate,
-  PluginManager,
+  levelToValue,
   LogEntry,
+  normalizeMap,
+  PluginManager,
   TContextBase,
   TContextShape,
-  normalizeMap,
-  levelToValue,
 } from '@debugr/core';
+import { dim, unstyle } from 'ansi-colors';
 import { ConsoleFormatterPlugin, DefaultConsoleFormatter } from './formatters';
 import { ConsoleColor, defaultColorMap, defaultLevelMap } from './maps';
 import { getFormatters } from './utils';
@@ -28,7 +28,7 @@ export class ConsoleFormatter<
 
   public static create<
     TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = {},
+    TGlobalContext extends TContextShape = TContextShape,
   >(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
     levelMap?: Record<number, string>,

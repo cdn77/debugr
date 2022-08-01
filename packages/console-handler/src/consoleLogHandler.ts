@@ -1,18 +1,18 @@
 import {
   LogEntry,
-  LogLevel,
-  TContextBase,
   LogHandler,
+  LogLevel,
   PluginManager,
-  TContextShape,
   ReadonlyRecursive,
+  TContextBase,
+  TContextShape,
 } from '@debugr/core';
 import { ConsoleFormatter } from './consoleFormatter';
 import { ConsoleLogHandlerOptions } from './types';
 
 export class ConsoleLogHandler<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends LogHandler<TTaskContext, TGlobalContext> {
   public readonly threshold: LogLevel | number;
 

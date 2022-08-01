@@ -1,6 +1,6 @@
-import { Logger as LoggerInterface } from 'typeorm';
-import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/core';
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import { SqlLogEntry } from '@debugr/sql-common';
+import { Logger as LoggerInterface } from 'typeorm';
 
 const defaultLevelMap = {
   log: LogLevel.INFO,
@@ -23,7 +23,7 @@ export type TypeORMPluginOptions = {
 
 export class TypeORMPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements Plugin<TTaskContext, TGlobalContext>, LoggerInterface
 {
   public readonly id: string = 'typeorm';

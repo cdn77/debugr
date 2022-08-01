@@ -1,11 +1,11 @@
-import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { Logger, Plugin, LogLevel, TContextBase, TContextShape } from '@debugr/core';
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import { GraphQlLogEntry } from '@debugr/graphql-common';
+import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { FullOptions, Options } from './types';
 
 export class ApolloPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements Plugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
 {
   readonly id: string = 'apollo';
@@ -33,25 +33,8 @@ export class ApolloPlugin<
   }
 
   public getApolloMiddleware() {
-    return async (resolve: any, root: any, args: any, context: any, info: any): Promise<any> => {
-      this.logger.runTask(() => {
-        let queryOrMutationName = 'unknown';
-        const operationNames = info.operation.selectionSet.selections.map(
-          (item: any) => item?.name?.value,
-        );
-
-        if (operationNames.length === 1) {
-          queryOrMutationName = `${operationNames[0]}`;
-        } else if (operationNames.length > 1) {
-          queryOrMutationName = JSON.stringify(operationNames);
-        }
-
-        this.logger.setContextProperty('queryName', queryOrMutationName).add({
-          level: this.options.level,
-          message: 'Graphql request initiated',
-          data: args,
-        });
-      });
+    return async (resolve: any): Promise<any> => {
+      return this.logger.runTask(resolve, true);
     };
   }
 
@@ -60,17 +43,20 @@ export class ApolloPlugin<
     const options = this.options;
 
     return {
-      didResolveOperation: async ({ request, operation, operationName }): Promise<void> => {
-        if (request.query) {
+      didResolveOperation: async (ctx): Promise<void> => {
+        const operation =
+          [ctx.operation?.operation, ctx.operationName].filter((v) => !!v).join(' ') || undefined;
+
+        operation && logger.setContextProperty('queryName', operation);
+
+        if (ctx.request.query) {
           logger.add<GraphQlLogEntry>({
             format: this.entryFormat,
             level: options.level,
-            message: 'GraphQL request',
             data: {
-              query: request.query,
-              variables: request.variables,
-              operation:
-                [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
+              query: ctx.request.query,
+              variables: ctx.request.variables,
+              operation,
             },
           });
         }

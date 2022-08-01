@@ -11,7 +11,7 @@ import { AbstractConsoleFormatter } from './abstract';
 
 export class DefaultConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-default-console-formatter';
 

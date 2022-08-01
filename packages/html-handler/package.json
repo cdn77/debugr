@@ -14,11 +14,9 @@
     "@debugr/core": "3.0.0-rc.1",
     "@debugr/http-common": "3.0.0-rc.1",
     "@debugr/graphql-common": "3.0.0-rc.1",
-    "@debugr/sql-common": "3.0.0-rc.1",
-    "node-uuid": "^1.4.8"
+    "@debugr/sql-common": "3.0.0-rc.1"
   },
   "devDependencies": {
-    "@types/node-uuid": "0.0.29"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -29,7 +27,6 @@
       "async_hooks",
       "crypto",
       "fs",
-      "node-uuid",
       "path",
       "util"
     ]

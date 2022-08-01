@@ -44,7 +44,7 @@ export type ImmutableDate = Omit<
 
 export type LogEntry<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > = {
   level: LogLevel | number;
   taskContext?: Partial<TTaskContext>;

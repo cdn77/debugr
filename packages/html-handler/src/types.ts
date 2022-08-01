@@ -1,11 +1,11 @@
 import {
-  LogEntry,
   ImmutableDate,
-  TContextBase,
+  LogEntry,
   LogLevel,
-  TContextShape,
   ReadonlyRecursive,
   SmartMap,
+  TContextBase,
+  TContextShape,
 } from '@debugr/core';
 
 export type HtmlLogHandlerOptions = {
@@ -27,12 +27,12 @@ export function isTaskBoundary(value: any): value is TaskBoundary {
 
 export type TaskLogEntry<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > = ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>> | TaskBoundary;
 
 export type TaskLog<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > = {
   id?: string;
   entries: SmartMap<
@@ -50,7 +50,7 @@ export type TaskLogInfo = {
 
 export type TaskData<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > = {
   index: number;
   parent?: number;

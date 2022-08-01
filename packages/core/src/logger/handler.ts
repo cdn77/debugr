@@ -3,7 +3,7 @@ import { LogEntry, LogLevel, ReadonlyRecursive, TContextBase, TContextShape } fr
 
 export abstract class LogHandler<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   public readonly threshold: LogLevel | number;
 
@@ -22,7 +22,7 @@ export abstract class LogHandler<
 
 export abstract class TaskAwareLogHandler<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends LogHandler<TTaskContext, TGlobalContext> {
   public abstract flush(taskId?: string): void;
 

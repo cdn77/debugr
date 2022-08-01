@@ -1,10 +1,10 @@
-import { TContextBase, TContextShape, formatData, isEmpty } from '@debugr/core';
+import { formatData, isEmpty,TContextBase, TContextShape } from '@debugr/core';
 import { GraphQlLogEntry } from '@debugr/graphql-common';
 import { AbstractConsoleFormatter } from './abstract';
 
 export class GraphQLConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-graphql-console-formatter';
 

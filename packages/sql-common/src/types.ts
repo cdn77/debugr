@@ -12,7 +12,7 @@ export interface SqlQueryData {
 
 export interface SqlLogEntry<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
   format: 'sql';
   data: SqlQueryData;

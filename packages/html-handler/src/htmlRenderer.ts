@@ -1,27 +1,27 @@
 import {
-  LogEntry,
   ImmutableDate,
+  LogEntry,
+  normalizeMap,
+  PluginManager,
+  ReadonlyRecursive,
+  SmartMap,
   TContextBase,
   TContextShape,
-  ReadonlyRecursive,
-  PluginManager,
-  SmartMap,
-  normalizeMap,
 } from '@debugr/core';
 import { DefaultHtmlFormatter, HtmlFormatterPlugin } from './formatters';
 import {
-  LayoutTemplate,
-  EntryTemplate,
-  TaskRenderer,
   defaultColorMap,
   defaultLevelMap,
+  EntryTemplate,
+  LayoutTemplate,
+  TaskRenderer,
 } from './templates';
 import { isTaskBoundary, TaskBoundary, TaskData, TaskLogEntry } from './types';
-import { findDefiningEntry, getTaskLogInfo, getFormatters } from './utils';
+import { findDefiningEntry, getFormatters,getTaskLogInfo } from './utils';
 
 export class HtmlRenderer<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   private readonly layout: LayoutTemplate;
 
@@ -33,7 +33,7 @@ export class HtmlRenderer<
 
   public static create<
     TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = {},
+    TGlobalContext extends TContextShape = TContextShape,
   >(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
     levelMap?: Record<number, string>,

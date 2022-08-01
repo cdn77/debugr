@@ -1,17 +1,17 @@
-import { TContextBase, TContextShape, formatBytes } from '@debugr/core';
+import { formatBytes,TContextBase, TContextShape } from '@debugr/core';
 import {
+  formatHttpHeaders,
+  getHttpStatusMessage,
   HttpLogEntry,
   HttpRequestData,
   HttpResponseData,
-  formatHttpHeaders,
-  getHttpStatusMessage,
 } from '@debugr/http-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
 export class HttpHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   public readonly id: string = 'debugr-http-html-formatter';
 

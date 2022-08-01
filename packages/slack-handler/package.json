@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "@debugr/core": "3.0.0-rc.1",
-    "node-fetch": "^3.2.4"
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.2"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

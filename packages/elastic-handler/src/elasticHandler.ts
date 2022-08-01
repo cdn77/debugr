@@ -1,18 +1,17 @@
-import { Client, ClientOptions } from '@elastic/elasticsearch';
-
 import {
-  LogEntry,
-  LogLevel,
-  TContextBase,
-  LogHandler,
-  TContextShape,
-  ReadonlyRecursive,
   clone,
+  LogEntry,
+  LogHandler,
+  LogLevel,
+  ReadonlyRecursive,
+  TContextBase,
+  TContextShape,
 } from '@debugr/core';
+import { Client, ClientOptions } from '@elastic/elasticsearch';
 
 export interface ElasticHandlerOptions<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > {
   threshold: LogLevel | number;
   index: string | ((entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>) => string);
@@ -25,8 +24,8 @@ export interface ElasticHandlerOptions<
 
 export type ElasticOptions<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
-> = {} & ClientOptions & ElasticHandlerOptions<TTaskContext, TGlobalContext>;
+  TGlobalContext extends TContextShape = TContextShape,
+> = ClientOptions & ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 
 export class ElasticHandler<
   TTaskContext extends TContextBase,

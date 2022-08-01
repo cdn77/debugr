@@ -1,6 +1,6 @@
 import {
-  LogEntry,
   FormatterPlugin,
+  LogEntry,
   Plugin,
   ReadonlyRecursive,
   TContextBase,
@@ -9,7 +9,7 @@ import {
 
 export interface HtmlFormatterPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends FormatterPlugin<TTaskContext, TGlobalContext> {
   readonly targetHandler: 'html';
   getEntryLabel?(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string;
@@ -19,7 +19,7 @@ export interface HtmlFormatterPlugin<
 
 export function isHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 >(
   plugin: Plugin<TTaskContext, TGlobalContext>,
 ): plugin is HtmlFormatterPlugin<TTaskContext, TGlobalContext> {

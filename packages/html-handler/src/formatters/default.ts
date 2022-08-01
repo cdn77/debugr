@@ -1,18 +1,18 @@
 import {
   formatData,
   isEmpty,
+  levelToValue,
   LogEntry,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
-  levelToValue,
 } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
 export class DefaultHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   private readonly levelMap: Map<number, string>;
 

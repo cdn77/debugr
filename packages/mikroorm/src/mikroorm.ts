@@ -1,7 +1,7 @@
 import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import { SqlLogEntry } from '@debugr/sql-common';
 import { LogContext, Logger as MikroORMLoggerInterface, LoggerNamespace } from '@mikro-orm/core';
-import { MikroORMLevelMap, MikroORMPluginOptions, MikroORMNamespaceMap } from './types';
+import { MikroORMLevelMap, MikroORMNamespaceMap,MikroORMPluginOptions } from './types';
 
 const defaultNamespaceMap: MikroORMNamespaceMap = {
   discovery: LogLevel.DEBUG,
@@ -19,7 +19,7 @@ const defaultLevelMap: MikroORMLevelMap = {
 
 export class MikroORMPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements Plugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
 {
   public readonly id: string = 'mikroorm';

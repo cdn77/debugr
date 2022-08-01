@@ -1,12 +1,12 @@
 import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import { filterHeaders, HttpLogEntry } from '@debugr/http-common';
-import { HttpForcedResponse, HttpRequest, HttpResponse, MiddlewareNext } from 'insaner';
+import { HttpForcedResponse, HttpRequest, HttpResponse, HttpServer, MiddlewareNext } from 'insaner';
 import { NormalizedOptions, Options } from './types';
 import { normalizeOptions } from './utils';
 
 export class InsanerPlugin<
   TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = {},
+  TGlobalContext extends TContextShape = TContextShape,
 > implements Plugin<TTaskContext, TGlobalContext>
 {
   public readonly id: string = 'insaner';
@@ -31,13 +31,20 @@ export class InsanerPlugin<
     return new InsanerPlugin<TTaskContext, TGlobalContext>(options);
   }
 
-  createMiddlewareHandler() {
+  public install(server: HttpServer): void {
+    server.registerMiddleware(this.createMiddlewareHandler());
+    server.addListener('request', this.createRequestHandler());
+    server.addListener('error', this.createErrorHandler());
+    server.addListener('response', this.createResponseHandler());
+  }
+
+  protected createMiddlewareHandler() {
     return async (next: MiddlewareNext) => {
       await this.logger.runTask(next);
     };
   }
 
-  createRequestHandler() {
+  protected createRequestHandler() {
     return (request: HttpRequest) => {
       this.logger.add<HttpLogEntry>({
         format: 'http',
@@ -52,7 +59,7 @@ export class InsanerPlugin<
     };
   }
 
-  createErrorHandler() {
+  protected createErrorHandler() {
     return (request: HttpRequest, error: Error) => {
       if (!(error instanceof HttpForcedResponse)) {
         this.logger.error(error);
@@ -60,7 +67,7 @@ export class InsanerPlugin<
     };
   }
 
-  createResponseHandler() {
+  protected createResponseHandler() {
     return (response: HttpResponse) => {
       const level =
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
