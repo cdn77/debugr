@@ -60,3 +60,7 @@ export type TaskData<
   ts: ImmutableDate;
   lastTs: ImmutableDate;
 };
+
+export interface HtmlWriter {
+  write(ts: ImmutableDate, id: string, content: string): Promise<string> | string;
+}

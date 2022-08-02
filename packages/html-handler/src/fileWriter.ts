@@ -1,12 +1,9 @@
 import { ImmutableDate } from '@debugr/core';
-import * as fs from 'fs';
-import * as path from 'path';
-import { promisify } from 'util';
+import { mkdir, writeFile } from 'fs/promises';
+import { dirname, join } from 'path';
+import { HtmlWriter } from './types';
 
-const mkdir = promisify(fs.mkdir);
-const writeFile = promisify(fs.writeFile);
-
-export class Writer {
+export class HtmlFileWriter implements HtmlWriter {
   private readonly outputDir: string;
 
   constructor(outputDir: string) {
@@ -16,7 +13,7 @@ export class Writer {
   async write(ts: ImmutableDate, id: string, content: string): Promise<string> {
     const file = this.formatPath(ts, id);
 
-    await mkdir(path.dirname(file), {
+    await mkdir(dirname(file), {
       mode: '0750',
       recursive: true,
     });
@@ -33,9 +30,9 @@ export class Writer {
       .replace(/[:T]/g, '-');
 
     if (idx > -1) {
-      return path.join(this.outputDir, id.substring(0, idx), `${dt}--${id.substring(idx + 1)}.htm`);
+      return join(this.outputDir, id.substring(0, idx), `${dt}--${id.substring(idx + 1)}.htm`);
     } else {
-      return path.join(this.outputDir, `${dt}--${id}.htm`);
+      return join(this.outputDir, `${dt}--${id}.htm`);
     }
   }
 }

@@ -10,10 +10,10 @@ import {
   wrapPossiblePromise,
 } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
+import { HtmlFileWriter } from './fileWriter';
 import { HtmlRenderer } from './htmlRenderer';
-import { HtmlLogHandlerOptions, TaskData } from './types';
+import { HtmlLogHandlerOptions, HtmlWriter,TaskData } from './types';
 import { computeTaskHash } from './utils';
-import { Writer } from './writer';
 
 export class HtmlLogHandler<
   TTaskContext extends TContextBase = TContextBase,
@@ -27,7 +27,7 @@ export class HtmlLogHandler<
 
   private renderer?: HtmlRenderer<TTaskContext, TGlobalContext>;
 
-  private readonly writer: Writer;
+  private readonly writer: HtmlWriter;
 
   private readonly options: HtmlLogHandlerOptions;
 
@@ -36,11 +36,11 @@ export class HtmlLogHandler<
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     options: HtmlLogHandlerOptions,
   ): HtmlLogHandler<TTaskContext, TGlobalContext> {
-    return new HtmlLogHandler<TTaskContext, TGlobalContext>(new Writer(options.outputDir), options);
+    return new HtmlLogHandler<TTaskContext, TGlobalContext>(new HtmlFileWriter(options.outputDir), options);
   }
 
   public constructor(
-    writer: Writer,
+    writer: HtmlWriter,
     options: HtmlLogHandlerOptions,
     renderer?: HtmlRenderer<TTaskContext, TGlobalContext>,
   ) {
