@@ -1,6 +1,6 @@
 {
   "name": "@debugr/core",
-  "version": "2.0.12",
+  "version": "3.0.0-rc.1",
   "description": "Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -12,7 +12,11 @@
   },
   "dependencies": {
     "ansi-colors": "^4.1.1",
+    "uuid": "^8.3.2",
     "printj": "^1.2.2"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -21,14 +25,17 @@
     "src": "src/index.ts",
     "externals": [
       "ansi-colors",
+      "uuid",
       "async_hooks",
       "crypto",
+      "http",
       "events",
       "fs",
       "path",
       "printj",
       "v8",
-      "util"
+      "util",
+      "util/types"
     ]
   },
   "files": [

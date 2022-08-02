@@ -1,60 +1,102 @@
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { SqlLogEntry } from '@debugr/sql-common';
 import { Logger as LoggerInterface } from 'typeorm';
-import { Container, ContainerAware, Logger, Plugin } from '@debugr/core';
-import { SqlFormatter } from '@debugr/sql-formatter';
 
-const levelMap = {
-  log: Logger.INFO,
-  info: Logger.INFO,
-  warn: Logger.WARNING,
+const defaultLevelMap = {
+  log: LogLevel.INFO,
+  info: LogLevel.INFO,
+  warn: LogLevel.WARNING,
 };
 
-export class TypeormLogger implements ContainerAware, Plugin, LoggerInterface {
-  readonly id: string = 'typeorm';
+export type TypeORMPluginOptions = {
+  mapLevel?: {
+    log: LogLevel | number;
+    info: LogLevel | number;
+    error: LogLevel | number;
+    warn: LogLevel | number;
+  };
+  migrationLevel?: LogLevel | number;
+  queryLevel?: LogLevel | number;
+  slowQueryLevel?: LogLevel | number;
+  schemaBuildLevel?: LogLevel | number;
+};
 
-  private logger: Logger;
+export class TypeORMPlugin<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> implements Plugin<TTaskContext, TGlobalContext>, LoggerInterface
+{
+  public readonly id: string = 'typeorm';
 
-  injectContainer(container: Container): void {
-    this.logger = container.get('logger');
-    const pluginManager = container.get('pluginManager');
+  public readonly entryFormat: string = 'sql';
 
-    if (!pluginManager.has('sql')) {
-      pluginManager.register(new SqlFormatter());
-    }
+  private logger: Logger<TTaskContext, TGlobalContext>;
+
+  private options?: TypeORMPluginOptions;
+
+  public constructor(options?: TypeORMPluginOptions) {
+    this.options = options;
+  }
+
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    options?: TypeORMPluginOptions,
+  ): TypeORMPlugin<TTaskContext, TGlobalContext> {
+    return new TypeORMPlugin<TTaskContext, TGlobalContext>(options);
+  }
+
+  injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
+    this.logger = logger;
   }
 
   log(level: 'log' | 'info' | 'warn', message: any): void {
-    this.logger.log(levelMap[level], message);
+    this.logger.log(
+      this.options?.mapLevel ? this.options.mapLevel[level] : defaultLevelMap[level],
+      message,
+    );
   }
 
   logMigration(message: string): void {
-    this.logger.log(Logger.DEBUG, message);
+    this.logger.log(this.options?.migrationLevel ?? LogLevel.DEBUG, message);
   }
 
   logQuery(query: string, parameters?: any[]): void {
-    this.logger.log('sql', Logger.DEBUG, {
-      query,
-      parameters,
+    this.logger.add<SqlLogEntry>({
+      format: 'sql',
+      level: this.options?.queryLevel ?? LogLevel.DEBUG,
+      data: {
+        query,
+        parameters,
+      },
     });
   }
 
   logQueryError(error: string, query: string, parameters?: any[]): void {
-    this.logger.log('sql', Logger.ERROR, {
-      query,
-      parameters,
-      error,
-      stack: Error().stack,
+    this.logger.add<SqlLogEntry>({
+      format: 'sql',
+      level: this.options?.mapLevel?.error ?? LogLevel.ERROR,
+      data: {
+        query,
+        parameters,
+        error,
+        stack: Error().stack,
+      },
     });
   }
 
   logQuerySlow(time: number, query: string, parameters?: any[]): void {
-    this.logger.log('sql', Logger.WARNING, 'Slow query', {
-      query,
-      parameters,
-      time,
+    this.logger.add<SqlLogEntry>({
+      format: 'sql',
+      level: this.options?.slowQueryLevel ?? LogLevel.WARNING,
+      message: 'Slow query',
+      data: {
+        query,
+        parameters,
+        time,
+      },
     });
   }
 
   logSchemaBuild(message: string): void {
-    this.logger.log(Logger.DEBUG, message);
+    this.logger.log(this.options?.schemaBuildLevel ?? LogLevel.DEBUG, message);
   }
 }

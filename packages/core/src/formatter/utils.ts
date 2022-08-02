@@ -1,17 +1,31 @@
-export function isEmpty(o: Record<string, any> | undefined): boolean {
-  return !o || !Object.keys(o).length;
+export function normalizeMap<V>(map: Record<number, V>): Map<number, V> {
+  return new Map(
+    Object.entries(map)
+      .map(([level, value]) => [parseInt(level, 10), value] as const)
+      .sort(([a], [b]) => a - b),
+  );
 }
 
-const entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-};
+export function levelToValue<V>(map: Map<number, V>, level: number, fallback?: number): V;
+export function levelToValue<V, F>(map: Map<number, V>, level: number, fallback: F): V | F;
+export function levelToValue<V>(map: Map<number, V>, level: number, fallback: any = 0): V | any {
+  const exact = map.get(level);
 
-export function escapeHtml(str: string): string {
-  return `${str}`.replace(/[&<>"']/g, (c) => entityMap[c]);
+  if (exact) {
+    return exact;
+  }
+
+  for (const [l, v] of map.entries()) {
+    if (level > l) {
+      return v;
+    }
+  }
+
+  return typeof fallback === 'number' ? map.get(fallback)! : fallback;
+}
+
+export function isEmpty(o: Record<string, any> | undefined): boolean {
+  return !o || !Object.keys(o).length;
 }
 
 export function indent(str: string, level: number = 1): string {
@@ -33,6 +47,22 @@ export function pad(n: number): string | number {
 
 export function pad3(n: number): string | number {
   return n > 99 ? n : `0${pad(n)}`;
+}
+
+export function cleanUpStackTrace(trace: string): string {
+  return trace.replace(/^.+\n/, '').replace(/^\s+/gm, ' ');
+}
+
+export function formatBytes(bytes: number): string {
+  if (bytes >= 1e9) {
+    return `${(bytes / 1e9).toFixed(2)} GB`;
+  } else if (bytes >= 1e6) {
+    return `${(bytes / 1e6).toFixed(2)} MB`;
+  } else if (bytes >= 1e3) {
+    return `${(bytes / 1e3).toFixed(2)} KB`;
+  } else {
+    return `${bytes} B`;
+  }
 }
 
 export function formatData(data: any): string {

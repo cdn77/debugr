@@ -2,12 +2,18 @@ const path = require('path');
 const pkg = require(path.resolve('package.json'));
 
 const importedLibraries = [
-  '@debugr/core',
-  '@debugr/graphql-formatter',
-  '@debugr/http-formatter',
-  '@debugr/sql-formatter',
   '@debugr/apollo',
+  '@debugr/console-handler',
+  '@debugr/core',
+  '@debugr/elastic-handler',
   '@debugr/express',
+  '@debugr/graphql-common',
+  '@debugr/html-handler',
+  '@debugr/http-common',
+  '@debugr/insaner',
+  '@debugr/mikroorm',
+  '@debugr/slack-handler',
+  '@debugr/sql-common',
   '@debugr/typeorm',
 ];
 

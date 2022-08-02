@@ -14,21 +14,34 @@ npm install --save @debugr/apollo
 Standalone Apollo Server:
 
 ```typescript
-import { debugr } from '@debugr/core';
-import { apolloLogger } from '@debugr/apollo';
+import { ApolloLogger } from '@debugr/apollo';
 import { ApolloServer } from 'apollo-server';
+import { Debugr, LogLevel } from '@debugr/core';
+import { ConsoleLogHandler } from '@debugr/console-handler';
+import { GraphQLConsoleFormatter } from '@debugr/graphql-console-formatter';
 
-const debug = debugr({
-  logDir: __dirname + '/log',
-  plugins: [
-    apolloLogger(),
+const globalContext = {
+  applicationName: 'example',
+};
+
+// There are all dependent formatters checked and validated.
+const debugr = Debugr.create(globalContext, 
+  [
+    ConsoleLogHandler.create(
+      LogLevel.info,
+    ),
   ],
-});
+  [
+    ApolloLogger.create(),
+    // Need to add formatter between ApolloLogger and ConsoleLogHandler
+    GraphQLConsoleFormatter.create(),
+  ],
+);
 
 const server = new ApolloServer({
   // typeDefs, resolvers, ...
   plugins: [
-    debug.getPlugin('apollo'),
+    debugr.getPlugin('apollo'),
   ],
 });
 ```
@@ -36,19 +49,38 @@ const server = new ApolloServer({
 With Express integration and plugin:
 
 ```typescript
-import { debugr } from '@debugr/core';
-import { expressLogger } from '@debugr/express';
-import { apolloLogger } from '@debugr/apollo';
+import { ExpressLogger } from '@debugr/express';
 import { ApolloServer } from 'apollo-server-express';
 import * as express from 'express';
+import { 
+  Logger, 
+  Debugr, 
+  LogLevel,
+} from '@debugr/core';
+import { ConsoleLogHandler } from '@debugr/console-handler';
+import { GraphQLConsoleFormatter } from '@debugr/graphql-console-formatter';
+import { HttpConsoleFormatter } from '@debugr/http-console-formatter';
 
-const debug = debugr({
-  logDir: __dirname + '/log',
-  plugins: [
-    expressLogger(),
-    apolloLogger(),
+const globalContext = {
+  applicationName: 'example',
+};
+
+// There are all dependent formatters checked and validated.
+const debugr = Debugr.create(globalContext, 
+  [
+    ConsoleLogHandler.create(
+      LogLevel.info,
+    ),
   ],
-});
+  [
+    ApolloLogger.create(),
+    ExpressLogger.create(),
+    // Need to add formatter between ApolloLogger and ConsoleLogHandler
+    GraphQLConsoleFormatter.create(),
+    // Need to add formatter between ExpressLogger and ConsoleLogHandler
+    HttpConsoleFormatter.create(),
+  ],
+);
 
 const app = express();
 

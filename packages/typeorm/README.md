@@ -13,21 +13,37 @@ npm install --save @debugr/typeorm
 ## Usage
 
 ```typescript
-import { debugr } from '@debugr/core';
-import { typeormLogger } from '@debugr/typeorm';
+import { 
+  Logger, 
+  Debugr, 
+  LogLevel,
+} from '@debugr/core';
+import { TypeormLogger } from '@debugr/typeorm';
+import { ConsoleLogHandler } from '@debugr/console-handler';
+import { SqlConsoleFormatter } from '@debugr/sql-console-formatter';
 import { createConnection } from 'typeorm';
 
-// initialise debugr as usual
-const debug = debugr({
-  logDir: __dirname + '/log',
-  plugins: [
-    typeormLogger(),
+const globalContext = {
+  applicationName: 'example',
+};
+
+// There are all dependent formatters checked and validated.
+const debugr = Debugr.create(globalContext, 
+  [
+    ConsoleLogHandler.create(
+      LogLevel.info,
+    ),
   ],
-});
+  [
+    TypeormLogger.create(),
+    // Need to add formatter between TypeormLogger and ConsoleLogHandler
+    SqlConsoleFormatter.create(),
+  ],
+);
 
 // inject the plugin into your TypeORM connection options
 const connection = await createConnection({
   // ...
-  logger: debug.getPlugin('typeorm'),
+  logger: debugr.getPlugin('typeorm'),
 });
 ```

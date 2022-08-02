@@ -18,22 +18,41 @@ npm install --save @debugr/express
 
 ## Usage
 
-```typescript
-import { Logger, debugr } from '@debugr/core';
-import { expressLogger } from '@debugr/express';
-import * as express from 'express';
+With Express integration and plugin:
 
-const debug = debugr({
-  logDir: __dirname + '/log',
-  plugins: [
-    expressLogger(),
+```typescript
+import { ExpressLogger } from '@debugr/express';
+import * as express from 'express';
+import { 
+  Logger, 
+  Debugr, 
+  LogLevel,
+} from '@debugr/core';
+import { ConsoleLogHandler } from '@debugr/console-handler';
+import { HttpConsoleFormatter } from '@debugr/http-console-formatter';
+
+const globalContext = {
+  applicationName: 'example',
+};
+
+// There are all dependent formatters checked and validated.
+const debugr = Debugr.create(globalContext, 
+  [
+    ConsoleLogHandler.create(
+      LogLevel.info,
+    ),
   ],
-});
+  [
+    ExpressLogger.create(),
+    // Need to add formatter between ExpressLogger and ConsoleLogHandler
+    HttpConsoleFormatter.create(),
+  ],
+);
 
 const app = express();
 
 // as the very first middleware:
-app.use(debug.getPlugin('express').createRequestHandler());
+app.use(debugr.getPlugin('express').createRequestHandler());
 
 // apply your other middlewares like body parser and your routes
 
@@ -45,7 +64,7 @@ app.post('/my-api', function(req, res) {
 });
 
 // and then as the very last middleware:
-app.use(debug.getPlugin('express').createErrorHandler());
+app.use(debugr.getPlugin('express').createErrorHandler());
 
 app.listen(8000);
 ```

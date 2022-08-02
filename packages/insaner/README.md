@@ -1,9 +1,9 @@
-Express plugin for Debugr
+Insaner plugin for Debugr
 =========================
 
-This plugin provides Debugr middleware for the Express web server.
+This plugin provides Debugr middleware for the Insaner web server.
 With this middleware the Debugr logger will automatically be
-forked for each HTTP request that Express handles; additionally
+forked for each HTTP request that Insaner handles; additionally
 both the HTTP request and the response from your app will be logged
 and the logger will be automatically flushed when the response is sent.
 If the HTTP response code is >= 500 (or >= 400 if the `e4xx` option is set)
@@ -13,31 +13,47 @@ the logger to be marked for writing and a dump file created.
 ## Installation
 
 ```bash
-npm install --save @debugr/express
+npm install --save @debugr/insaner
 ```
 
 ## Usage
 
 ```typescript
-import { Logger, debugr } from '@debugr/core';
-import { expressLogger } from '@debugr/express';
-import * as express from 'express';
+import { InsanerLogger } from '@debugr/insaner';
+import { HttpServer, HttpRequest, HttpForbiddenError } from 'insaner';
+import { 
+  Logger, 
+  Debugr, 
+  LogLevel,
+} from '@debugr/core';
+import { ConsoleLogHandler } from '@debugr/console-handler';
+import { HttpConsoleFormatter } from '@debugr/http-console-formatter';
 
-const debug = debugr({
-  logDir: __dirname + '/log',
-  plugins: [
-    expressLogger(),
+const globalContext = {
+  applicationName: 'example',
+};
+
+// There are all dependent formatters checked and validated.
+const debugr = Debugr.create(globalContext, 
+  [
+    ConsoleLogHandler.create(
+      LogLevel.info,
+    ),
   ],
-});
+  [
+    InsanerLogger.create(),
+    // Need to add formatter between InsanerLogger and ConsoleLogHandler
+    HttpConsoleFormatter.create(),
+  ],
+);
 
-const app = express();
+const server = new HttpServer();
 
 // as the very first middleware:
-app.use(debug.getPlugin('express').createRequestHandler());
+server.on('request', debugr.getPlugin('insaner').createRequestHandler());
 
 // apply your other middlewares like body parser and your routes
-
-app.post('/my-api', function(req, res) {
+server.router.post('/my-api', function(req, res) {
   // in all your middlewares you can now access req.logger:
   req.logger.info('User id: %d', req.userId);
 
@@ -45,14 +61,14 @@ app.post('/my-api', function(req, res) {
 });
 
 // and then as the very last middleware:
-app.use(debug.getPlugin('express').createErrorHandler());
+server.on('error', debugr.getPlugin('insaner').createErrorHandler());
 
 app.listen(8000);
 ```
 
 ## Options
 
-The `expressLogger()` function can take an object with the following
+The `insanerLogger()` function can take an object with the following
 keys as the first argument:
 
 | Option                    | Type       | Default                       | Description                                                                                             |

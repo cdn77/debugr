@@ -1,3 +1,10 @@
-export * from './loggerInterface';
-export * from './logger';
-export * from './consoleLogger';
+export { LogHandler, TaskAwareLogHandler } from './handler';
+export { Logger } from './logger';
+export {
+  ImmutableDate,
+  LogEntry,
+  LogLevel,
+  TContextBase,
+  TContextShape,
+  ReadonlyRecursive,
+} from './types';

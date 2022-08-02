@@ -1,6 +1,6 @@
 {
   "name": "@debugr/typeorm",
-  "version": "2.0.0",
+  "version": "3.0.0-rc.1",
   "description": "TypeORM plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,14 +11,8 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/sql-formatter": "^2.0"
-  },
-  "devDependencies": {
-    "@debugr/core": "^2.0",
-    "typeorm": "^0.2.29"
-  },
-  "peerDependencies": {
-    "@debugr/core": "^2.0",
+    "@debugr/core": "3.0.0-rc.1",
+    "@debugr/sql-common": "3.0.0-rc.1",
     "typeorm": "^0.2.29"
   },
   "main": "dist/index.js",
@@ -27,8 +21,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "typeorm",
-      "node"
+      "typeorm"
     ]
   },
   "files": [

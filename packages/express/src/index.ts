@@ -1,14 +1,13 @@
-import { ExpressLogger } from './express';
+import { ExpressPlugin } from './express';
 import { Options } from './types';
 
-export { ExpressLogger, Options };
-
-export function expressLogger(options?: Options): ExpressLogger {
-  return new ExpressLogger(options);
-}
+export { ExpressPlugin, Options };
 
 declare module '@debugr/core' {
-  export interface Plugins {
-    express: ExpressLogger;
+  export interface Plugins<
+    TTaskContext extends TContextBase = TContextBase,
+    TGlobalContext extends TContextShape = TContextShape,
+  > {
+    express: ExpressPlugin<TTaskContext, TGlobalContext>;
   }
 }

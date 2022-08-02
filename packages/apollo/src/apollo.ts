@@ -1,51 +1,67 @@
+import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { GraphQlLogEntry } from '@debugr/graphql-common';
 import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { Container, ContainerAware, Logger, Plugin } from '@debugr/core';
-import { GraphQLFormatter } from '@debugr/graphql-formatter';
 import { FullOptions, Options } from './types';
 
-export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin {
+export class ApolloPlugin<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> implements Plugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
+{
   readonly id: string = 'apollo';
+
+  readonly entryFormat: 'graphql' = 'graphql';
 
   private readonly options: FullOptions;
 
-  private logger: Logger;
-
-  private autoFlush: boolean;
+  private logger: Logger<TTaskContext, TGlobalContext>;
 
   constructor(options?: Options) {
     this.options = {
-      level: options?.level || Logger.INFO,
+      level: options?.level || LogLevel.INFO,
     };
   }
 
-  injectContainer(container: Container): void {
-    const pluginManager = container.get('pluginManager');
-
-    this.logger = container.get('logger');
-    this.autoFlush = !pluginManager.has('express');
-
-    if (!pluginManager.has('graphql')) {
-      pluginManager.register(new GraphQLFormatter());
-    }
+  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
+    options?: Options,
+  ): ApolloPlugin<TTaskContext, TGlobalContext> {
+    return new ApolloPlugin<TTaskContext, TGlobalContext>(options);
   }
 
-  requestDidStart(): GraphQLRequestListener {
+  injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
+    this.logger = logger;
+  }
+
+  public getApolloMiddleware() {
+    return async (resolve: any): Promise<any> => {
+      return this.logger.runTask(resolve, true);
+    };
+  }
+
+  public requestDidStart = async (): Promise<GraphQLRequestListener> => {
     const logger = this.logger;
     const options = this.options;
-    const flush = this.autoFlush;
 
     return {
-      didResolveOperation({ request, operation, operationName }): void {
-        if (request.query) {
-          logger.log('graphql', options.level, {
-            query: request.query,
-            variables: request.variables,
-            operation:
-              [operation?.operation, operationName].filter((v) => !!v).join(' ') || undefined,
+      didResolveOperation: async (ctx): Promise<void> => {
+        const operation =
+          [ctx.operation?.operation, ctx.operationName].filter((v) => !!v).join(' ') || undefined;
+
+        operation && logger.setContextProperty('queryName', operation);
+
+        if (ctx.request.query) {
+          logger.add<GraphQlLogEntry>({
+            format: this.entryFormat,
+            level: options.level,
+            data: {
+              query: ctx.request.query,
+              variables: ctx.request.variables,
+              operation,
+            },
           });
         }
       },
-      didEncounterErrors({ errors }): void {
+      didEncounterErrors: async ({ errors }): Promise<void> => {
         for (const err of errors) {
           const data = err.originalError
             ? {
@@ -60,11 +76,6 @@ export class ApolloLogger implements ContainerAware, Plugin, ApolloServerPlugin 
           });
         }
       },
-      willSendResponse(): void {
-        if (flush) {
-          logger.flush();
-        }
-      },
     };
-  }
+  };
 }

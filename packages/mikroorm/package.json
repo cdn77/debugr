@@ -1,0 +1,48 @@
+{
+  "name": "@debugr/mikroorm",
+  "version": "3.0.0-rc.1",
+  "description": "MikroORM plugin for Advanced application logger",
+  "author": {
+    "name": "Dan Kadera",
+    "email": "dan.kadera@cdn77.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "@debugr/core": "3.0.0-rc.1",
+    "@debugr/sql-common": "3.0.0-rc.1"
+  },
+  "devDependencies": {
+    "@mikro-orm/core": "^5.2.1"
+  },
+  "peerDependencies": {
+    "@mikro-orm/core": "^5.2.1"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "build": {
+    "src": "src/index.ts",
+    "externals": [
+      "@mikro-orm/core"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:cleanup": "../../.run build:cleanup",
+    "build:compile": "../../.run build:compile",
+    "build:declarations": "../../.run build:declarations",
+    "build:prettify": "../../.run build:prettify",
+    "build:main": "../../.run build:main",
+    "build": "../../.run build",
+    "lint": "../../.run lint",
+    "preversion": "../../.run release"
+  }
+}

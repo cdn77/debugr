@@ -1,26 +1,39 @@
-import { LogEntry } from '../queues';
+import { Logger, TContextBase, TContextShape } from '../logger';
+import { PluginManager } from './manager';
 
-export interface Plugins {
-  [id: string]: Plugin;
+export interface Plugins<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> {
+  [id: string]: Plugin<TTaskContext, TGlobalContext>;
 }
 
 export type PluginId = Exclude<keyof Plugins, number | symbol>;
 
-export interface Plugin {
+export interface Plugin<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> {
   readonly id: string;
+  readonly entryFormat: string;
+  injectLogger(
+    logger: Logger<TTaskContext, TGlobalContext>,
+    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+  ): void;
 }
 
-export interface FormatterPlugin extends Plugin {
-  getEntryLabel(entry: LogEntry): string;
-  getEntryTitle(entry: LogEntry): string;
-  formatHtmlEntry(entry: LogEntry): string;
-  formatConsoleEntry(entry: LogEntry): string;
+export interface FormatterPlugin<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> extends Plugin<TTaskContext, TGlobalContext> {
+  readonly targetHandler: string;
 }
 
-export function isFormatterPlugin(plugin: Plugin): plugin is FormatterPlugin {
-  return (
-    typeof (plugin as any).getEntryLabel === 'function' &&
-    typeof (plugin as any).formatHtmlEntry === 'function' &&
-    typeof (plugin as any).formatConsoleEntry === 'function'
-  );
+export function isFormatterPlugin<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+>(
+  plugin: Plugin<TTaskContext, TGlobalContext>,
+): plugin is FormatterPlugin<TTaskContext, TGlobalContext> {
+  return typeof (plugin as any).targetHandler === 'string';
 }

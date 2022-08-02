@@ -1,6 +1,6 @@
 {
   "name": "@debugr/insaner",
-  "version": "2.0.2",
+  "version": "3.0.0-rc.1",
   "description": "Insaner plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,15 +11,14 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/http-formatter": "^2.0"
+    "@debugr/core": "3.0.0-rc.1",
+    "@debugr/http-common": "3.0.0-rc.1"
   },
   "devDependencies": {
-    "@debugr/core": "^2.0",
     "insaner": "^1.1.7"
   },
   "peerDependencies": {
-    "@debugr/core": "^2.0",
-    "insaner": "^1.1"
+    "insaner": "^1.1.7"
   },
   "src": "src/index.ts",
   "main": "dist/index.js",

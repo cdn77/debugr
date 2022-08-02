@@ -1,29 +1,29 @@
+import { Logger, TContextBase, TContextShape } from '../logger';
 import { Plugin, PluginId, Plugins } from './types';
-import { Container, isContainerAware } from '../di';
 
-export class PluginManager {
-  private readonly container: Container;
+export class PluginManager<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> {
+  private readonly plugins: Plugins<TTaskContext, TGlobalContext>;
 
-  private readonly plugins: Plugins;
+  private readonly logger: Logger<TTaskContext, TGlobalContext>;
 
-  constructor(container: Container) {
-    this.container = container;
+  constructor(logger: Logger<TTaskContext, TGlobalContext>) {
+    this.logger = logger;
     this.plugins = {};
   }
 
-  public register(plugin: Plugin): void {
+  public register(plugin: Plugin<TTaskContext, TGlobalContext>): void {
+    plugin.injectLogger(this.logger, this);
     this.plugins[plugin.id] = plugin;
-
-    if (isContainerAware(plugin)) {
-      plugin.injectContainer(this.container);
-    }
   }
 
   public has(id: string): boolean {
     return id in this.plugins;
   }
 
-  public get<ID extends PluginId>(id: ID): Plugins[ID] {
+  public get<ID extends PluginId>(id: ID): Plugins<TTaskContext, TGlobalContext>[ID] {
     const plugin = this.plugins[id];
 
     if (!plugin) {
@@ -31,5 +31,16 @@ export class PluginManager {
     }
 
     return plugin;
+  }
+
+  public find<T extends Plugin<TTaskContext, TGlobalContext>>(
+    predicate: (plugin: Plugin<TTaskContext, TGlobalContext>) => plugin is T,
+  ): T[] {
+    return Object.values(this.plugins).filter(predicate);
+  }
+
+  public getKnownEntryFormats(): string[] {
+    const formats = new Set(Object.values(this.plugins).map((p) => p.entryFormat));
+    return [...formats];
   }
 }
