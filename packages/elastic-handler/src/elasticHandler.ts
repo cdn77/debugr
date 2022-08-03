@@ -1,13 +1,15 @@
 import {
   clone,
   LogEntry,
-  LogHandler,
   LogLevel,
   ReadonlyRecursive,
+  TaskAwareLogHandler,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
 import { Client, ClientOptions } from '@elastic/elasticsearch';
+import { AsyncLocalStorage } from 'async_hooks';
+import { v4 } from 'uuid';
 
 export interface ElasticHandlerOptions<
   TTaskContext extends TContextBase = TContextBase,
@@ -30,7 +32,7 @@ export type ElasticOptions<
 export class ElasticHandler<
   TTaskContext extends TContextBase,
   TGlobalContext extends TContextShape,
-> extends LogHandler<TTaskContext> {
+> extends TaskAwareLogHandler<TTaskContext> {
   public readonly identifier: string = 'elastic';
 
   public readonly doesNeedFormatters: boolean = false;
@@ -40,6 +42,8 @@ export class ElasticHandler<
   private readonly elasticClient: Client;
 
   private readonly opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
+
+  private readonly asyncStorage: AsyncLocalStorage<{ subtaskId: string}>;
 
   private lastError?: Date;
 
@@ -51,6 +55,27 @@ export class ElasticHandler<
   }
 
   public injectPluginManager(): void {}
+
+  public flush(): void {
+    //
+  }
+
+  public runTask<R>(callback: () => R): R {
+    let subtaskId: { subtaskId: string};
+    const existingSubtaskId = this.asyncStorage.getStore();
+    if (existingSubtaskId) {
+      subtaskId = {
+        subtaskId: existingSubtaskId.subtaskId + '.' + v4(),
+      };
+    } else {
+      subtaskId = {
+        subtaskId: v4(),
+      }
+    }
+
+    return this.asyncStorage.run(subtaskId, callback);
+
+  }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
     opts: ElasticOptions<TTaskContext, TGlobalContext>,
@@ -95,7 +120,7 @@ export class ElasticHandler<
   }: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): Record<string, any> {
     return {
       ...entry,
-      context: clone({ ...(taskContext || {}), ...globalContext }),
+      context: clone({ ...(taskContext || {}), ...globalContext, ...this.asyncStorage.getStore() }),
       data: JSON.stringify(data),
     };
   }
