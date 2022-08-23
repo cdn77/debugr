@@ -43,7 +43,7 @@ export class ElasticHandler<
 
   private readonly opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 
-  private readonly asyncStorage: AsyncLocalStorage<{ subtaskIds: string[] }>;
+  private readonly asyncStorage: AsyncLocalStorage<string[]>;
 
   private lastError?: Date;
 
@@ -60,20 +60,13 @@ export class ElasticHandler<
     //
   }
 
-  public runTask<R>(callback: () => R, taskId?: string): R {
-    let subtaskId: { subtaskIds: string[] };
-    const existingSubtaskId = this.asyncStorage.getStore();
-    if (existingSubtaskId) {
-      subtaskId = {
-        subtaskIds: existingSubtaskId.subtaskIds.concat(v4()),
-      };
-    } else {
-      subtaskId = {
-        subtaskIds: taskId ? [taskId, v4()] : [v4()],
-      }
-    }
+  public runTask<R>(callback: () => R): R {
+    const stack: string[] = [
+      ...this.asyncStorage.getStore() || [],
+      v4(),
+    ];
 
-    return this.asyncStorage.run(subtaskId, callback);
+    return this.asyncStorage.run(stack, callback);
   }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
@@ -119,7 +112,7 @@ export class ElasticHandler<
   }: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): Record<string, any> {
     return {
       ...entry,
-      context: clone({ ...(taskContext || {}), ...globalContext, ...this.asyncStorage.getStore() }),
+      context: clone({ ...(taskContext || {}), ...globalContext, subtaskIds: this.asyncStorage.getStore() }),
       data: JSON.stringify(data),
     };
   }

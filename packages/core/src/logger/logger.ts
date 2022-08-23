@@ -47,7 +47,7 @@ export class Logger<
     const newContext: Partial<TTaskContext> = context ? clone(context) : ({ taskId: v4() } as any);
 
     const mainCallback = this.logHandlers.reduceRight(
-      (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child, newContext?.taskId) : child),
+      (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),
       envelopedCallback,
     );
 
@@ -182,11 +182,9 @@ export class Logger<
   }
 
   public flush(): this {
-    const context = this.taskContextStorage.getStore();
-
     this.logHandlers
       .filter(isTaskAwareLogHandler)
-      .forEach((handler) => handler.flush(context?.taskId));
+      .forEach((handler) => handler.flush());
 
     return this;
   }

@@ -13,8 +13,9 @@ export type TContextShape = {
   [property: string]: TContextShape | Date | string | number | boolean | undefined | null;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TContextFixed {
-  taskId?: string;
+  //
 }
 
 export type TContextBase = TContextShape & TContextFixed;

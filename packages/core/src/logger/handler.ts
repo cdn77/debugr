@@ -24,9 +24,9 @@ export abstract class TaskAwareLogHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogHandler<TTaskContext, TGlobalContext> {
-  public abstract flush(taskId?: string): void;
+  public abstract flush(): void;
 
-  public abstract runTask<R>(callback: () => R, taskId?: string): R;
+  public abstract runTask<R>(callback: () => R): R;
 }
 
 export function isTaskAwareLogHandler<
