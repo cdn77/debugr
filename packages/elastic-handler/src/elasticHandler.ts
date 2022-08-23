@@ -43,7 +43,7 @@ export class ElasticHandler<
 
   private readonly opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 
-  private readonly asyncStorage: AsyncLocalStorage<{ subtaskId: string}>;
+  private readonly asyncStorage: AsyncLocalStorage<{ subtaskIds: string[] }>;
 
   private lastError?: Date;
 
@@ -60,21 +60,20 @@ export class ElasticHandler<
     //
   }
 
-  public runTask<R>(callback: () => R): R {
-    let subtaskId: { subtaskId: string};
+  public runTask<R>(callback: () => R, taskId?: string): R {
+    let subtaskId: { subtaskIds: string[] };
     const existingSubtaskId = this.asyncStorage.getStore();
     if (existingSubtaskId) {
       subtaskId = {
-        subtaskId: existingSubtaskId.subtaskId + '.' + v4(),
+        subtaskIds: existingSubtaskId.subtaskIds.concat(v4()),
       };
     } else {
       subtaskId = {
-        subtaskId: v4(),
+        subtaskIds: taskId ? [taskId, v4()] : [v4()],
       }
     }
 
     return this.asyncStorage.run(subtaskId, callback);
-
   }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(

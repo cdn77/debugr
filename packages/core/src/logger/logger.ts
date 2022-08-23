@@ -47,7 +47,7 @@ export class Logger<
     const newContext: Partial<TTaskContext> = context ? clone(context) : ({ taskId: v4() } as any);
 
     const mainCallback = this.logHandlers.reduceRight(
-      (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),
+      (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child, newContext?.taskId) : child),
       envelopedCallback,
     );
 

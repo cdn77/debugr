@@ -26,7 +26,7 @@ export abstract class TaskAwareLogHandler<
 > extends LogHandler<TTaskContext, TGlobalContext> {
   public abstract flush(taskId?: string): void;
 
-  public abstract runTask<R>(callback: () => R): R;
+  public abstract runTask<R>(callback: () => R, taskId?: string): R;
 }
 
 export function isTaskAwareLogHandler<
