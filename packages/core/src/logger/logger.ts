@@ -182,11 +182,9 @@ export class Logger<
   }
 
   public flush(): this {
-    const context = this.taskContextStorage.getStore();
-
     this.logHandlers
       .filter(isTaskAwareLogHandler)
-      .forEach((handler) => handler.flush(context?.taskId));
+      .forEach((handler) => handler.flush());
 
     return this;
   }
