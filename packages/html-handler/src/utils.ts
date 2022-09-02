@@ -1,21 +1,22 @@
-import {
+import type {
   LogEntry,
-  LogLevel,
   PluginManager,
   ReadonlyRecursive,
   SmartMap,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import * as crypto from 'crypto';
+import { LogLevel } from '@debugr/core';
+import { createHash } from 'crypto';
+import type { HtmlFormatterPlugin } from './formatters';
 import {
   GraphQLHtmlFormatter,
-  HtmlFormatterPlugin,
   HttpHtmlFormatter,
   isHtmlFormatter,
   SqlHtmlFormatter,
 } from './formatters';
-import { isTaskBoundary, TaskData, TaskLogEntry, TaskLogInfo } from './types';
+import type { TaskData, TaskLogEntry, TaskLogInfo } from './types';
+import { isTaskBoundary } from './types';
 
 export function getFormatters<
   TTaskContext extends TContextBase = TContextBase,
@@ -108,7 +109,7 @@ export function computeTaskHash<
 >(task: TaskData<TTaskContext, TGlobalContext>): string {
   const entry = findDefiningEntry(task);
   const key = JSON.stringify([entry.level, entry.message, entry.data]);
-  const sha1 = crypto.createHash('sha1');
+  const sha1 = createHash('sha1');
   sha1.update(key);
   return sha1.digest('hex').substring(0, 16);
 }

@@ -1,12 +1,5 @@
-import {
-  formatData,
-  isEmpty,
-  levelToValue,
-  LogEntry,
-  ReadonlyRecursive,
-  TContextBase,
-  TContextShape,
-} from '@debugr/core';
+import type { LogEntry, ReadonlyRecursive, TContextBase, TContextShape } from '@debugr/core';
+import { formatData, isEmpty, levelToValue } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
@@ -20,7 +13,7 @@ export class DefaultHtmlFormatter<
 
   readonly entryFormat: string = '*';
 
-  readonly targetHandler: 'html' = 'html';
+  readonly targetHandler = 'html' as const;
 
   constructor(levelMap: Map<number, string>) {
     super();

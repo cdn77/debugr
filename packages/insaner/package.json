@@ -27,8 +27,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "insaner",
-      "mime-types"
+      "insaner"
     ]
   },
   "files": [

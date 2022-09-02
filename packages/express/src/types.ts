@@ -1,4 +1,8 @@
-import { CaptureBodyOption, HttpHeaders, NormalizedCaptureBodyOption } from '@debugr/http-common';
+import type {
+  CaptureBodyOption,
+  HttpHeaders,
+  NormalizedCaptureBodyOption,
+} from '@debugr/http-common';
 
 export type Options = {
   level?: number;

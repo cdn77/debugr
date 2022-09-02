@@ -1,11 +1,7 @@
-import { formatBytes,TContextBase, TContextShape } from '@debugr/core';
-import {
-  formatHttpHeaders,
-  getHttpStatusMessage,
-  HttpLogEntry,
-  HttpRequestData,
-  HttpResponseData,
-} from '@debugr/http-common';
+import type { TContextBase, TContextShape } from '@debugr/core';
+import { formatBytes } from '@debugr/core';
+import type { HttpLogEntry, HttpRequestData, HttpResponseData } from '@debugr/http-common';
+import { formatHttpHeaders, getHttpStatusMessage } from '@debugr/http-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 

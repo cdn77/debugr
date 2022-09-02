@@ -1,6 +1,6 @@
-import { MikroORMPlugin } from './mikroorm';
+import type { MikroORMPlugin } from './mikroorm';
 
-export { MikroORMPlugin };
+export * from './mikroorm';
 export * from './types';
 
 declare module '@debugr/core' {

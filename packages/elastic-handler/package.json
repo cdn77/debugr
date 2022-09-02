@@ -24,7 +24,8 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "@elastic/elasticsearch"
+      "@elastic/elasticsearch",
+      "uuid"
     ]
   },
   "files": [

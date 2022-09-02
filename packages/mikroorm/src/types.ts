@@ -1,5 +1,5 @@
-import { LogLevel } from '@debugr/core';
-import { LoggerNamespace } from '@mikro-orm/core';
+import type { LogLevel } from '@debugr/core';
+import type { LoggerNamespace } from '@mikro-orm/core';
 
 export type MikroORMLogNamespace = LoggerNamespace;
 export type MikroORMLogLevel = 'info' | 'warning' | 'error';

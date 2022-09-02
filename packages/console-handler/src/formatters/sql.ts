@@ -1,10 +1,7 @@
-import { formatData, isEmpty, TContextBase, TContextShape } from '@debugr/core';
-import {
-  createQueryFormatter,
-  formatQueryTime,
-  SqlLogEntry,
-  SqlQueryFormatter,
-} from '@debugr/sql-common';
+import type { TContextBase, TContextShape } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
+import type { SqlLogEntry, SqlQueryFormatter } from '@debugr/sql-common';
+import { createQueryFormatter, formatQueryTime } from '@debugr/sql-common';
 import { dim } from 'ansi-colors';
 import { AbstractConsoleFormatter } from './abstract';
 

@@ -1,7 +1,7 @@
 Detailed Bug Reporter
 =====================
 
-This is a tool to simplify the debugging of task-oriented Node.js processes.
+The Detailed Bug Reporter, a.k.a. Debugr, is a tool you can use to improve logging in your Node.js applications.
 
 The core concept of this tool is that many common backend applications can be logically divided into
 a number of tasks or pipelines - e.g. handling a single HTTP request, processing a batch of data
@@ -9,8 +9,8 @@ in a cron job etc. In an asynchronous environment, simply writing debug data to 
 parallel tasks quickly results in a headache. Apply a little Debugr magic though, and the next bug
 that causes your app to crash will be found in minutes, if not seconds!
 
-Also Debugr supports multiple log handlers into which are log events distributed and each of them handle
-them by itself. Which you use is up to yourself, also you can add your own.
+Debugr comes with several integrations out of the box, both for collecting log data and for persisting logs
+into storage. It's trivial to add your own integrations though, if you need something custom!
 
 Heavily inspired by [Tracy], although Debugr comes with its own unique perks.
 Written in TypeScript, so type declarations are included out of the box.
@@ -20,34 +20,31 @@ Written in TypeScript, so type declarations are included out of the box.
 Debugr consists of a core package and a number of plugins. `npm install` what you need according
 to your use-case:
 
-Core:
+### Core:
 
-- [`@debugr/core`] - Boring, but necessary
+ - [`@debugr/core`] - Boring, but necessary
 
-Plugins:
+### Log Handlers:
 
-- [`@debugr/apollo`] - Apollo Server request plugin
-- [`@debugr/express`] - Express request & response plugin
-- [`@debugr/insaner`] - Insaner plugin
-- [`@debugr/typeorm`] - TypeORM SQL plugin
+Log Handlers are responsible for deciding what to do with log entries. The `Logger` class
+in Debugr doesn't write the log entries anywhere by itself - it delegates this work to configured
+Log Handlers.
 
-Log Handlers:
+- [`@debugr/console-handler`] - Outputs formatted entries to console
+- [`@debugr/elastic-handler`] - Sends structured entries to an Elastic index
+- [`@debugr/html-handler`] - Creates Tracy-style HTML dump files
+- [`@debugr/slack-handler`] - Sends messages to a Slack channel
 
-- [`@debugr/console-handler`] - Log Handler to console
-- [`@debugr/elastic-handler`] - Log Handler to elastic
-- [`@debugr/html-handler`] - Log Handler to html dumps
-- [`@debugr/slack-handler`] - Log Handler to slack channel
+### Plugins:
 
-Formatter Plugins:
+There are several plugins which bridge Debugr with various popular frameworks and libraries.
+Their main responsibility is collecting loggable data from the framework and converting it to
+a format which Debugr can process downstream.
 
-- [`@debugr/graphql-console-formatter`] - GraphQL query console formatter
-- [`@debugr/graphql-html-formatter`] - GraphQL query html formatter
-- [`@debugr/http-console-formatter`] - HTTP request & response console formatter
-- [`@debugr/http-html-formatter`] - HTTP request & response html formatter
-- [`@debugr/sql-console-formatter`] - SQL query console formatter
-- [`@debugr/sql-html-formatter`] - SQL query html formatter
-
-Note that formatter plugins must be installed and configured manually and with logger getter are those dependencies checked and may cause thrown of error
+ - [`@debugr/apollo`] - Apollo GraphQL server plugin
+ - [`@debugr/express`] - Express HTTP server plugin
+ - [`@debugr/insaner`] - Insaner HTTP server plugin
+ - [`@debugr/mikroorm`] - MikroORM plugin
 
 ## Usage introduction
 
@@ -55,11 +52,7 @@ This is an example of the raw core usage, just to show you the basics; with plug
 stuff will be done automatically for you.
 
 ```typescript
-import { 
-  Logger, 
-  Debugr, 
-  LogLevel,
-} from '@debugr/core';
+import { Debugr, Logger, LogLevel } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 import { HtmlLogHandler } from '@debugr/html-handler';
 
@@ -67,43 +60,33 @@ const globalContext = {
   applicationName: 'example',
 };
 
-// There are all dependent formatters checked and validated. In this example there are none needed, because we did not install any plugins
-const debugr = Debugr.create(globalContext, 
+const debugr = Debugr.create(globalContext,
   [
     ConsoleLogHandler.create(
-      LogLevel.info,
+      LogLevel.INFO,
     ),
     HtmlLogHandler.create(
       {
-        threshold: LogLevel.trace,
-        outputDir: './log',
-        gc: {
-          interval: 600,
-          threshold: LogLevel.trace,
-        },
+        threshold: LogLevel.ERROR,
+        outputDir: __dirname + '/log',
       },
     ),
   ],
-  [],
 );
 
 const logger: Logger = debug.logger;
 
-// ... but to make Debugr aware of the execution context of your task,
-// you need to runTask the logger at the beginning of the task:
-logger.runTask(() => {
-  // execute your tasks here
+// Wrap anything you consider a "task" in a callback and pass that callback
+// to `logger.runTask()` like this:
+logger.runTask(async () => {
+  // execute your task here
 
-  // At any point inside your task you can write into the logger:
+  // At any point inside the task you can write into the logger:
   logger.debug('A debug message');
-  logger.info('An info message with %d %s %s', [3, 'printf-style', 'params']);
+  logger.info(['An info message with %d %s %s', 3, 'printf-style', 'params']);
   logger.warning({ custom: 'data', is: 'supported also' });
   logger.error(new Error('Which shan\'t disappear without a trace!'));
   logger.log(Logger.INFO, 'Just so you know');
-
-  // At the end of your task you may call this for manual invocation logHandler.flush:
-  logger.flush();
-  // If you dont call it, it will cal itself automatically
 });
 ```
 
@@ -115,107 +98,105 @@ This will produce log to console and a dump file in the log directory that will 
 
 Debugr internally uses an `AsyncLocalStorage` from the [Async Hooks] NodeJS module
 which allows it to keep track of asynchronous execution without the need to explicitly
-pass around a logger object. The `logger.runTask()` method only generates a unique
-identifier, stores it in the internal `AsyncLocalStorage` instance and then runs
-the callback you provided, but inside that callback and any asynchronous calls made from
-within it the logger can now retrieve the identifier and use it to figure out where
-each message belongs.
+pass around a logger object. So you can just inject the `Logger` instance anywhere you need,
+and it will _magically_ know which task each log entry belongs to. Tasks can of course also
+be nested, which may help when debugging - you can filter the logs by task to only see
+entries relevant to the issue you're hunting for.
 
-### But how about code outside a forked job?
+### But how about logging outside a task?
 
-Outside a forked asynchronous execution context Debugr will still send logs to log handlers and it is on their own to manage it.
-Console. Elastic and Slack handlers will log, but html handler ignores those logs.
-This means that you can use Debugr everywhere in your
-app and only worry about forking in a couple of places.
+Outside a task Debugr will still send logs to log handlers, and it's up to them to decide
+what to do. The Console, Elastic and Slack handlers will log those entries as usual;
+the HTML handler will ignore them. This means that you can use Debugr everywhere in your
+app and only worry about encapsulating tasks with callbacks in a couple of places.
 
-### Html log handler behaviour inside forked job
+### HTML Log Handler behaviour inside tasks
 
-The way this tool is designed, **nothing** is logged at the time you call `logger.log()` or
-any of the shortcuts; instead, when you call `logger.flush()`, Debugr will check if at least
-one of the entries in the logger instance exceeded a (configurable) threshold. If there is
-at least one such entry, the logger will be flushed into a uniquely-named file in the log
-directory.
+The HTML handler is special in that it doesn't log immediately, but instead keeps all
+entries in an internal queue. When a task ends, the HTML handler will check if the task's queue
+contains at least one entry which matches or exceeds the configured threshold. If no such entry
+is found, the entire queue is silently discarded; if at least one matching entry exists,
+the whole queue is formatted into a timestamped HTML dump file in the configured log directory.
+The filename also contains a hash derived from the first entry which matched the configured threshold;
+this hash can often be used to find identical or similar errors.
 
-Of course, if you want a specific task logged *always*, you can do so: just call
-`logger.markForWriting()` sometime between creating it and calling `logger.flush()`.
-Conversely, if your code can determine that a particular task doesn't need to be logged
-no matter how much things went wrong you can call `logger.markAsIgnored()`.
+### What's with those static `.create()` factories?
 
-The format of the name of the files written in the log directory is `{timestamp}--{id}.html`.
-`{timestamp}` is `YYYY-MM-DD-HH-II-SS` in UTC; `{id}` here represents an identifier
-of the logger instance. By default, this identifier is generated from the log entry
-which caused the logger to be marked for writing; in some scenarios you may want to set it
-yourself, which you can do by means of `logger.setId()`.
+The idea here is that we want Debugr to be compatible with any dependency injection / inversion of control
+implementation that you like, while still being relatively easy to configure even without autowiring
+and other niceties that dependency injection usually brings. So when you're configuring Debugr manually,
+these factories should be easier to use than regular constructors, because they'll do some basic things
+for you. But the constructors are still very much there should you wish to go fancy.
 
-Last but not least, if you should neglect to call `logger.flush()` at the end of your task,
-Debugr will eventually realise something is amiss and flush the logger automatically,
-provided the Node.js process didn't yet exit. This is called garbage collection and is,
-of course, configurable.
+### Context
 
-Outside forked jobs all messages which exceed the threshold are logged to the console
-immediately; there is no need to call `logger.flush()`.
+There are two types of _context objects_ in Debugr: the global context object you pass as the first
+argument to `Debugr.create()` (or `new Debugr()`, as the case may be); and the task-specific context
+which gets created automatically when each task is started. The context objects are available to log
+handlers as part of each log entry; the log handlers can choose to use the data in those objects
+any way they want. Currently, the only handler which makes use of the context data is the Elastic handler,
+which includes both context objects in each entry it sends to Elastic. The intended use for this is to
+e.g. include the worker process ID, hostname and similar metadata valid for the entire lifetime of
+the process in the global context and basic request metadata / cron job name etc. in the task context,
+so that you have.. well.. _context_ when looking at log entries in Elastic.
 
 ### `Logger` API
 
-The `Logger` instance obtained from `debug.createLogger()` has the following methods:
+The `Logger` instance obtained from `debug.logger` has the following methods:
 
  - `log(level: number, data: Record<string, any> | Error): void`  
    `log(level: number, message: string | [string, ...any], data?: Record<string, any>): void`  
    `log(level: number, message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    This method pushes an arbitrary entry onto the logger's queue. There are six default
-   log levels: `LogLevel.TRACE`, `LogLevel.DEBUG`, `LogLevel.INFO`, `LogLevel.WARNING`, `LogLevel.ERROR` and `LogLevel.FATAL`. Later
-   you'll learn how you can use your own arbitrary log levels.
+   log levels: `LogLevel.TRACE`, `LogLevel.DEBUG`, `LogLevel.INFO`, `LogLevel.WARNING`, `LogLevel.ERROR`
+   and `LogLevel.FATAL`. Later you'll learn how you can use your own arbitrary log levels.
 
-   The `message` string can contain `printf`-style placeholders like `%s`, `%.3f` etc.
-   These will be processed only if `message` is type `[string, ...any]`. Internally this uses [`printj`],
-   so see its documentation to check what is possible.
+   The `message` can either be just a string, or a `[string, ...any]` tuple; the latter is processed
+   as a `printf`-style format string using the rest of the tuple as parameters. Internally this is
+   facilitated by [`printj`], so take a look at their documentation to see what's possible.
 
    The `data` argument can contain any arbitrary data you wish to include in your dump.
 
  - `trace(data: Record<string, any> | Error): void`  
-   `trace(message: string, data?: Record<string, any> | Error): void`  
+   `trace(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
    `trace(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.TRACE, ...)`.
 
  - `debug(data: Record<string, any> | Error): void`  
-   `debug(message: string, data?: Record<string, any> | Error): void`  
+   `debug(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
    `debug(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.DEBUG, ...)`.
 
  - `info(data: Record<string, any> | Error): void`  
-   `info(message: string, data?: Record<string, any> | Error): void`  
-   `info(message: string, error: Error, additionalData?: Record<string, any>): void`
+   `info(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+   `info(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.INFO, ...)`.
 
  - `warning(data: Record<string, any> | Error): void`  
-   `warning(message: string, data?: Record<string, any> | Error): void`  
-   `warning(message: string,, error: Error, additionalData?: Record<string, any>): void`
+   `warning(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+   `warning(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.WARNING, ...)`.
 
  - `error(data: Record<string, any> | Error): void`  
-   `error(message: string, data?: Record<string, any> | Error): void`  
-   `error(message: string, error: Error, additionalData?: Record<string, any>): void`
+   `error(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+   `error(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
    Shortcut for `logger.log(Logger.ERROR, ...)`.
 
  - `fatal(data: Record<string, any> | Error): void`  
-   `fatal(message: string, data?: Record<string, any> | Error): void`  
+   `fatal(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
    `fatal(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
 
    Shortcut for `logger.log(Logger.FATAL, ...)`.
 
  - `setContextProperty<T extends keyof TTaskContext>(key: T, value: NonNullable<TTaskContext>[T]): Logger<TTaskContext, TGlobalContext>`
 
-   Sets the property to log context which is added to every entry.
-
- - `flush(): void`
-
-   calls flush method of all logHandlers which has it implemented. For example it writes all data to disk with HtmlHandler
+   Sets a property on the current task context, if one exists.
 
 ## Development
 
@@ -232,13 +213,14 @@ published to NPM.
 
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
-[`@debugr/express`]: ./packages/express
+[`@debugr/console-handler`]: ./packages/console-handler
+[`@debugr/elastic-handler`]: ./packages/elastic-handler
+[`@debugr/html-handler`]: ./packages/html-handler
+[`@debugr/slack-handler`]: ./packages/slack-handler
 [`@debugr/apollo`]: ./packages/apollo
-[`@debugr/typeorm`]: ./packages/typeorm
-[`@debugr/http-formatter`]: ./packages/http-formatter
-[`@debugr/sql-formatter`]: ./packages/sql-formatter
-[`@debugr/graphql-formatter`]: ./packages/graphql-formatter
-[`@debugr/log-handler`]: ./packages/log-handler
+[`@debugr/express`]: ./packages/express
+[`@debugr/insaner`]: ./packages/insaner
+[`@debugr/mikroorm`]: ./packages/mikroorm
 [an example dump file]: ./example.png
 [Async Hooks]: https://nodejs.org/api/async_hooks.html
 [`printj`]: https://www.npmjs.com/package/printj

@@ -1,12 +1,7 @@
-import {
-  cleanUpStackTrace,
-  LogEntry,
-  ReadonlyRecursive,
-  TContextBase,
-  TContextShape,
-} from '@debugr/core';
+import type { LogEntry, ReadonlyRecursive, TContextBase, TContextShape } from '@debugr/core';
+import { cleanUpStackTrace } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
-import { HtmlFormatterPlugin } from './types';
+import type { HtmlFormatterPlugin } from './types';
 
 export abstract class AbstractHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
@@ -17,7 +12,7 @@ export abstract class AbstractHtmlFormatter<
 
   abstract readonly entryFormat: string;
 
-  readonly targetHandler: 'html' = 'html';
+  readonly targetHandler = 'html' as const;
 
   protected readonly separator: string = '\n            ';
 

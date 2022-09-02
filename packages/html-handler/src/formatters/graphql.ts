@@ -1,4 +1,5 @@
-import { formatData, isEmpty, TContextBase, TContextShape } from '@debugr/core';
+import type { TContextBase, TContextShape } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
 import { getGraphQLOperation,GraphQlLogEntry } from '@debugr/graphql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';

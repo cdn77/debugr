@@ -1,7 +1,8 @@
-import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
-import { GraphQlLogEntry } from '@debugr/graphql-common';
-import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { FullOptions, Options } from './types';
+import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { LogLevel } from '@debugr/core';
+import type { GraphQlLogEntry } from '@debugr/graphql-common';
+import type { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
+import type { FullOptions, Options } from './types';
 
 export class ApolloPlugin<
   TTaskContext extends TContextBase = TContextBase,
@@ -10,7 +11,7 @@ export class ApolloPlugin<
 {
   readonly id: string = 'apollo';
 
-  readonly entryFormat: 'graphql' = 'graphql';
+  readonly entryFormat = 'graphql' as const;
 
   private readonly options: FullOptions;
 

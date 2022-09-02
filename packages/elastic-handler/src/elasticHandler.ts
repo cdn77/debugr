@@ -1,33 +1,15 @@
-import {
-  clone,
+import type {
   LogEntry,
   LogLevel,
   ReadonlyRecursive,
-  TaskAwareLogHandler,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { Client, ClientOptions } from '@elastic/elasticsearch';
+import { clone, TaskAwareLogHandler } from '@debugr/core';
+import { Client } from '@elastic/elasticsearch';
 import { AsyncLocalStorage } from 'async_hooks';
 import { v4 } from 'uuid';
-
-export interface ElasticHandlerOptions<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = TContextShape,
-> {
-  threshold: LogLevel | number;
-  index: string | ((entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>) => string);
-  errorCallback?: (error: Error) => void;
-  bodyMapper?: (
-    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-  ) => Record<string, any>;
-  errorMsThreshold?: number;
-}
-
-export type ElasticOptions<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = TContextShape,
-> = ClientOptions & ElasticHandlerOptions<TTaskContext, TGlobalContext>;
+import { ElasticHandlerOptions, ElasticOptions } from './types';
 
 export class ElasticHandler<
   TTaskContext extends TContextBase,

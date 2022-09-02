@@ -1,5 +1,5 @@
 import { PluginManager } from '../plugins';
-import { LogEntry, LogLevel, ReadonlyRecursive, TContextBase, TContextShape } from './types';
+import type { LogEntry, LogLevel, ReadonlyRecursive, TContextBase, TContextShape } from './types';
 
 export abstract class LogHandler<
   TTaskContext extends TContextBase = TContextBase,

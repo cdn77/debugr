@@ -1,6 +1,6 @@
 import { LogLevel } from '@debugr/core';
 import { normalizeCaptureOption, normalizeHeaderPattern } from '@debugr/http-common';
-import { NormalizedOptions, Options } from './types';
+import type { NormalizedOptions, Options } from './types';
 
 export function normalizeOptions(options?: Options): NormalizedOptions {
   return {

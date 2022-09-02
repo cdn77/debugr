@@ -1,11 +1,10 @@
-import {
-  formatData,
-  isEmpty,
+import type {
   LogEntry,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
 import { dim } from 'ansi-colors';
 import { AbstractConsoleFormatter } from './abstract';
 

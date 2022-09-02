@@ -1,15 +1,19 @@
-import {
+import type {
   ImmutableDate,
-  levelToValue,
   LogEntry,
-  normalizeMap,
   PluginManager,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
+import {
+  levelToValue,
+  normalizeMap,
+} from '@debugr/core';
 import { dim, unstyle } from 'ansi-colors';
-import { ConsoleFormatterPlugin, DefaultConsoleFormatter } from './formatters';
-import { ConsoleColor, defaultColorMap, defaultLevelMap } from './maps';
+import type { ConsoleFormatterPlugin } from './formatters';
+import { DefaultConsoleFormatter } from './formatters';
+import type { ConsoleColor } from './maps';
+import { defaultColorMap, defaultLevelMap } from './maps';
 import { getFormatters } from './utils';
 
 export class ConsoleFormatter<

@@ -1,5 +1,6 @@
-import { formatData, isEmpty,TContextBase, TContextShape } from '@debugr/core';
-import { GraphQlLogEntry } from '@debugr/graphql-common';
+import type { TContextBase, TContextShape } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
+import type { GraphQlLogEntry } from '@debugr/graphql-common';
 import { AbstractConsoleFormatter } from './abstract';
 
 export class GraphQLConsoleFormatter<

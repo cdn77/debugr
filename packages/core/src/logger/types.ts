@@ -1,4 +1,4 @@
-import { PluginId } from '../plugins';
+import type { PluginId } from '../plugins';
 
 export enum LogLevel {
   TRACE = 10,

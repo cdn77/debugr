@@ -1,13 +1,14 @@
-import { Logger, LogLevel, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import { LogLevel } from '@debugr/core';
+import type { HttpLogEntry } from '@debugr/http-common';
 import {
   filterHeaders,
-  HttpLogEntry,
   isCaptureEnabled,
   normalizeContentLength,
   normalizeContentType,
 } from '@debugr/http-common';
 import type { ErrorRequestHandler, Handler, Request, Response } from 'express';
-import { NormalizedOptions, Options, ResponseInfo } from './types';
+import type { NormalizedOptions, Options, ResponseInfo } from './types';
 import { normalizeOptions } from './utils';
 
 export class ExpressPlugin<
@@ -17,7 +18,7 @@ export class ExpressPlugin<
 {
   public readonly id: string = 'express';
 
-  public readonly entryFormat: 'http' = 'http';
+  public readonly entryFormat = 'http' as const;
 
   private readonly options: NormalizedOptions;
 

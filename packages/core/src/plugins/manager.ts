@@ -1,5 +1,5 @@
-import { Logger, TContextBase, TContextShape } from '../logger';
-import { Plugin, PluginId, Plugins } from './types';
+import type { Logger, TContextBase, TContextShape } from '../logger';
+import type { Plugin, PluginId, Plugins } from './types';
 
 export class PluginManager<
   TTaskContext extends TContextBase = TContextBase,

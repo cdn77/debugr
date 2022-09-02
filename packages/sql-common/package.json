@@ -24,7 +24,9 @@
   "types": "dist/index.d.ts",
   "build": {
     "src": "src/index.ts",
-    "externals": []
+    "externals": [
+      "@sqltools/formatter"
+    ]
   },
   "files": [
     "dist"

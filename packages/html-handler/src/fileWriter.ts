@@ -1,7 +1,7 @@
-import { ImmutableDate } from '@debugr/core';
+import type { ImmutableDate } from '@debugr/core';
 import { mkdir, writeFile } from 'fs/promises';
 import { dirname, join } from 'path';
-import { HtmlWriter } from './types';
+import type { HtmlWriter } from './types';
 
 export class HtmlFileWriter implements HtmlWriter {
   private readonly outputDir: string;

@@ -1,6 +1,6 @@
-import { PluginManager, TContextBase, TContextShape } from '@debugr/core';
+import type { PluginManager, TContextBase, TContextShape } from '@debugr/core';
+import type { ConsoleFormatterPlugin } from './formatters';
 import {
-  ConsoleFormatterPlugin,
   GraphQLConsoleFormatter,
   HttpConsoleFormatter,
   isConsoleFormatter,

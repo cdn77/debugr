@@ -16,8 +16,6 @@
     "@debugr/graphql-common": "3.0.0-rc.1",
     "@debugr/sql-common": "3.0.0-rc.1"
   },
-  "devDependencies": {
-  },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -26,9 +24,8 @@
     "externals": [
       "async_hooks",
       "crypto",
-      "fs",
-      "path",
-      "util"
+      "fs/promises",
+      "path"
     ]
   },
   "files": [

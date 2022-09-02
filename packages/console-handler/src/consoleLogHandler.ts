@@ -1,14 +1,13 @@
-import {
+import type {
   LogEntry,
-  LogHandler,
-  LogLevel,
   PluginManager,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
+import { LogHandler, LogLevel } from '@debugr/core';
 import { ConsoleFormatter } from './consoleFormatter';
-import { ConsoleLogHandlerOptions } from './types';
+import type { ConsoleLogHandlerOptions } from './types';
 
 export class ConsoleLogHandler<
   TTaskContext extends TContextBase = TContextBase,

@@ -1,14 +1,15 @@
-import {
+import type {
   ImmutableDate,
   LogEntry,
-  normalizeMap,
   PluginManager,
   ReadonlyRecursive,
   SmartMap,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { DefaultHtmlFormatter, HtmlFormatterPlugin } from './formatters';
+import { normalizeMap } from '@debugr/core';
+import type { HtmlFormatterPlugin } from './formatters';
+import { DefaultHtmlFormatter } from './formatters';
 import {
   defaultColorMap,
   defaultLevelMap,
@@ -16,8 +17,9 @@ import {
   LayoutTemplate,
   TaskRenderer,
 } from './templates';
-import { isTaskBoundary, TaskBoundary, TaskData, TaskLogEntry } from './types';
-import { findDefiningEntry, getFormatters,getTaskLogInfo } from './utils';
+import type { TaskBoundary, TaskData, TaskLogEntry } from './types';
+import { isTaskBoundary } from './types';
+import { findDefiningEntry, getFormatters, getTaskLogInfo } from './utils';
 
 export class HtmlRenderer<
   TTaskContext extends TContextBase = TContextBase,
