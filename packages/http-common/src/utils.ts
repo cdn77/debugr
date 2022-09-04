@@ -1,4 +1,4 @@
-import { CaptureBodyOption, HttpHeaders, NormalizedCaptureBodyOption } from './types';
+import type { CaptureBodyOption, HttpHeaders, NormalizedCaptureBodyOption } from './types';
 
 const httpStatusMap: Record<number, string> = {
   100: 'Continue',

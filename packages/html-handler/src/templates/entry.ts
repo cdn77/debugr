@@ -1,4 +1,5 @@
-import { ImmutableDate, levelToValue, pad, pad3 } from '@debugr/core';
+import type { ImmutableDate } from '@debugr/core';
+import { levelToValue, pad, pad3 } from '@debugr/core';
 import { escapeHtml } from './utils';
 
 export class EntryTemplate {

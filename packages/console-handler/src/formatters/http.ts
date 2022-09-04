@@ -1,10 +1,11 @@
-import { formatBytes,TContextBase, TContextShape } from '@debugr/core';
-import {
-  formatHttpHeaders,
+import type { TContextBase, TContextShape } from '@debugr/core';
+import { formatBytes } from '@debugr/core';
+import type {
   HttpLogEntry,
   HttpRequestData,
   HttpResponseData,
 } from '@debugr/http-common';
+import { formatHttpHeaders } from '@debugr/http-common';
 import { dim, yellow } from 'ansi-colors';
 import { AbstractConsoleFormatter } from './abstract';
 

@@ -1,28 +1,12 @@
-import {
+import type {
   LogEntry,
-  LogHandler,
-  LogLevel,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
+import { LogHandler } from '@debugr/core';
 import fetch from 'node-fetch';
-
-export interface SlackHandlerOptions<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = TContextShape,
-> {
-  webhookUrl: string;
-  threshold: LogLevel | number;
-  channel?: string;
-  username?: string;
-  iconUrl?: string;
-  iconEmoji?: string;
-  errorCallback?: (error: Error) => void;
-  bodyMapper?: (
-    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-  ) => Record<string, any>;
-}
+import { SlackHandlerOptions } from './types';
 
 export class SlackHandler<
   TTaskContext extends TContextBase,

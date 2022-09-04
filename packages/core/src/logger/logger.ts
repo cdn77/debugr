@@ -3,8 +3,10 @@ import { sprintf } from 'printj';
 import { v4 } from 'uuid';
 import { PluginManager } from '../plugins';
 import { clone, SmartMap, wrapPossiblePromise } from '../utils';
-import { isTaskAwareLogHandler, LogHandler } from './handler';
-import { LogEntry, LogLevel, TContextBase, TContextShape } from './types';
+import type { LogHandler } from './handler';
+import { isTaskAwareLogHandler } from './handler';
+import type { LogEntry, TContextBase, TContextShape } from './types';
+import { LogLevel } from './types';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextBase,
@@ -124,7 +126,7 @@ export class Logger<
 
     if (typeof messageOrDataOrError === 'string' || Array.isArray(messageOrDataOrError)) {
       if (Array.isArray(messageOrDataOrError) && messageOrDataOrError.length > 0) {
-        message = sprintf(...messageOrDataOrError);
+        message = sprintf(...(messageOrDataOrError as [string, ...any[]]));
       } else if (typeof messageOrDataOrError === 'string') {
         message = messageOrDataOrError;
       }

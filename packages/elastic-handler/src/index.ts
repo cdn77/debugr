@@ -1,1 +1,2 @@
-export { ElasticHandler, ElasticOptions, ElasticHandlerOptions } from './elasticHandler';
+export * from './elasticHandler';
+export * from './types';

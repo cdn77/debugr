@@ -1,4 +1,4 @@
-import { LogEntry, TContextBase, TContextShape } from '@debugr/core';
+import type { LogEntry, TContextBase, TContextShape } from '@debugr/core';
 
 export interface HttpHeaders {
   [header: string]: number | string | string[] | undefined;

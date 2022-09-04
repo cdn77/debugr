@@ -1,7 +1,7 @@
-import { InsanerPlugin } from './insaner';
-import { Options } from './types';
+import type { InsanerPlugin } from './insaner';
 
-export { InsanerPlugin, Options };
+export * from './insaner';
+export * from './types';
 
 declare module '@debugr/core' {
   export interface Plugins<

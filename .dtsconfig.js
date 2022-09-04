@@ -14,7 +14,6 @@ const importedLibraries = [
   '@debugr/mikroorm',
   '@debugr/slack-handler',
   '@debugr/sql-common',
-  '@debugr/typeorm',
 ];
 
 if (pkg.build.externals) {

@@ -1,5 +1,5 @@
 import { ApolloPlugin } from './apollo';
-import { Options } from './types';
+import type { Options } from './types';
 
 export { ApolloPlugin, Options };
 

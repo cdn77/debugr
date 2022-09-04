@@ -1,12 +1,12 @@
-import {
-  cleanUpStackTrace,
+import type {
   LogEntry,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
+import { cleanUpStackTrace } from '@debugr/core';
 import { dim, red } from 'ansi-colors';
-import { ConsoleFormatterPlugin } from './types';
+import type { ConsoleFormatterPlugin } from './types';
 
 export abstract class AbstractConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
@@ -17,7 +17,7 @@ export abstract class AbstractConsoleFormatter<
 
   abstract readonly entryFormat: string;
 
-  readonly targetHandler: 'console' = 'console';
+  readonly targetHandler = 'console' as const;
 
   injectLogger() {}
 

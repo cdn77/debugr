@@ -1,1 +1,2 @@
-export { SlackHandler, SlackHandlerOptions } from './slackHandler';
+export * from './slackHandler';
+export * from './types';

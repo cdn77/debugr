@@ -1,7 +1,7 @@
-import { ExpressPlugin } from './express';
-import { Options } from './types';
+import type { ExpressPlugin } from './express';
 
-export { ExpressPlugin, Options };
+export * from './express';
+export { Options } from './types';
 
 declare module '@debugr/core' {
   export interface Plugins<

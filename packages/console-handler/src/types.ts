@@ -1,5 +1,5 @@
-import { LogLevel } from '@debugr/core';
-import { ConsoleColor } from './maps';
+import type { LogLevel } from '@debugr/core';
+import type { ConsoleColor } from './maps';
 
 export type ConsoleLogHandlerOptions = {
   threshold?: LogLevel | number;

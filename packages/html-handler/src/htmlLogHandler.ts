@@ -1,18 +1,20 @@
-import {
+import type {
   LogEntry,
-  LogLevel,
   PluginManager,
   ReadonlyRecursive,
-  SmartMap,
-  TaskAwareLogHandler,
   TContextBase,
   TContextShape,
+} from '@debugr/core';
+import {
+  LogLevel,
+  SmartMap,
+  TaskAwareLogHandler,
   wrapPossiblePromise,
 } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
 import { HtmlFileWriter } from './fileWriter';
 import { HtmlRenderer } from './htmlRenderer';
-import { HtmlLogHandlerOptions, HtmlWriter,TaskData } from './types';
+import type { HtmlLogHandlerOptions, HtmlWriter, TaskData } from './types';
 import { computeTaskHash } from './utils';
 
 export class HtmlLogHandler<
