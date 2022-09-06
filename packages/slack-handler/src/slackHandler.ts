@@ -1,12 +1,7 @@
-import type {
-  LogEntry,
-  ReadonlyRecursive,
-  TContextBase,
-  TContextShape,
-} from '@debugr/core';
-import { LogHandler } from '@debugr/core';
+import type { LogEntry, ReadonlyRecursive, TContextBase, TContextShape } from '@debugr/core';
+import { LogHandler, LogLevel } from '@debugr/core';
 import fetch from 'node-fetch';
-import { SlackHandlerOptions } from './types';
+import type { SlackHandlerOptions } from './types';
 
 export class SlackHandler<
   TTaskContext extends TContextBase,
@@ -16,40 +11,46 @@ export class SlackHandler<
 
   public readonly doesNeedFormatters: boolean = false;
 
-  private readonly opts: SlackHandlerOptions<TTaskContext, TGlobalContext>;
+  public readonly threshold: LogLevel | number;
 
-  constructor(opts: SlackHandlerOptions<TTaskContext, TGlobalContext>) {
+  private readonly options: SlackHandlerOptions<TTaskContext, TGlobalContext>;
+
+  constructor(options: SlackHandlerOptions<TTaskContext, TGlobalContext>) {
     super();
-    this.opts = opts;
+    this.options = options;
+    this.threshold = options.threshold ?? LogLevel.ERROR;
   }
 
   public injectPluginManager(): void {}
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    opts: SlackHandlerOptions<TTaskContext, TGlobalContext>,
+    options: SlackHandlerOptions<TTaskContext, TGlobalContext>,
   ): SlackHandler<TTaskContext, TGlobalContext> {
-    return new SlackHandler<TTaskContext, TGlobalContext>(opts);
+    return new SlackHandler<TTaskContext, TGlobalContext>(options);
   }
 
   public async log(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
-    const body = this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyParser(entry);
+    const body = this.options.bodyMapper
+      ? this.options.bodyMapper(entry)
+      : this.defaultBodyMapper(entry);
+
     try {
-      await fetch(this.opts.webhookUrl, {
+      await fetch(this.options.webhookUrl, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          channel: this.opts.channel,
-          username: this.opts.username,
-          icon_url: this.opts.iconUrl,
-          icon_emoji: this.opts.iconEmoji,
+          channel: this.options.channel,
+          username: this.options.username,
+          icon_url: this.options.iconUrl,
+          icon_emoji: this.options.iconEmoji,
           ...body,
         }),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'post',
       });
     } catch (error) {
-      if (this.opts.errorCallback) {
-        this.opts.errorCallback(error);
+      if (this.options.errorCallback) {
+        this.options.errorCallback(error);
       } else {
         this.defaultErrorCallback(error);
       }
@@ -60,17 +61,19 @@ export class SlackHandler<
     console.log('SLACK CONNECTION ERROR HAPPENED', error);
   }
 
-  private defaultBodyParser(
+  private defaultBodyMapper(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Record<string, any> {
     return {
-      text: `
-:warning: *Alert* :warning:
+      text: `:warning: *Alert* :warning:
 
 >>>*Alert message:* ${entry.message}
 
-*Full error:* \n \`\`\`${JSON.stringify(entry)}\`\`\`\n
-  `,
+*Full error:*
+\`\`\`
+${JSON.stringify(entry, null, 2)}
+\`\`\`
+`,
     };
   }
 }

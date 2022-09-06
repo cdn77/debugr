@@ -85,7 +85,7 @@ export class HtmlRenderer<
 
     for (const [entry, task] of entries) {
       if (isTaskBoundary(entry)) {
-        const prev = previous.get(entry.type === 'task:start' ? task.parent ?? -1 : task.index);
+        const prev = previous.get(entry.type === 'task:start' ? task.parent?.index ?? -1 : task.index);
         const boundary = this.renderTaskBoundary(entry, task, taskRenderer, prev);
         boundary && chunks.push(boundary);
       } else {
@@ -124,8 +124,8 @@ export class HtmlRenderer<
 
     const content =
       boundary.type === 'task:start'
-        ? renderer.renderTaskStart(task.index, task.parent)
-        : renderer.renderTaskEnd(task.index, task.parent);
+        ? renderer.renderTaskStart(task.index, task.parent?.index)
+        : renderer.renderTaskEnd(task.index, task.parent?.index);
 
     if (!content) {
       return undefined;

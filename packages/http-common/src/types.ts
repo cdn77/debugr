@@ -33,5 +33,9 @@ export interface HttpLogEntry<
   data: HttpRequestData | HttpResponseData;
 }
 
-export type CaptureBodyOption = boolean | number | string | string[] | Record<string, number>;
-export type NormalizedCaptureBodyOption = boolean | number | RegExp | Map<RegExp, number>;
+export type HeaderFilter = (headers: HttpHeaders) => HttpHeaders;
+export type CaptureBodyOption = boolean | number | string | string[] | Record<string, boolean | number>;
+export type CaptureBodyChecker = (
+  rawContentType?: number | string | string[],
+  rawContentLength?: number | string | string[],
+) => boolean;

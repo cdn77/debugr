@@ -1,6 +1,6 @@
 {
   "name": "@debugr/http-common",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0-rc.3",
   "description": "Common interfaces and utility functions for HTTP plugins",
   "author": {
     "name": "Dan Kadera",

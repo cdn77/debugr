@@ -19,7 +19,8 @@ export class ApolloPlugin<
 
   constructor(options?: Options) {
     this.options = {
-      level: options?.level || LogLevel.INFO,
+      level: options?.level ?? LogLevel.INFO,
+      forceSubtask: options?.forceSubtask ?? false,
     };
   }
 
@@ -35,7 +36,7 @@ export class ApolloPlugin<
 
   public getApolloMiddleware() {
     return async (resolve: any): Promise<any> => {
-      return this.logger.runTask(resolve, true);
+      return this.logger.runTask(resolve, !this.options.forceSubtask);
     };
   }
 

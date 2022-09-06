@@ -11,12 +11,12 @@ export interface ElasticHandlerOptions<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
   > {
-  threshold: LogLevel | number;
   index: string | ((entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>) => string);
-  errorCallback?: (error: Error) => void;
+  threshold?: LogLevel | number;
   bodyMapper?: (
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ) => Record<string, any>;
+  errorCallback?: (error: Error) => void;
   errorMsThreshold?: number;
 }
 

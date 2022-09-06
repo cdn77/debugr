@@ -9,9 +9,9 @@ import type {
 } from '@debugr/core';
 
 export type HtmlLogHandlerOptions = {
+  outputDir: string;
   threshold?: LogLevel | number;
   cloneData?: boolean;
-  outputDir: string;
   levelMap?: Record<number, string>;
   colorMap?: Record<number, string>;
 };
@@ -40,7 +40,6 @@ export type TaskLog<
     TaskData<TTaskContext, TGlobalContext>
   >;
   tasks: number;
-  write?: boolean;
 };
 
 export type TaskLogInfo = {
@@ -53,10 +52,11 @@ export type TaskData<
   TGlobalContext extends TContextShape = TContextShape,
 > = {
   index: number;
-  parent?: number;
+  parent?: TaskData<TTaskContext, TGlobalContext>;
   log: TaskLog<TTaskContext, TGlobalContext>;
-  threshold?: number;
+  threshold: number;
   firstOverThreshold?: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>;
+  write?: boolean;
   ts: ImmutableDate;
   lastTs: ImmutableDate;
 };

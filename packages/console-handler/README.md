@@ -1,5 +1,5 @@
 Console Log Handler for Debugr
-=========================
+==============================
 
 This LogHandler adds logging to console.
 
@@ -11,41 +11,36 @@ npm install --save @debugr/console-handler
 
 ## Usage
 
-With standalone Apollo Server:
-
 ```typescript
-import { ApolloLogger } from '@debugr/apollo';
-import { ApolloServer } from 'apollo-server';
-import { 
-  Logger, 
-  Debugr, 
-  LogLevel,
-} from '@debugr/core';
+import { Debugr, LogLevel } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
-import { GraphQLConsoleFormatter } from '@debugr/graphql-console-formatter';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-// There are all dependent formatters checked and validated.
 const debugr = Debugr.create(globalContext, 
   [
-    ConsoleLogHandler.create(
-      LogLevel.info,
-    ),
-  ],
-  [
-    ApolloLogger.create(),
-    // Need to add formatter between ApolloLogger and ConsoleLogHandler
-    GraphQLConsoleFormatter.create(),
+    ConsoleLogHandler.create(),
   ],
 );
 
-const server = new ApolloServer({
-  // typeDefs, resolvers, ...
-  plugins: [
-    debugr.getPlugin('apollo'),
-  ],
-});
+debugr.logger.info('Application started.');
+
+// will output something like:
+// [info] Application started.
 ```
+
+### Options
+
+The `ConsoleLogHandler.create()` factory, as well as the `ConsoleLogHandler()` constructor,
+accept an optional `options` object with the following keys as the first argument:
+
+| Option           | Type                                    | Default         | Description                                                                                     |
+|------------------|-----------------------------------------|-----------------|-------------------------------------------------------------------------------------------------|
+| `threshold`      | `LogLevel`, `number`                    | `LogLevel.INFO` | The lowest level of entries which will be logged. Any entries below this level will be ignored. |
+| `levelMap`       | `Record<number, string>`                |                 | A map of custom log levels to their string representation.                                      |
+| `colorMap`       | `Record<number, (v: string) => string>` |                 | A map of custom log levels to callbacks applying ANSI colors. See [`ansi-colors`].              |
+| `writeTimestamp` | `boolean`                               | `false`         | Prefixes the first line of each entry with the entry timestamp.                                 |
+
+[`ansi-colors`]: https://www.npmjs.com/package/ansi-colors

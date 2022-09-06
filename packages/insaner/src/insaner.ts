@@ -1,6 +1,6 @@
 import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
-import { filterHeaders, HttpLogEntry } from '@debugr/http-common';
+import type { HttpLogEntry } from '@debugr/http-common';
 import type { HttpRequest, HttpResponse, HttpServer, MiddlewareNext } from 'insaner';
 import { HttpForcedResponse } from 'insaner';
 import type { NormalizedOptions, Options } from './types';
@@ -55,7 +55,7 @@ export class InsanerPlugin<
           type: 'request',
           method: request.method,
           uri: request.url.toString(),
-          headers: filterHeaders(request.headers, this.options.request.excludeHeaders),
+          headers: this.options.request.filterHeaders(request.headers),
         },
       });
     };
@@ -80,7 +80,7 @@ export class InsanerPlugin<
         data: {
           type: 'response',
           status: response.status,
-          headers: filterHeaders(response.headers, this.options.response.excludeHeaders),
+          headers: this.options.response.filterHeaders(response.headers),
         },
       });
     };

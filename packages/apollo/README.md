@@ -14,27 +14,23 @@ npm install --save @debugr/apollo
 Standalone Apollo Server:
 
 ```typescript
-import { ApolloLogger } from '@debugr/apollo';
 import { ApolloServer } from 'apollo-server';
 import { Debugr, LogLevel } from '@debugr/core';
+import { ApolloLogger } from '@debugr/apollo';
 import { ConsoleLogHandler } from '@debugr/console-handler';
-import { GraphQLConsoleFormatter } from '@debugr/graphql-console-formatter';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-// There are all dependent formatters checked and validated.
 const debugr = Debugr.create(globalContext, 
   [
     ConsoleLogHandler.create(
-      LogLevel.info,
+      LogLevel.INFO,
     ),
   ],
   [
     ApolloLogger.create(),
-    // Need to add formatter between ApolloLogger and ConsoleLogHandler
-    GraphQLConsoleFormatter.create(),
   ],
 );
 
@@ -49,36 +45,26 @@ const server = new ApolloServer({
 With Express integration and plugin:
 
 ```typescript
-import { ExpressLogger } from '@debugr/express';
 import { ApolloServer } from 'apollo-server-express';
 import * as express from 'express';
-import { 
-  Logger, 
-  Debugr, 
-  LogLevel,
-} from '@debugr/core';
+import { Debugr, LogLevel } from '@debugr/core';
+import { ExpressLogger } from '@debugr/express';
+import { ApolloLogger } from '@debugr/apollo';
 import { ConsoleLogHandler } from '@debugr/console-handler';
-import { GraphQLConsoleFormatter } from '@debugr/graphql-console-formatter';
-import { HttpConsoleFormatter } from '@debugr/http-console-formatter';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-// There are all dependent formatters checked and validated.
 const debugr = Debugr.create(globalContext, 
   [
-    ConsoleLogHandler.create(
-      LogLevel.info,
-    ),
+    ConsoleLogHandler.create({
+      threshold: LogLevel.INFO,
+    }),
   ],
   [
-    ApolloLogger.create(),
     ExpressLogger.create(),
-    // Need to add formatter between ApolloLogger and ConsoleLogHandler
-    GraphQLConsoleFormatter.create(),
-    // Need to add formatter between ExpressLogger and ConsoleLogHandler
-    HttpConsoleFormatter.create(),
+    ApolloLogger.create(),
   ],
 );
 
@@ -99,3 +85,13 @@ app.use(debugr.getPlugin('express').createErrorHandler());
 
 app.listen(8000);
 ```
+
+### Options
+
+The `ApolloLogger.create()` factory, as well as the `ApolloLogger()` constructor,
+accept an optional `options` object with the following keys as the first argument:
+
+| Option         | Type                 | Default         | Description                                                                                                          |
+|----------------|----------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| `level`        | `LogLevel`, `number` | `LogLevel.INFO` | The level at which GraphQL requests are logged.                                                                      |
+| `forceSubtask` | `boolean`            | `false`         | Whether a subtask should be always started. By default, a subtask is only started if another task doesn't exist yet. |

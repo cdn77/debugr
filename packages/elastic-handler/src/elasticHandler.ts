@@ -1,15 +1,14 @@
 import type {
   LogEntry,
-  LogLevel,
   ReadonlyRecursive,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { clone, TaskAwareLogHandler } from '@debugr/core';
+import { clone, LogLevel, TaskAwareLogHandler } from '@debugr/core';
 import { Client } from '@elastic/elasticsearch';
 import { AsyncLocalStorage } from 'async_hooks';
 import { v4 } from 'uuid';
-import { ElasticHandlerOptions, ElasticOptions } from './types';
+import type { ElasticHandlerOptions, ElasticOptions } from './types';
 
 export class ElasticHandler<
   TTaskContext extends TContextBase,
@@ -23,16 +22,16 @@ export class ElasticHandler<
 
   private readonly elasticClient: Client;
 
-  private readonly opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
+  private readonly options: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
 
   private readonly asyncStorage: AsyncLocalStorage<string[]>;
 
   private lastError?: Date;
 
-  constructor(opts: ElasticHandlerOptions<TTaskContext, TGlobalContext>, elasticClient: Client) {
+  constructor(options: ElasticHandlerOptions<TTaskContext, TGlobalContext>, elasticClient: Client) {
     super();
-    this.threshold = opts.threshold;
-    this.opts = opts;
+    this.threshold = options.threshold ?? LogLevel.TRACE;
+    this.options = options;
     this.elasticClient = elasticClient;
   }
 
@@ -52,9 +51,9 @@ export class ElasticHandler<
   }
 
   public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    opts: ElasticOptions<TTaskContext, TGlobalContext>,
+    options: ElasticOptions<TTaskContext, TGlobalContext>,
   ): ElasticHandler<TTaskContext, TGlobalContext> {
-    return new ElasticHandler<TTaskContext, TGlobalContext>(opts, new Client(opts));
+    return new ElasticHandler<TTaskContext, TGlobalContext>(options, new Client(options));
   }
 
   public async log(
@@ -62,24 +61,24 @@ export class ElasticHandler<
   ): Promise<void> {
     try {
       await this.elasticClient.index({
-        index: typeof this.opts.index === 'string' ? this.opts.index : this.opts.index(entry),
-        body: this.opts.bodyMapper ? this.opts.bodyMapper(entry) : this.defaultBodyMapper(entry),
+        index: typeof this.options.index === 'string' ? this.options.index : this.options.index(entry),
+        body: this.options.bodyMapper ? this.options.bodyMapper(entry) : this.defaultBodyMapper(entry),
       });
     } catch (error) {
-      if (this.opts.errorMsThreshold) {
+      if (this.options.errorMsThreshold) {
         if (
           !this.lastError ||
-          this.lastError.getTime() - new Date().getTime() > this.opts.errorMsThreshold
+          this.lastError.getTime() - new Date().getTime() > this.options.errorMsThreshold
         ) {
-          if (this.opts.errorCallback) {
-            this.opts.errorCallback(error);
+          if (this.options.errorCallback) {
+            this.options.errorCallback(error);
           } else {
             console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
             this.lastError = new Date();
           }
         }
-      } else if (this.opts.errorCallback) {
-        this.opts.errorCallback(error);
+      } else if (this.options.errorCallback) {
+        this.options.errorCallback(error);
       } else {
         console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
       }
