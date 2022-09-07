@@ -7,19 +7,14 @@ import type {
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { normalizeMap } from '@debugr/core';
+import { normalizeMap, resolveFormatters } from '@debugr/core';
 import type { HtmlFormatterPlugin } from './formatters';
-import { DefaultHtmlFormatter } from './formatters';
-import {
-  defaultColorMap,
-  defaultLevelMap,
-  EntryTemplate,
-  LayoutTemplate,
-  TaskRenderer,
-} from './templates';
+import { DefaultHtmlFormatter, isHtmlFormatter } from './formatters';
+import { defaultColorMap, defaultFormatters,defaultLevelMap } from './maps';
+import { EntryTemplate, LayoutTemplate, TaskRenderer } from './templates';
 import type { TaskBoundary, TaskData, TaskLogEntry } from './types';
 import { isTaskBoundary } from './types';
-import { findDefiningEntry, getFormatters, getTaskLogInfo } from './utils';
+import { findDefiningEntry, getTaskLogInfo } from './utils';
 
 export class HtmlRenderer<
   TTaskContext extends TContextBase = TContextBase,
@@ -33,17 +28,6 @@ export class HtmlRenderer<
 
   private readonly defaultFormatter: DefaultHtmlFormatter<TTaskContext, TGlobalContext>;
 
-  public static create<
-    TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = TContextShape,
-  >(
-    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
-    levelMap?: Record<number, string>,
-    colorMap?: Record<number, string>,
-  ): HtmlRenderer<TTaskContext, TGlobalContext> {
-    return new HtmlRenderer(pluginManager, levelMap, colorMap);
-  }
-
   constructor(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
     levelMap: Record<number, string> = {},
@@ -54,7 +38,7 @@ export class HtmlRenderer<
 
     this.layout = new LayoutTemplate(levels, colors);
     this.entry = new EntryTemplate(levels);
-    this.formatters = getFormatters(pluginManager);
+    this.formatters = resolveFormatters(pluginManager, isHtmlFormatter, defaultFormatters);
     this.defaultFormatter = new DefaultHtmlFormatter(levels);
   }
 
@@ -101,9 +85,9 @@ export class HtmlRenderer<
   protected getEntryTitle(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): string {
-    if (entry.format) {
+    if (entry.type && entry.type in this.formatters) {
       try {
-        return this.formatters[entry.format].getEntryTitle(entry);
+        return this.formatters[entry.type].getEntryTitle(entry);
       } catch (e) {
         /* noop */
       }
@@ -164,14 +148,14 @@ export class HtmlRenderer<
     taskRenderer?: TaskRenderer,
     noPlugin: boolean = false,
   ): string {
-    const plugin =
-      !noPlugin && entry.format ? this.formatters[entry.format] : this.defaultFormatter;
+    const formatter =
+      !noPlugin && entry.type ? this.formatters[entry.type] : this.defaultFormatter;
 
     return this.entry.render(
       this.entry.formatTimestamp(entry.ts, previousTs),
       entry.level,
-      plugin.renderEntry(entry),
-      plugin.getEntryLabel && plugin.getEntryLabel(entry),
+      formatter.renderEntry(entry),
+      formatter.getEntryLabel && formatter.getEntryLabel(entry),
       task.index,
       entry === task.firstOverThreshold,
       taskRenderer?.renderTaskStates(task.index),

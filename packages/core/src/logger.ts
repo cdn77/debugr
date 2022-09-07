@@ -1,12 +1,11 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
-import { v4 } from 'uuid';
-import { PluginManager } from '../plugins';
-import { clone, SmartMap, wrapPossiblePromise } from '../utils';
-import type { LogHandler } from './handler';
-import { isTaskAwareLogHandler } from './handler';
-import type { LogEntry, TContextBase, TContextShape } from './types';
+import { PluginManager } from './pluginManager';
+import type { LogEntry, LogHandlerPlugin, Plugin, TContextBase, TContextShape } from './types';
+import type { PluginId, Plugins } from './types';
+import { isLogHandlerPlugin, isTaskAwareLogHandlerPlugin } from './types';
 import { LogLevel } from './types';
+import { clone, SmartMap, wrapPossiblePromise } from './utils';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextBase,
@@ -14,25 +13,35 @@ export class Logger<
 > {
   private readonly globalContext: TGlobalContext;
 
-  private readonly logHandlers: SmartMap<string, LogHandler<TTaskContext, TGlobalContext>>;
+  private readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
 
   private readonly taskContextStorage: AsyncLocalStorage<Partial<TTaskContext>>;
 
+  private readonly handlers: SmartMap<string, LogHandlerPlugin<TTaskContext, TGlobalContext>>;
+
   public constructor(
-    logHandlers: LogHandler<TTaskContext, TGlobalContext>[],
     globalContext: TGlobalContext,
+    plugins: Plugin<TTaskContext, TGlobalContext>[] = [],
+    pluginManager?: PluginManager<TTaskContext, TGlobalContext>,
   ) {
     this.globalContext = globalContext;
-    this.logHandlers = new SmartMap(logHandlers.map((handler) => [handler.identifier, handler]));
+    this.pluginManager = pluginManager ?? new PluginManager();
     this.taskContextStorage = new AsyncLocalStorage();
+
+    for (const plugin of plugins) {
+      this.pluginManager.register(plugin);
+    }
+
+    this.pluginManager.init(this);
+
+    this.handlers = new SmartMap(this.pluginManager.find(isLogHandlerPlugin).map((handler) => [
+      handler.id,
+      handler,
+    ]));
   }
 
-  public runTask<R>(callback: () => R, dontOverrideTask?: boolean): R {
+  public runTask<R>(callback: () => R, dontOverrideTask: boolean = false): R {
     const context = this.taskContextStorage.getStore();
-
-    if (context && dontOverrideTask) {
-      return callback();
-    }
 
     const envelopedCallback = () => {
       return wrapPossiblePromise(callback, {
@@ -40,16 +49,17 @@ export class Logger<
           this.error(e);
           throw e;
         },
-        finally: () => {
-          this.flush();
-        },
       });
     };
 
-    const newContext: Partial<TTaskContext> = context ? clone(context) : ({ taskId: v4() } as any);
+    if (context && dontOverrideTask) {
+      return envelopedCallback();
+    }
 
-    const mainCallback = this.logHandlers.reduceRight(
-      (child, parent) => (isTaskAwareLogHandler(parent) ? () => parent.runTask(child) : child),
+    const newContext: Partial<TTaskContext> = context ? clone(context) : {};
+
+    const mainCallback = this.handlers.reduceRight(
+      (child, parent) => (isTaskAwareLogHandlerPlugin(parent) ? () => parent.runTask(child) : child),
       envelopedCallback,
     );
 
@@ -154,18 +164,16 @@ export class Logger<
   public add<TEntry extends LogEntry<any, any> = LogEntry<any, any>>(
     entry: Omit<TEntry, 'taskContext' | 'globalContext' | 'ts'>,
   ): this {
-    const ts = new Date();
+    const fullEntry = {
+      ...entry,
+      taskContext: this.taskContextStorage.getStore(),
+      globalContext: this.globalContext,
+      ts: new Date(),
+    };
 
-    this.logHandlers
-      .filter((handler) => entry.level >= handler.threshold)
-      .forEach((handler) => {
-        handler.log({
-          ...entry,
-          taskContext: this.taskContextStorage.getStore(),
-          globalContext: this.globalContext,
-          ts,
-        });
-      });
+    this.handlers.forEach((handler) => {
+      handler.log(fullEntry);
+    });
 
     return this;
   }
@@ -183,33 +191,20 @@ export class Logger<
     return this;
   }
 
-  public flush(): this {
-    this.logHandlers
-      .filter(isTaskAwareLogHandler)
-      .forEach((handler) => handler.flush());
-
-    return this;
+  public hasPlugin(id: string): boolean {
+    return this.pluginManager.has(id);
   }
 
-  public registerHandler(logHandler: LogHandler<TTaskContext, TGlobalContext>): this {
-    this.logHandlers.set(logHandler.identifier, logHandler);
-    return this;
-  }
-
-  public injectPluginManager(pluginManager: PluginManager<TTaskContext, TGlobalContext>): this {
-    for (const handler of this.logHandlers.values()) {
-      handler.injectPluginManager(pluginManager);
-    }
-
-    return this;
+  public getPlugin<ID extends PluginId>(id: ID): Plugins<TTaskContext, TGlobalContext>[ID] {
+    return this.pluginManager.get(id);
   }
 
   public hasHandler(id: string): boolean {
-    return this.logHandlers.has(id);
+    return this.handlers.has(id);
   }
 
-  public getHandler(id: string): LogHandler<TTaskContext, TGlobalContext> {
-    const logHandler = this.logHandlers.get(id);
+  public getHandler(id: string): LogHandlerPlugin<TTaskContext, TGlobalContext> {
+    const logHandler = this.handlers.get(id);
 
     if (!logHandler) {
       throw new Error(`Unknown plugin: ${id}`);

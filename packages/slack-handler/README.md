@@ -13,27 +13,25 @@ npm install --save @debugr/slack-handler
 ## Usage
 
 ```typescript
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { SlackLogHandler } from '@debugr/slack-handler';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    SlackLogHandler.create({
-      threshold: LogLevel.FATAL,
-      webhookUrl: 'your slack webhook url',
-    }),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new SlackLogHandler({
+    threshold: LogLevel.FATAL,
+    webhookUrl: 'your slack webhook url',
+  }),
+]);
 
-debugr.logger.fatal('Something failed miserably!');
+logger.fatal('Something failed miserably!');
 ```
 
-The `SlackLogHandler.create()` factory, as well as the `SlackLogHandler()` constructor,
-accept a *required* `options` object with the following keys as the first argument:
+The `SlackLogHandler` constructor accepts a *required* `options` object
+with the following keys as the first argument:
 
 | Option          | Type                                       | Default             | Description                                                                                                                                                       |
 |-----------------|--------------------------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|

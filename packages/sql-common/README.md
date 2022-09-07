@@ -22,11 +22,11 @@ export interface SqlQueryData {
   time?: number;         // The time the query took to execute
 }
 
-export interface SqlLogEntry<
+export interface SqlQueryLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
   > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'sql';
+  type: 'sql.query';
   data: SqlQueryData;
 }
 ```

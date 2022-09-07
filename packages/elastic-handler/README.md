@@ -12,24 +12,22 @@ npm install --save @debugr/elastic-handler
 ## Usage
 
 ```typescript
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { ElasticLogHandler } from '@debugr/elastic-handler';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    ElasticLogHandler.create({
-      index: 'example-app-logs',
-    }),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new ElasticLogHandler({
+    index: 'example-app-logs',
+  }),
+]);
 
-debugr.logger.setContextProperty('jobName', 'elasticTest');
+logger.setContextProperty('jobName', 'elasticTest');
 
-debugr.logger.info('Application started.');
+logger.info('Application started.');
 // should send a new entry to the `example-app-logs` index with the following content:
 // {
 //   level: 30,
@@ -44,13 +42,12 @@ debugr.logger.info('Application started.');
 
 ### Options
 
-The `ElasticLogHandler.create()` factory, as well as the `ElasticLogHandler()` constructor,
-accept a *required* `options` object as the first argument. The factory method creates
-an instance of the `Client` class from the [`@elastic/elasticsearch`] SDK using the `options`
-object, while the constructor accepts an already-configured `Client` instance as the second argument;
-so for the factory method, the `options` object is a union of the log handler options and the `Client`
-options. See the [`@elastic/elasticsearch`] package documentations for the available `Client` options.
-The available log handler options are as follows:
+The `ElasticLogHandler` constructor accepts a *required* `options` object as the first argument.
+An instance of the `Client` class from the [`@elastic/elasticsearch`] SDK can be passed as the second
+argument; if it is not provided, the constructor will attempt to create it using the provided `options`
+object. So when calling the constructor with just a single argument, the `options` object is a union
+of the log handler options defined here and the Elastic `Client` options.  See the [`@elastic/elasticsearch`]
+package documentations for the available `Client` options. The available log handler options are as follows:
 
 | Option             | Type                                       | Default             | Description                                                                                                                                                                                                                                                                                                      |
 |--------------------|--------------------------------------------|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

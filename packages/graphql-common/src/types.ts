@@ -6,10 +6,10 @@ export interface GraphQLQueryData {
   operation?: string;
 }
 
-export interface GraphQlLogEntry<
+export interface GraphQLQueryLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'graphql';
+  type: 'graphql.query';
   data: GraphQLQueryData;
 }

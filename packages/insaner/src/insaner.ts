@@ -1,6 +1,6 @@
-import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
-import type { HttpLogEntry } from '@debugr/http-common';
+import type { HttpRequestLogEntry, HttpResponseLogEntry } from '@debugr/http-common';
 import type { HttpRequest, HttpResponse, HttpServer, MiddlewareNext } from 'insaner';
 import { HttpForcedResponse } from 'insaner';
 import type { NormalizedOptions, Options } from './types';
@@ -9,11 +9,11 @@ import { normalizeOptions } from './utils';
 export class InsanerPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements Plugin<TTaskContext, TGlobalContext>
+> implements CollectorPlugin<TTaskContext, TGlobalContext>
 {
   public readonly id: string = 'insaner';
 
-  public readonly entryFormat: string = 'http';
+  public readonly entryTypes: string[] = ['http.request', 'http.response'];
 
   private readonly options: NormalizedOptions;
 
@@ -25,12 +25,6 @@ export class InsanerPlugin<
 
   injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
-  }
-
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options?: Options,
-  ): InsanerPlugin<TTaskContext, TGlobalContext> {
-    return new InsanerPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   public install(server: HttpServer): void {
@@ -48,11 +42,10 @@ export class InsanerPlugin<
 
   protected createRequestHandler() {
     return (request: HttpRequest) => {
-      this.logger.add<HttpLogEntry>({
-        format: 'http',
+      this.logger.add<HttpRequestLogEntry>({
+        type: 'http.request',
         level: this.options.level,
         data: {
-          type: 'request',
           method: request.method,
           uri: request.url.toString(),
           headers: this.options.request.filterHeaders(request.headers),
@@ -74,11 +67,10 @@ export class InsanerPlugin<
       const level =
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
-      this.logger.add<HttpLogEntry>({
-        format: 'http',
+      this.logger.add<HttpResponseLogEntry>({
+        type: 'http.response',
         level,
         data: {
-          type: 'response',
           status: response.status,
           headers: this.options.response.filterHeaders(response.headers),
         },

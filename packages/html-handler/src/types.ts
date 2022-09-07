@@ -9,12 +9,21 @@ import type {
 } from '@debugr/core';
 
 export type HtmlLogHandlerOptions = {
-  outputDir: string;
   threshold?: LogLevel | number;
   cloneData?: boolean;
   levelMap?: Record<number, string>;
   colorMap?: Record<number, string>;
 };
+
+export type HtmlLogHandlerRequiredOptions = HtmlLogHandlerOptions & {
+  outputDir: string;
+};
+
+export function isRequiredOptions(
+  options: HtmlLogHandlerOptions,
+): options is HtmlLogHandlerRequiredOptions {
+  return typeof (options as any).outputDir === 'string';
+}
 
 export type TaskBoundary = {
   type: 'task:start' | 'task:end';
@@ -63,4 +72,8 @@ export type TaskData<
 
 export interface HtmlWriter {
   write(ts: ImmutableDate, id: string, content: string): Promise<string> | string;
+}
+
+export function isHtmlWriter(value: any): value is HtmlWriter {
+  return value && typeof value === 'object' && typeof value.write === 'function';
 }

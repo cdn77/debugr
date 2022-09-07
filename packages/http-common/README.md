@@ -2,7 +2,7 @@ Common HTTP interfaces and utilities
 =======================================
 
 This package defines the shape of the `data` included in entries which
-represent a HTTP request. Plugins which produce or consume such entries
+represent HTTP requests or responses. Plugins which produce or consume such entries
 should conform to this shape. Unless you're developing a Debugr plugin
 or log handler, you usually don't need to worry about this package, as it will
 be installed and used automatically when required.
@@ -12,8 +12,11 @@ be installed and used automatically when required.
 The package exports the following type definitions:
 
 ```typescript
+export interface HttpHeaders {
+  [header: string]: number | string | string[] | undefined;
+}
+
 export interface HttpRequestData {
-  type: 'request';
   method: string;           // The uppercase HTTP request method, e.g. 'GET', 'POST' etc.
   uri: string;              // The request URI including query string, if any
   headers?: HttpHeaders;    // A map of HTTP headers to values or lists of values. Header names should be lower-case.
@@ -24,7 +27,6 @@ export interface HttpRequestData {
 }
 
 export interface HttpResponseData {
-  type: 'response';
   status: number;           // HTTP response status code.
   message?: string;         // HTTP response status message.
   headers?: HttpHeaders;    // A map of HTTP headers; same format as for request headers.
@@ -33,12 +35,20 @@ export interface HttpResponseData {
   lengthMismatch?: boolean; // This should be `true` if the actual response body length didn't match the Content-Length header.
 }
 
-export interface HttpLogEntry<
+export interface HttpRequestLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-  > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'http';
-  data: HttpRequestData | HttpResponseData;
+> extends LogEntry<TTaskContext, TGlobalContext> {
+  type: 'http.request';
+  data: HttpRequestData;
+}
+
+export interface HttpResponseLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> extends LogEntry<TTaskContext, TGlobalContext> {
+  type: 'http.response';
+  data: HttpResponseData;
 }
 ```
 

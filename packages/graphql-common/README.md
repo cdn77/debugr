@@ -2,7 +2,7 @@ Common GraphQL interfaces and utilities
 =======================================
 
 This package defines the shape of the `data` included in entries which
-represent a GraphQL request. Plugins which produce or consume such entries
+represent a GraphQL query. Plugins which produce or consume such entries
 should conform to this shape. Unless you're developing a Debugr plugin
 or log handler, you usually don't need to worry about this package, as it will
 be installed and used automatically when required.
@@ -18,11 +18,11 @@ export interface GraphQLQueryData {
   operation?: string;              // the extracted operation name, e.g. 'query getAllUsers'
 }
 
-export interface GraphQlLogEntry<
+export interface GraphQLQueryLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'graphql';
+  type: 'graphql.query';
   data: GraphQLQueryData;
 }
 ```

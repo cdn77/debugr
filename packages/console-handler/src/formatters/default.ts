@@ -14,7 +14,7 @@ export class DefaultConsoleFormatter<
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-default-console-formatter';
 
-  readonly entryFormat: string = '*';
+  readonly entryType: string = '*';
 
   formatEntry(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string {
     const data = isEmpty(entry.data) ? undefined : entry.data;

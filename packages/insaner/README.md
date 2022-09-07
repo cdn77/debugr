@@ -22,28 +22,24 @@ npm install --save @debugr/insaner
 ```typescript
 import { InsanerLogger } from '@debugr/insaner';
 import { HttpServer, HttpRequest, HttpForbiddenError } from 'insaner';
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    ConsoleLogHandler.create({
-      threshold: LogLevel.INFO,
-    }),
-  ],
-  [
-    InsanerLogger.create(),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new ConsoleLogHandler({
+    threshold: LogLevel.INFO,
+  }),
+  new InsanerLogger(),
+]);
 
 const server = new HttpServer();
 
 // allow the plugin to hook into the HTTP server
-debugr.getPlugin('insaner').install(server);
+logger.getPlugin('insaner').install(server);
 
 // apply your routes etc
 server.router.post('/my-api', function(req, res) {
@@ -55,8 +51,8 @@ server.listen(8000);
 
 ## Options
 
-The `InsanerLogger.create()` factory, as well as the `InsanerLogger()` constructor,
-accept an optional `options` object with the following keys as the first argument:
+The `InsanerLogger` constructor accepts an optional `options` object
+with the following keys as the first argument:
 
 | Option                    | Type                 | Default                       | Description                                                                                             |
 |---------------------------|----------------------|-------------------------------|---------------------------------------------------------------------------------------------------------|

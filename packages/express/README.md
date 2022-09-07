@@ -20,7 +20,7 @@ npm install --save @debugr/express
 
 ```typescript
 import * as express from 'express';
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { ExpressLogger } from '@debugr/express';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 
@@ -28,21 +28,17 @@ const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    ConsoleLogHandler.create({
-      threshold: LogLevel.INFO,
-    }),
-  ],
-  [
-    ExpressLogger.create(),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new ConsoleLogHandler({
+    threshold: LogLevel.INFO,
+  }),
+  new ExpressLogger(),
+]);
 
 const app = express();
 
 // as the very first middleware:
-app.use(debugr.getPlugin('express').createRequestHandler());
+app.use(logger.getPlugin('express').createRequestHandler());
 
 // apply your other middlewares like body parser and your routes
 app.post('/my-api', function(req, res) {
@@ -50,15 +46,15 @@ app.post('/my-api', function(req, res) {
 });
 
 // and then as the very last middleware:
-app.use(debugr.getPlugin('express').createErrorHandler());
+app.use(logger.getPlugin('express').createErrorHandler());
 
 app.listen(8000);
 ```
 
 ## Options
 
-The `ExpressLogger.create()` factory, as well as the `ExpressLogger()` constructor,
-accept an optional `options` object with the following keys as the first argument:
+The `ExpressLogger` constructor accepts an optional `options` object
+with the following keys as the first argument:
 
 | Option                    | Type                 | Default                       | Description                                                                                             |
 |---------------------------|----------------------|-------------------------------|---------------------------------------------------------------------------------------------------------|

@@ -10,10 +10,10 @@ export interface SqlQueryData {
   time?: number;
 }
 
-export interface SqlLogEntry<
+export interface SqlQueryLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'sql';
+  type: 'sql.query';
   data: SqlQueryData;
 }

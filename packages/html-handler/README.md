@@ -13,31 +13,29 @@ npm install --save @debugr/html-handler
 ## Usage
 
 ```typescript
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { HtmlLogHandler } from '@debugr/html-handler';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    HtmlLogHandler.create({
-      outputDir: './log',
-    }),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new HtmlLogHandler({
+    outputDir: './log',
+  }),
+]);
 
-debugr.logger.runTask(async () => {
-  debugr.logger.info('Task started.');
+logger.runTask(async () => {
+  logger.info('Task started.');
   
   await someWorkBeingDone();
   
-  debugr.logger.info('Work has been done.');
+  logger.info('Work has been done.');
   
   await moreBoringThingsHappeningInTheBackground();
   
-  debugr.logger.info('Now it looks as though we\'re finally finished.');
+  logger.info('Now it looks as though we\'re finally finished.');
 });
 ```
 
@@ -63,12 +61,14 @@ regardless of whether there is an entry which exceeds the threshold.
 
 ### Options
 
-The `HtmlLogHandler.create()` factory, as well as the `HtmlLogHandler()` constructor,
-accept a *required* `options` object with the following keys:
+The `HtmlLogHandler` constructor accepts an `options` object as the first or second argument,
+depending on whether you wish to pass a preconfigured `HtmlWriter` instance. The default `HtmlFileWriter`
+simply writes the dump files into a configured directory, but you can get fancy with your own implementation,
+e.g. sending the files to a central API.
 
 | Option      | Type                     | Default          | Description                                                                                                                                    |
 |-------------|--------------------------|------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `outputDir` | `string`                 | _(required)_     | The directory where dump files will be written. Will be created if nonexistent.                                                                |
+| `outputDir` | `string`                 |                  | The directory where dump files will be written. Will be created if nonexistent. **Required** if a `HtmlWriter` instance is not provided.       |
 | `threshold` | `LogLevel`, `number`     | `LogLevel.ERROR` | The default threshold which needs to be reached or exceeded in order for a dump file to be generated.                                          |
 | `cloneData` | `boolean`                | `false`          | Whether to take a snapshot of each log entry data as soon as it is logged. Use this to prevent log data from being mutated after being logged. |
 | `levelMap`  | `Record<number, string>` |                  | A map of custom log levels to their string representation.                                                                                     |

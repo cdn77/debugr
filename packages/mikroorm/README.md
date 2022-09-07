@@ -13,7 +13,7 @@ npm install --save @debugr/mikroorm
 ## Usage
 
 ```typescript
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { MikroORMLogger } from '@debugr/mikroorm';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 import { MikroORM } from '@mikro-orm/core';
@@ -22,33 +22,29 @@ const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    ConsoleLogHandler.create({
-      threshold: LogLevel.INFO,
-    }),
-  ],
-  [
-    MikroORMLogger.create(),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new ConsoleLogHandler({
+    threshold: LogLevel.INFO,
+  }),
+  new MikroORMLogger(),
+]);
 
 // inject the plugin into your MikroORM connection options
 const connection = await MikroORM.init({
   // ...
   getLogger() {
-    return debugr.getPlugin('mikroorm');
+    return logger.getPlugin('mikroorm');
   },
 });
 ```
 
 ### Options
 
-The `MikroORMLogger.create()` factory, as well as the `MikroORMLogger()` constructor,
-accept an optional `options` object you can use to override the default mapping
-between MikroORM logger namespaces and log levels on the one hand and Debugr log levels
-on the other. MikroORM currently defines five logger namespaces and three log levels,
-which are by default mapped to Debugr log levels as follows:
+The `MikroORMLogger` constructor accepts an optional `options` object you can use
+to override the default mapping between MikroORM logger namespaces and log levels
+on the one hand and Debugr log levels on the other. MikroORM currently defines
+five logger namespaces and three log levels, which are by default mapped to Debugr
+log levels as follows:
 
 ```typescript
 const defaultNamespaceMap: MikroORMNamespaceMap = {

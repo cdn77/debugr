@@ -1,4 +1,11 @@
 import { LogLevel } from '@debugr/core';
+import type { HtmlFormatterPlugin } from './formatters';
+import {
+  GraphQLQueryHtmlFormatter,
+  HttpRequestHtmlFormatter,
+  HttpResponseHtmlFormatter,
+  SqlQueryHtmlFormatter,
+} from './formatters';
 
 export const defaultLevelMap: Record<number, string> = {
   [LogLevel.TRACE]: 'trace',
@@ -20,4 +27,11 @@ export const defaultColorMap: Record<number, string> = {
   [LogLevel.FATAL]: '#ff0000',
   [-1]: '#da47ff',
   0: '#4747ff',
+};
+
+export const defaultFormatters: Record<string, () => HtmlFormatterPlugin> = {
+  'graphql.query': () => new GraphQLQueryHtmlFormatter(),
+  'http.request': () => new HttpRequestHtmlFormatter(),
+  'http.response': () => new HttpResponseHtmlFormatter(),
+  'sql.query': () => new SqlQueryHtmlFormatter(),
 };

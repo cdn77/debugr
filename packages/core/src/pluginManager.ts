@@ -1,5 +1,6 @@
-import type { Logger, TContextBase, TContextShape } from '../logger';
-import type { Plugin, PluginId, Plugins } from './types';
+import type { Logger } from './logger';
+import type { Plugin, PluginId, Plugins, TContextBase, TContextShape } from './types';
+import { isCollectorPlugin } from './types';
 
 export class PluginManager<
   TTaskContext extends TContextBase = TContextBase,
@@ -7,15 +8,17 @@ export class PluginManager<
 > {
   private readonly plugins: Plugins<TTaskContext, TGlobalContext>;
 
-  private readonly logger: Logger<TTaskContext, TGlobalContext>;
-
-  constructor(logger: Logger<TTaskContext, TGlobalContext>) {
-    this.logger = logger;
+  constructor() {
     this.plugins = {};
   }
 
+  public init(logger: Logger<TTaskContext, TGlobalContext>): void {
+    for (const plugin of Object.values(this.plugins)) {
+      plugin.injectLogger && plugin.injectLogger(logger, this);
+    }
+  }
+
   public register(plugin: Plugin<TTaskContext, TGlobalContext>): void {
-    plugin.injectLogger(this.logger, this);
     this.plugins[plugin.id] = plugin;
   }
 
@@ -39,8 +42,8 @@ export class PluginManager<
     return Object.values(this.plugins).filter(predicate);
   }
 
-  public getKnownEntryFormats(): string[] {
-    const formats = new Set(Object.values(this.plugins).map((p) => p.entryFormat));
+  public getKnownEntryTypes(): string[] {
+    const formats = new Set(this.find(isCollectorPlugin).flatMap((p) => p.entryTypes));
     return [...formats];
   }
 }

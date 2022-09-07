@@ -1,31 +1,34 @@
 import type {
   LogEntry,
+  Logger,
   PluginManager,
   ReadonlyRecursive,
+  TaskAwareLogHandlerPlugin,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
 import {
   LogLevel,
   SmartMap,
-  TaskAwareLogHandler,
-  wrapPossiblePromise,
+  wrapPossiblePromise
 } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
 import { HtmlFileWriter } from './fileWriter';
 import { HtmlRenderer } from './htmlRenderer';
-import type { HtmlLogHandlerOptions, HtmlWriter, TaskData } from './types';
+import type {
+  HtmlLogHandlerOptions,
+  HtmlLogHandlerRequiredOptions,
+  HtmlWriter,
+  TaskData,
+} from './types';
+import { isHtmlWriter, isRequiredOptions } from './types';
 import { computeTaskHash } from './utils';
 
 export class HtmlLogHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> extends TaskAwareLogHandler<TTaskContext, TGlobalContext> {
-  public readonly threshold: LogLevel | number = 0;
-
-  public readonly identifier: string = 'html';
-
-  public readonly doesNeedFormatters: boolean = true;
+> implements TaskAwareLogHandlerPlugin<TTaskContext, TGlobalContext> {
+  public readonly id: string = 'html';
 
   private renderer?: HtmlRenderer<TTaskContext, TGlobalContext>;
 
@@ -35,27 +38,52 @@ export class HtmlLogHandler<
 
   private readonly asyncStorage: AsyncLocalStorage<TaskData<TTaskContext, TGlobalContext>>;
 
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options: HtmlLogHandlerOptions,
-  ): HtmlLogHandler<TTaskContext, TGlobalContext> {
-    return new HtmlLogHandler<TTaskContext, TGlobalContext>(new HtmlFileWriter(options.outputDir), options);
-  }
-
+  public constructor(
+    options: HtmlLogHandlerRequiredOptions,
+    renderer?: HtmlRenderer<TTaskContext, TGlobalContext>,
+  );
   public constructor(
     writer: HtmlWriter,
-    options: HtmlLogHandlerOptions,
     renderer?: HtmlRenderer<TTaskContext, TGlobalContext>,
+  );
+  public constructor(
+    writer: HtmlWriter,
+    options?: HtmlLogHandlerOptions,
+    renderer?: HtmlRenderer<TTaskContext, TGlobalContext>,
+  );
+  public constructor(
+    writerOrOptions: HtmlLogHandlerRequiredOptions | HtmlWriter,
+    optionsOrRenderer?: HtmlLogHandlerOptions | HtmlRenderer<TTaskContext, TGlobalContext>,
+    maybeRenderer?: HtmlRenderer<TTaskContext, TGlobalContext>,
   ) {
-    super();
-    this.renderer = renderer;
-    this.writer = writer;
-    this.options = options;
+    if (isHtmlWriter(writerOrOptions)) {
+      this.writer = writerOrOptions;
+
+      if (optionsOrRenderer instanceof HtmlRenderer) {
+        this.renderer = optionsOrRenderer;
+        this.options = {};
+      } else {
+        this.renderer = maybeRenderer;
+        this.options = optionsOrRenderer ?? {};
+      }
+    } else if (isRequiredOptions(writerOrOptions)) {
+      const { outputDir, ...options } = writerOrOptions;
+      this.writer = new HtmlFileWriter(outputDir);
+      this.renderer = optionsOrRenderer instanceof HtmlRenderer ? optionsOrRenderer : undefined;
+      this.options = options;
+    } else {
+      throw new Error(`Either the 'outputDir' option or the 'writer' argument is required`);
+    }
+
     this.asyncStorage = new AsyncLocalStorage();
   }
 
-  public injectPluginManager(pluginManager: PluginManager<TTaskContext, TGlobalContext>): void {
+  public injectLogger(
+    logger: Logger<TTaskContext, TGlobalContext>,
+    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+  ): void {
     if (!this.renderer) {
-      this.renderer = HtmlRenderer.create(
+      this.renderer = new HtmlRenderer(
         pluginManager,
         this.options.levelMap,
         this.options.colorMap,
@@ -106,21 +134,15 @@ export class HtmlLogHandler<
           task.write = !!task.firstOverThreshold;
         }
 
-        if (task.parent && task.write && task.parent.write === undefined) {
-          task.parent.write = true;
+        if (task.write) {
+          if (!task.parent) {
+            Promise.resolve().then(() => this.writeDumpFile(task));
+          } else if (task.parent.write === undefined) {
+            task.parent.write = true;
+          }
         }
       },
     });
-  }
-
-  public flush(): void {
-    const task = this.asyncStorage.getStore();
-
-    if (!task || task.parent) {
-      return;
-    }
-
-    Promise.resolve().then(() => this.flushTask(task));
   }
 
   public setTaskThreshold(threshold: number): void {
@@ -147,7 +169,7 @@ export class HtmlLogHandler<
     }
   }
 
-  private async flushTask(task: TaskData<TTaskContext, TGlobalContext>): Promise<void> {
+  private async writeDumpFile(task: TaskData<TTaskContext, TGlobalContext>): Promise<void> {
     if (!this.renderer) {
       throw new Error('Logger was incorrectly initialized, no renderer found');
     }

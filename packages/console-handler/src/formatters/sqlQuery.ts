@@ -1,17 +1,17 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
 import { formatData, isEmpty } from '@debugr/core';
-import type { SqlLogEntry, SqlQueryFormatter } from '@debugr/sql-common';
+import type { SqlQueryFormatter,SqlQueryLogEntry } from '@debugr/sql-common';
 import { createQueryFormatter, formatQueryTime } from '@debugr/sql-common';
 import { dim } from 'ansi-colors';
 import { AbstractConsoleFormatter } from './abstract';
 
-export class SqlConsoleFormatter<
+export class SqlQueryConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
-  readonly id: string = 'debugr-sql-console-formatter';
+  readonly id: string = 'debugr-sql-query-console-formatter';
 
-  readonly entryFormat: string = 'sql';
+  readonly entryType: string = 'sql';
 
   private readonly formatQuery: SqlQueryFormatter;
 
@@ -20,7 +20,7 @@ export class SqlConsoleFormatter<
     this.formatQuery = createQueryFormatter();
   }
 
-  formatEntry(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
+  formatEntry(entry: SqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
     }

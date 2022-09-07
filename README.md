@@ -52,7 +52,7 @@ This is an example of the raw core usage, just to show you the basics; with plug
 stuff will be done automatically for you.
 
 ```typescript
-import { Debugr, Logger, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 import { HtmlLogHandler } from '@debugr/html-handler';
 
@@ -60,21 +60,15 @@ const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext,
-  [
-    ConsoleLogHandler.create(
-      LogLevel.INFO,
-    ),
-    HtmlLogHandler.create(
-      {
-        threshold: LogLevel.ERROR,
-        outputDir: __dirname + '/log',
-      },
-    ),
-  ],
-);
-
-const logger: Logger = debug.logger;
+const logger = new Logger(globalContext, [
+  new ConsoleLogHandler({
+    threshold: LogLevel.INFO
+  }),
+  new HtmlLogHandler({
+    threshold: LogLevel.ERROR,
+    outputDir: __dirname + '/log',
+  }),
+]);
 
 // Wrap anything you consider a "task" in a callback and pass that callback
 // to `logger.runTask()` like this:
@@ -120,29 +114,20 @@ the whole queue is formatted into a timestamped HTML dump file in the configured
 The filename also contains a hash derived from the first entry which matched the configured threshold;
 this hash can often be used to find identical or similar errors.
 
-### What's with those static `.create()` factories?
-
-The idea here is that we want Debugr to be compatible with any dependency injection / inversion of control
-implementation that you like, while still being relatively easy to configure even without autowiring
-and other niceties that dependency injection usually brings. So when you're configuring Debugr manually,
-these factories should be easier to use than regular constructors, because they'll do some basic things
-for you. But the constructors are still very much there should you wish to go fancy.
-
 ### Context
 
 There are two types of _context objects_ in Debugr: the global context object you pass as the first
-argument to `Debugr.create()` (or `new Debugr()`, as the case may be); and the task-specific context
-which gets created automatically when each task is started. The context objects are available to log
-handlers as part of each log entry; the log handlers can choose to use the data in those objects
-any way they want. Currently, the only handler which makes use of the context data is the Elastic handler,
-which includes both context objects in each entry it sends to Elastic. The intended use for this is to
-e.g. include the worker process ID, hostname and similar metadata valid for the entire lifetime of
-the process in the global context and basic request metadata / cron job name etc. in the task context,
-so that you have.. well.. _context_ when looking at log entries in Elastic.
+argument to `new Logger()`, and the task-specific context which gets created automatically when each task
+is started. The context objects are available to log handlers as part of each log entry; the log handlers
+can choose to use the data in those objects any way they want. Currently, the only handler which makes use
+of the context data is the Elastic handler, which includes both context objects in each entry it sends to Elastic.
+The intended use for this is to e.g. include the worker process ID, hostname and similar metadata valid for
+the entire lifetime of the process in the global context and basic request metadata / cron job name etc. in
+the task context, so that you have.. well.. _context_ when looking at log entries in Elastic.
 
 ### `Logger` API
 
-The `Logger` instance obtained from `debug.logger` has the following methods:
+The `Logger` instance has the following methods:
 
  - `log(level: number, data: Record<string, any> | Error): void`  
    `log(level: number, message: string | [string, ...any], data?: Record<string, any>): void`  

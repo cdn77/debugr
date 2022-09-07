@@ -12,20 +12,18 @@ npm install --save @debugr/console-handler
 ## Usage
 
 ```typescript
-import { Debugr, LogLevel } from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
 import { ConsoleLogHandler } from '@debugr/console-handler';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-const debugr = Debugr.create(globalContext, 
-  [
-    ConsoleLogHandler.create(),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new ConsoleLogHandler(),
+]);
 
-debugr.logger.info('Application started.');
+logger.info('Application started.');
 
 // will output something like:
 // [info] Application started.
@@ -33,8 +31,8 @@ debugr.logger.info('Application started.');
 
 ### Options
 
-The `ConsoleLogHandler.create()` factory, as well as the `ConsoleLogHandler()` constructor,
-accept an optional `options` object with the following keys as the first argument:
+The `ConsoleLogHandler` constructor accepts an optional `options` object
+with the following keys as the first argument:
 
 | Option           | Type                                    | Default         | Description                                                                                     |
 |------------------|-----------------------------------------|-----------------|-------------------------------------------------------------------------------------------------|

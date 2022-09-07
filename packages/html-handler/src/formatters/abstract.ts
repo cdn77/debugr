@@ -10,13 +10,11 @@ export abstract class AbstractHtmlFormatter<
 {
   abstract readonly id: string;
 
-  abstract readonly entryFormat: string;
+  abstract readonly entryType: string;
 
   readonly targetHandler = 'html' as const;
 
   protected readonly separator: string = '\n            ';
-
-  injectLogger() {}
 
   getEntryLabel?(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string;
 

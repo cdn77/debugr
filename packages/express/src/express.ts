@@ -1,6 +1,6 @@
-import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
-import type { HttpLogEntry } from '@debugr/http-common';
+import type { HttpRequestLogEntry, HttpResponseLogEntry } from '@debugr/http-common';
 import { normalizeContentLength } from '@debugr/http-common';
 import type { ErrorRequestHandler, Handler, Request, Response } from 'express';
 import type { NormalizedOptions, Options, ResponseInfo } from './types';
@@ -9,11 +9,11 @@ import { normalizeOptions } from './utils';
 export class ExpressPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements Plugin<TTaskContext, TGlobalContext>
+> implements CollectorPlugin<TTaskContext, TGlobalContext>
 {
   public readonly id: string = 'express';
 
-  public readonly entryFormat = 'http' as const;
+  public readonly entryTypes: string[] = ['http.request', 'http.response'];
 
   private readonly options: NormalizedOptions;
 
@@ -21,12 +21,6 @@ export class ExpressPlugin<
 
   public constructor(options?: Options) {
     this.options = normalizeOptions(options);
-  }
-
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options?: Options,
-  ): ExpressPlugin<TTaskContext, TGlobalContext> {
-    return new ExpressPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   public injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
@@ -68,11 +62,10 @@ export class ExpressPlugin<
       ? bodyLength !== contentLength
       : undefined;
 
-    this.logger.add<HttpLogEntry>({
-      format: this.entryFormat,
+    this.logger.add<HttpRequestLogEntry>({
+      type: 'http.request',
       level: this.options.level,
       data: {
-        type: 'request',
         method: request.method,
         uri: request.originalUrl,
         headers: this.options.request.filterHeaders(request.headers),
@@ -148,11 +141,10 @@ export class ExpressPlugin<
     const level =
       response.statusCode >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
-    this.logger.add<HttpLogEntry>({
-      format: this.entryFormat,
+    this.logger.add<HttpResponseLogEntry>({
+      type: 'http.response',
       level,
       data: {
-        type: 'response',
         status: response.statusCode,
         message: response.statusMessage,
         headers: this.options.response.filterHeaders(headers),

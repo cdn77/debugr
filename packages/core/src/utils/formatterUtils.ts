@@ -1,3 +1,6 @@
+import type { PluginManager } from '../pluginManager';
+import type { FormatterPlugin, FormatterPluginTypeGuard } from '../types';
+
 export function normalizeMap<V>(map: Record<number, V>): Map<number, V> {
   return new Map(
     Object.entries(map)
@@ -122,4 +125,29 @@ export function formatData(data: any): string {
   function isMultiline(value: string): boolean {
     return value.includes('\n');
   }
+}
+
+export function resolveFormatters<
+  TFormatter extends FormatterPlugin,
+>(
+  pluginManager: PluginManager<any, any>,
+  filter: FormatterPluginTypeGuard<TFormatter>,
+  defaults: Record<string, () => TFormatter>,
+): Record<string, TFormatter> {
+  const formatters = Object.fromEntries(
+    pluginManager.find(filter).map((plugin) => [plugin.entryType, plugin]),
+  );
+
+  for (const type of pluginManager.getKnownEntryTypes()) {
+    if (!formatters[type]) {
+      if (defaults[type]) {
+        formatters[type] = defaults[type]();
+        pluginManager.register(formatters[type]);
+      } else {
+        throw new Error(`Missing formatter for '${type}' entries`);
+      }
+    }
+  }
+
+  return formatters;
 }

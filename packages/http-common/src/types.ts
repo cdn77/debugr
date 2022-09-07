@@ -5,7 +5,6 @@ export interface HttpHeaders {
 }
 
 export interface HttpRequestData {
-  type: 'request';
   method: string;
   uri: string;
   headers?: HttpHeaders;
@@ -16,7 +15,6 @@ export interface HttpRequestData {
 }
 
 export interface HttpResponseData {
-  type: 'response';
   status: number;
   message?: string;
   headers?: HttpHeaders;
@@ -25,12 +23,20 @@ export interface HttpResponseData {
   lengthMismatch?: boolean;
 }
 
-export interface HttpLogEntry<
+export interface HttpRequestLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'http';
-  data: HttpRequestData | HttpResponseData;
+  type: 'http.request';
+  data: HttpRequestData;
+}
+
+export interface HttpResponseLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> extends LogEntry<TTaskContext, TGlobalContext> {
+  type: 'http.response';
+  data: HttpResponseData;
 }
 
 export type HeaderFilter = (headers: HttpHeaders) => HttpHeaders;

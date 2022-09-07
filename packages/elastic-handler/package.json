@@ -11,7 +11,7 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "3.0.0-rc.3",
+    "@debugr/core": "^3.0.0-rc.4",
     "@elastic/elasticsearch": "^7.15.0",
     "uuid": "^8.3.2"
   },
