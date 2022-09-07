@@ -9,7 +9,7 @@ export class GraphQLQueryConsoleFormatter<
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-graphql-query-console-formatter';
 
-  readonly entryType: string = 'graphql';
+  readonly entryType: string = 'graphql.query';
 
   formatEntry(entry: GraphQLQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {

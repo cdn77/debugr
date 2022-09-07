@@ -11,7 +11,7 @@ export class SqlQueryHtmlFormatter<
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   public readonly id: string = 'debugr-sql-query-html-formatter';
 
-  public readonly entryType: string = 'sql';
+  public readonly entryType: string = 'sql.query';
 
   private readonly formatQuery: SqlQueryFormatter;
 

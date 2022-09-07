@@ -29,7 +29,7 @@ export class MikroORMPlugin<
 {
   public readonly id: string = 'mikroorm';
 
-  public readonly entryTypes: string[] = ['sql'];
+  public readonly entryTypes: string[] = ['sql.query'];
 
   private readonly namespaceMap: MikroORMNamespaceMap;
 

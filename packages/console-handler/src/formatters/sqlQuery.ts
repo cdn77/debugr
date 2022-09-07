@@ -11,7 +11,7 @@ export class SqlQueryConsoleFormatter<
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   readonly id: string = 'debugr-sql-query-console-formatter';
 
-  readonly entryType: string = 'sql';
+  readonly entryType: string = 'sql.query';
 
   private readonly formatQuery: SqlQueryFormatter;
 
