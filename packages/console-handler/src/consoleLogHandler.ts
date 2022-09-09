@@ -1,6 +1,7 @@
 import type {
   LogEntry,
-Logger,  LogHandlerPlugin,
+  Logger,
+  LogHandlerPlugin,
   PluginManager,
   ReadonlyRecursive,
   TContextBase,
