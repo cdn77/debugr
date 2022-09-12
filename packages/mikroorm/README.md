@@ -33,7 +33,7 @@ const logger = new Logger(globalContext, [
 const connection = await MikroORM.init({
   // ...
   getLogger() {
-    return logger.getPlugin('mikroorm');
+    return logger.getPlugin('mikroorm').getBridge();
   },
 });
 ```

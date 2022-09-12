@@ -1,11 +1,6 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
-import type { SqlQueryLogEntry } from '@debugr/sql-common';
-import type {
-  LogContext,
-  Logger as MikroORMLoggerInterface,
-  LoggerNamespace,
-} from '@mikro-orm/core';
+import { MikroORMLoggerBridge } from './bridge';
 import type { MikroORMLevelMap, MikroORMNamespaceMap, MikroORMPluginOptions } from './types';
 
 const defaultNamespaceMap: MikroORMNamespaceMap = {
@@ -25,8 +20,7 @@ const defaultLevelMap: MikroORMLevelMap = {
 export class MikroORMPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements CollectorPlugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
-{
+> implements CollectorPlugin<TTaskContext, TGlobalContext> {
   public readonly id: string = 'mikroorm';
 
   public readonly entryTypes: string[] = ['sql.query'];
@@ -35,7 +29,9 @@ export class MikroORMPlugin<
 
   private readonly levelMap: MikroORMLevelMap;
 
-  private logger: Logger;
+  private logger?: Logger;
+
+  private bridge?: MikroORMLoggerBridge;
 
   constructor({ namespaces = {}, levels = {} }: MikroORMPluginOptions = {}) {
     this.namespaceMap = { ...defaultNamespaceMap, ...namespaces };
@@ -46,37 +42,17 @@ export class MikroORMPlugin<
     this.logger = logger;
   }
 
-  isEnabled(): boolean {
-    return true;
-  }
+  getBridge(): MikroORMLoggerBridge {
+    if (!this.bridge) {
+      if (!this.logger) {
+        throw new Error(
+          'MikroORM Debugr plugin incorrectly initialised: please call injectLogger()',
+        );
+      }
 
-  log(namespace: LoggerNamespace, message: string, context?: LogContext): void {
-    this.logger.log(this.namespaceMap[namespace], message, context);
-  }
-
-  warn(namespace: LoggerNamespace, message: string, context?: LogContext): void {
-    this.logger.log(LogLevel.WARNING, message, context);
-  }
-
-  error(namespace: LoggerNamespace, message: string, context?: LogContext): void {
-    this.logger.log(LogLevel.ERROR, message, context);
-  }
-
-  logQuery(context: LogContext): void {
-    if (context.query) {
-      this.logger.add<SqlQueryLogEntry>({
-        type: 'sql.query',
-        level: this.levelMap[context.level ?? 'info'],
-        data: {
-          query: context.query,
-          parameters: context.params,
-          time: context.took,
-        },
-      });
+      this.bridge = new MikroORMLoggerBridge(this.logger, this.namespaceMap, this.levelMap);
     }
-  }
 
-  setDebugMode(): void {
-    /* noop */
+    return this.bridge;
   }
 }
