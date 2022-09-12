@@ -90,7 +90,7 @@ This will produce log to console and a dump file in the log directory that will 
 
 ### Wait, what the runTask..?
 
-Debugr internally uses an `AsyncLocalStorage` from the [Async Hooks] NodeJS module
+Debugr internally uses the `AsyncLocalStorage` class from the [Async Hooks] NodeJS module
 which allows it to keep track of asynchronous execution without the need to explicitly
 pass around a logger object. So you can just inject the `Logger` instance anywhere you need,
 and it will _magically_ know which task each log entry belongs to. Tasks can of course also
