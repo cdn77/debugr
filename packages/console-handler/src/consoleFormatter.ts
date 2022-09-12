@@ -16,11 +16,13 @@ import { DefaultConsoleFormatter, isConsoleFormatter } from './formatters';
 import type { ConsoleColor } from './maps';
 import { defaultColorMap, defaultFormatters,defaultLevelMap } from './maps';
 
+const ts0 = new Date();
+
 export class ConsoleFormatter<
   TTaskContext extends TContextBase,
   TGlobalContext extends TContextShape,
 > {
-  private readonly writeTimestamp: boolean;
+  private readonly timestamp: boolean | ((ts: ImmutableDate) => string);
 
   private readonly levelMap: Map<number, string>;
 
@@ -34,11 +36,11 @@ export class ConsoleFormatter<
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
     levelMap: Record<number, string> = {},
     colorMap: Record<number, ConsoleColor> = {},
-    writeTimestamp: boolean = true,
+    timestamp: boolean | ((ts: ImmutableDate) => string) = true,
   ) {
     this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
     this.colorMap = normalizeMap({ ...defaultColorMap, ...colorMap });
-    this.writeTimestamp = writeTimestamp;
+    this.timestamp = timestamp;
     this.formatters = resolveFormatters(pluginManager, isConsoleFormatter, defaultFormatters);
     this.defaultFormatter = new DefaultConsoleFormatter();
   }
@@ -78,16 +80,20 @@ export class ConsoleFormatter<
   protected formatLines(level: number, content: string, ts?: ImmutableDate): string {
     const color = levelToValue(this.colorMap, level);
     const lvl = levelToValue(this.levelMap, level);
-    const prefix = `${formatDate(this.writeTimestamp && ts)}[${color(lvl)}] `;
+    const prefix = `${this.formatTimestamp(ts)}[${color(lvl)}] `;
     const indent = unstyle(prefix).replace(/./g, ' ');
     return `${prefix}${content.split(/\n/g).join(`\n${indent}`)}`;
   }
-}
 
-function formatDate(ts?: ImmutableDate | false): string {
-  if (ts === false) {
-    return '';
+  protected formatTimestamp(ts?: ImmutableDate): string {
+    if (this.timestamp === false) {
+      return '';
+    }
+
+    const formatted = typeof this.timestamp === 'function'
+      ? this.timestamp(ts ?? ts0)
+      : (ts ?? ts0).toISOString();
+
+    return dim(ts ? formatted : formatted.replace(/[^-]/g, '-'));
   }
-
-  return `${dim(ts ? ts.toISOString() : '------------------------')} `;
 }

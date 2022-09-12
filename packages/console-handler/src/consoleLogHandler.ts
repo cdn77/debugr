@@ -41,7 +41,7 @@ export class ConsoleLogHandler<
         pluginManager,
         this.options.levelMap,
         this.options.colorMap,
-        this.options.writeTimestamp,
+        this.options.timestamp,
       );
     }
   }

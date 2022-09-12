@@ -26,7 +26,7 @@ const logger = new Logger(globalContext, [
 logger.info('Application started.');
 
 // will output something like:
-// [info] Application started.
+// [ii] Application started.
 ```
 
 ### Options
@@ -34,11 +34,11 @@ logger.info('Application started.');
 The `ConsoleLogHandler` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
-| Option           | Type                                    | Default         | Description                                                                                     |
-|------------------|-----------------------------------------|-----------------|-------------------------------------------------------------------------------------------------|
-| `threshold`      | `LogLevel`, `number`                    | `LogLevel.INFO` | The lowest level of entries which will be logged. Any entries below this level will be ignored. |
-| `levelMap`       | `Record<number, string>`                |                 | A map of custom log levels to their string representation.                                      |
-| `colorMap`       | `Record<number, (v: string) => string>` |                 | A map of custom log levels to callbacks applying ANSI colors. See [`ansi-colors`].              |
-| `writeTimestamp` | `boolean`                               | `false`         | Prefixes the first line of each entry with the entry timestamp.                                 |
+| Option      | Type                                       | Default         | Description                                                                                     |
+|-------------|--------------------------------------------|-----------------|-------------------------------------------------------------------------------------------------|
+| `threshold` | `LogLevel`, `number`                       | `LogLevel.INFO` | The lowest level of entries which will be logged. Any entries below this level will be ignored. |
+| `levelMap`  | `Record<number, string>`                   |                 | A map of custom log levels to their string representation.                                      |
+| `colorMap`  | `Record<number, (v: string) => string>`    |                 | A map of custom log levels to callbacks applying ANSI colors. See [`ansi-colors`].              |
+| `timestamp` | `boolean`, `(ts: ImmutableDate) => string` | `false`         | Whether to prefix entries with their timestamp. Pass a callback if you need custom formatting.  |
 
 [`ansi-colors`]: https://www.npmjs.com/package/ansi-colors
