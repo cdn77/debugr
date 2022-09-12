@@ -37,9 +37,7 @@ export class DefaultHtmlFormatter<
     const data = !isEmpty(entry.data) && renderCode(formatData(entry.data));
 
     return this.renderParts(
-      message && data && renderDetails(message, data),
-      message && `<p>${message}</p>`,
-      data && renderDetails('Data:', data),
+      data ? renderDetails(message || 'Data:', data) : (message && `<p>${message}</p>`),
       entry.error && this.renderError(entry.error, false),
     );
   }

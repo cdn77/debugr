@@ -26,16 +26,14 @@ export abstract class AbstractHtmlFormatter<
     const text = `<strong>${escapeHtml(e.name)}</strong>: ${escapeHtml(e.message)}`;
 
     if (compact) {
-      return e.stack
-        ? renderDetails(text, renderCode(cleanUpStackTrace(e.stack)))
-        : `<p>${text}</p>`;
+      return e.stack ? this.renderStackTrace(e.stack, text) : `<p>${text}</p>`;
     }
 
     return this.renderParts(`<p>${text}</p>`, e.stack && this.renderStackTrace(e.stack));
   }
 
-  public renderStackTrace(trace: string): string {
-    return renderDetails('Stack trace:', renderCode(cleanUpStackTrace(trace)));
+  public renderStackTrace(trace: string, label: string = 'Stack trace:'): string {
+    return renderDetails(label, renderCode(cleanUpStackTrace(trace)));
   }
 
   protected renderParts(separator: string, parts: any[]): string;

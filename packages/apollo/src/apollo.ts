@@ -59,17 +59,7 @@ export class ApolloPlugin<
       },
       didEncounterErrors: async ({ errors }): Promise<void> => {
         for (const err of errors) {
-          const data = err.originalError
-            ? {
-                'original message': err.originalError.message,
-                stack: err.originalError.stack,
-              }
-            : {};
-
-          logger.error(err.message, {
-            positions: err.positions,
-            ...data,
-          });
+          logger.error(err.originalError ?? err);
         }
       },
     };

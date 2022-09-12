@@ -60,7 +60,7 @@ export function findDefiningEntry<
   }
 
   return task.log.entries
-    .filter((v) => !isTaskBoundary(v))
+    .filter((_, k) => !isTaskBoundary(k))
     .reduceKeys((a: any, b: any) => (b.level > a.level ? b : a)) as any;
 }
 

@@ -31,7 +31,7 @@ export type TaskBoundary = {
 };
 
 export function isTaskBoundary(value: any): value is TaskBoundary {
-  return (value as any).type === 'task:start' || (value as any).type === 'task:end';
+  return value.type === 'task:start' || value.type === 'task:end';
 }
 
 export type TaskLogEntry<
