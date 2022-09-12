@@ -1,6 +1,6 @@
 {
   "name": "@debugr/html-handler",
-  "version": "3.0.0-rc.3",
+  "version": "3.0.0-rc.4",
   "description": "Html log handler to debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,7 +11,7 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.4",
+    "@debugr/core": "^3.0.0-rc.5",
     "@debugr/http-common": "^3.0.0-rc.3",
     "@debugr/graphql-common": "^3.0.0-rc.3",
     "@debugr/sql-common": "^3.0.0-rc.3"

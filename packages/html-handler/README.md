@@ -55,7 +55,7 @@ a dump will be created and the entire task tree for the request will be included
 each task can have its threshold set independently. Initially each task inherits its threshold
 from its parent task, with the root task getting its threshold from the log handler options.
 During the execution of a subtask you can get the log handler instance from the `Logger` instance
-using the `logger.getHandler('html')` method, and then you can use that instance to set options
+using the `logger.getPlugin('html')` method, and then you can use that instance to set options
 for the current task - change its threshold or force it to generate or to not generate a dump file
 regardless of whether there is an entry which exceeds the threshold.
 

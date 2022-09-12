@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { writeFile } = require('fs/promises');
+const { resolve } = require('path');
 const semver = require('semver');
 const { scanPackages } = require('../src/utils');
 
@@ -32,14 +33,14 @@ if (!/^(major|minor|patch|premajor|preminor|prepatch|prerelease)$/.test(type)) {
   const next = semver.inc(current, type);
   console.log(`Bumping ${target} from ${current} to ${next}`);
   packages[target].meta.version = next;
-  await writeFile(packages[target].path, JSON.stringify(packages[target].meta, null, 2));
+  await writeFile(resolve(packages[target].path, 'package.json'), JSON.stringify(packages[target].meta, null, 2));
 
   for (const pkg of Object.values(packages)) {
     for (const key of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
       if (pkg.meta[key] && pkg.meta[key][target]) {
         console.log(`Updating ${pkg.meta.name} ${key} to match`);
         pkg.meta[key][target] = `^${next}`;
-        await writeFile(pkg.path, JSON.stringify(pkg.meta, null, 2));
+        await writeFile(resolve(pkg.path, 'package.json'), JSON.stringify(pkg.meta, null, 2));
       }
     }
   }

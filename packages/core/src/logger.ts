@@ -1,7 +1,13 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
 import { PluginManager } from './pluginManager';
-import type { LogEntry, LogHandlerPlugin, Plugin, TContextBase, TContextShape } from './types';
+import type {
+  LogEntry,
+  LogHandlerPlugin,
+  Plugin,
+  TContextBase,
+  TContextShape
+} from './types';
 import type { PluginId, Plugins } from './types';
 import { isLogHandlerPlugin, isTaskAwareLogHandlerPlugin } from './types';
 import { LogLevel } from './types';
@@ -197,19 +203,5 @@ export class Logger<
 
   public getPlugin<ID extends PluginId>(id: ID): Plugins<TTaskContext, TGlobalContext>[ID] {
     return this.pluginManager.get(id);
-  }
-
-  public hasHandler(id: string): boolean {
-    return this.handlers.has(id);
-  }
-
-  public getHandler(id: string): LogHandlerPlugin<TTaskContext, TGlobalContext> {
-    const logHandler = this.handlers.get(id);
-
-    if (!logHandler) {
-      throw new Error(`Unknown plugin: ${id}`);
-    }
-
-    return logHandler;
   }
 }
