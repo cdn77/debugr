@@ -11,10 +11,19 @@ import type {
 export type HtmlLogHandlerOptions = {
   threshold?: LogLevel | number;
   cloneData?: boolean;
-  outputDir: string;
   levelMap?: Record<number, string>;
   colorMap?: Record<number, string>;
 };
+
+export type HtmlLogHandlerRequiredOptions = HtmlLogHandlerOptions & {
+  outputDir: string;
+};
+
+export function isRequiredOptions(
+  options: HtmlLogHandlerOptions,
+): options is HtmlLogHandlerRequiredOptions {
+  return typeof (options as any).outputDir === 'string';
+}
 
 export type TaskBoundary = {
   type: 'task:start' | 'task:end';
@@ -40,7 +49,6 @@ export type TaskLog<
     TaskData<TTaskContext, TGlobalContext>
   >;
   tasks: number;
-  write?: boolean;
 };
 
 export type TaskLogInfo = {
@@ -53,14 +61,19 @@ export type TaskData<
   TGlobalContext extends TContextShape = TContextShape,
 > = {
   index: number;
-  parent?: number;
+  parent?: TaskData<TTaskContext, TGlobalContext>;
   log: TaskLog<TTaskContext, TGlobalContext>;
-  threshold?: number;
+  threshold: number;
   firstOverThreshold?: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>;
+  write?: boolean;
   ts: ImmutableDate;
   lastTs: ImmutableDate;
 };
 
 export interface HtmlWriter {
   write(ts: ImmutableDate, id: string, content: string): Promise<string> | string;
+}
+
+export function isHtmlWriter(value: any): value is HtmlWriter {
+  return value && typeof value === 'object' && typeof value.write === 'function';
 }

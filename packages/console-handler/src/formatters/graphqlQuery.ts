@@ -1,24 +1,17 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
 import { formatData, isEmpty } from '@debugr/core';
-import type { GraphQlLogEntry } from '@debugr/graphql-common';
+import type { GraphQLQueryLogEntry } from '@debugr/graphql-common';
 import { AbstractConsoleFormatter } from './abstract';
 
-export class GraphQLConsoleFormatter<
+export class GraphQLQueryConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
-  readonly id: string = 'debugr-graphql-console-formatter';
+  readonly id: string = 'debugr-graphql-query-console-formatter';
 
-  readonly entryFormat: string = 'graphql';
+  readonly entryType: string = 'graphql.query';
 
-  public static create<
-    TTaskContext extends TContextBase,
-    TGlobalContext extends TContextShape,
-  >(): GraphQLConsoleFormatter<TTaskContext, TGlobalContext> {
-    return new GraphQLConsoleFormatter<TTaskContext, TGlobalContext>();
-  }
-
-  formatEntry(entry: GraphQlLogEntry<TTaskContext, TGlobalContext>): string {
+  formatEntry(entry: GraphQLQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }

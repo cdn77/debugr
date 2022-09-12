@@ -15,11 +15,9 @@ export abstract class AbstractConsoleFormatter<
 {
   abstract readonly id: string;
 
-  abstract readonly entryFormat: string;
+  abstract readonly entryType: string;
 
   readonly targetHandler = 'console' as const;
-
-  injectLogger() {}
 
   abstract formatEntry(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string;
 

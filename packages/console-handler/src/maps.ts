@@ -1,5 +1,12 @@
 import { LogLevel } from '@debugr/core';
 import { blue, dim, magenta, red, yellow } from 'ansi-colors';
+import type { ConsoleFormatterPlugin } from './formatters';
+import {
+  GraphQLQueryConsoleFormatter,
+  HttpRequestConsoleFormatter,
+  HttpResponseConsoleFormatter,
+  SqlQueryConsoleFormatter,
+} from './formatters';
 
 export const defaultLevelMap: Record<number, string> = {
   [LogLevel.TRACE]: 'cc',
@@ -9,7 +16,7 @@ export const defaultLevelMap: Record<number, string> = {
   [LogLevel.ERROR]: 'EE',
   [LogLevel.FATAL]: 'FF',
   [-1]: 'ii',
-  0: '??',
+  0: '??'
 };
 
 export type ConsoleColor = (value: string) => string;
@@ -22,5 +29,13 @@ export const defaultColorMap: Record<number, ConsoleColor> = {
   [LogLevel.ERROR]: red,
   [LogLevel.FATAL]: red,
   [-1]: magenta,
-  0: blue,
+  0: blue
 };
+
+export const defaultFormatters: Record<string, () => ConsoleFormatterPlugin> = {
+  'graphql.query': () => new GraphQLQueryConsoleFormatter(),
+  'http.request': () => new HttpRequestConsoleFormatter(),
+  'http.response': () => new HttpResponseConsoleFormatter(),
+  'sql.query': () => new SqlQueryConsoleFormatter()
+};
+

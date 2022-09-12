@@ -1,26 +1,19 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
 import { formatData, isEmpty } from '@debugr/core';
-import type { SqlLogEntry, SqlQueryFormatter } from '@debugr/sql-common';
+import type { SqlQueryFormatter,SqlQueryLogEntry } from '@debugr/sql-common';
 import { createQueryFormatter, formatQueryTime } from '@debugr/sql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
-export class SqlHtmlFormatter<
+export class SqlQueryHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
-  public readonly id: string = 'debugr-sql-html-formatter';
+  public readonly id: string = 'debugr-sql-query-html-formatter';
 
-  public readonly entryFormat: string = 'sql';
+  public readonly entryType: string = 'sql.query';
 
   private readonly formatQuery: SqlQueryFormatter;
-
-  public static create<
-    TTaskContext extends TContextBase,
-    TGlobalContext extends TContextShape,
-  >(): SqlHtmlFormatter<TTaskContext, TGlobalContext> {
-    return new SqlHtmlFormatter<TTaskContext, TGlobalContext>();
-  }
 
   constructor() {
     super();
@@ -31,11 +24,7 @@ export class SqlHtmlFormatter<
     return 'SQL query';
   }
 
-  getEntryTitle(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
-    if (!entry.data || !entry.data.query) {
-      throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
-    }
-
+  getEntryTitle(entry: SqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (entry.message) {
       return entry.message;
     } else if (typeof entry.data.error === 'string') {
@@ -45,11 +34,7 @@ export class SqlHtmlFormatter<
     }
   }
 
-  renderEntry(entry: SqlLogEntry<TTaskContext, TGlobalContext>): string {
-    if (!entry.data || !entry.data.query) {
-      throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
-    }
-
+  renderEntry(entry: SqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
     const parameters =
       entry.data.parameters &&
       (Array.isArray(entry.data.parameters)

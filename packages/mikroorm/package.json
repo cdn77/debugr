@@ -1,6 +1,6 @@
 {
   "name": "@debugr/mikroorm",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0-rc.3",
   "description": "MikroORM plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,8 +11,8 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "3.0.0-rc.3",
-    "@debugr/sql-common": "3.0.0-rc.2"
+    "@debugr/core": "^3.0.0-rc.4",
+    "@debugr/sql-common": "^3.0.0-rc.3"
   },
   "devDependencies": {
     "@mikro-orm/core": "^5.2.1"

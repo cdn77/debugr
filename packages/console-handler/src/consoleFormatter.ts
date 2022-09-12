@@ -8,13 +8,13 @@ import type {
 import {
   levelToValue,
   normalizeMap,
+  resolveFormatters,
 } from '@debugr/core';
 import { dim, unstyle } from 'ansi-colors';
 import type { ConsoleFormatterPlugin } from './formatters';
-import { DefaultConsoleFormatter } from './formatters';
+import { DefaultConsoleFormatter, isConsoleFormatter } from './formatters';
 import type { ConsoleColor } from './maps';
-import { defaultColorMap, defaultLevelMap } from './maps';
-import { getFormatters } from './utils';
+import { defaultColorMap, defaultFormatters,defaultLevelMap } from './maps';
 
 export class ConsoleFormatter<
   TTaskContext extends TContextBase,
@@ -30,18 +30,6 @@ export class ConsoleFormatter<
 
   private readonly defaultFormatter: DefaultConsoleFormatter<TTaskContext, TGlobalContext>;
 
-  public static create<
-    TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = TContextShape,
-  >(
-    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
-    levelMap?: Record<number, string>,
-    colorMap?: Record<number, ConsoleColor>,
-    writeTimestamp?: boolean,
-  ): ConsoleFormatter<TTaskContext, TGlobalContext> {
-    return new ConsoleFormatter(pluginManager, levelMap, colorMap, writeTimestamp);
-  }
-
   constructor(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
     levelMap: Record<number, string> = {},
@@ -51,7 +39,7 @@ export class ConsoleFormatter<
     this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
     this.colorMap = normalizeMap({ ...defaultColorMap, ...colorMap });
     this.writeTimestamp = writeTimestamp;
-    this.formatters = getFormatters(pluginManager);
+    this.formatters = resolveFormatters(pluginManager, isConsoleFormatter, defaultFormatters);
     this.defaultFormatter = new DefaultConsoleFormatter();
   }
 
@@ -82,7 +70,7 @@ export class ConsoleFormatter<
     noPlugin: boolean = false,
   ): string {
     const formatter =
-      !noPlugin && entry.format ? this.formatters[entry.format] : this.defaultFormatter;
+      !noPlugin && entry.type ? this.formatters[entry.type] : this.defaultFormatter;
 
     return this.formatLines(entry.level, formatter.formatEntry(entry), entry.ts);
   }

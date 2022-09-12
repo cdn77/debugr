@@ -1,45 +1,41 @@
 import type {
   LogEntry,
+  Logger,
+  LogHandlerPlugin,
   PluginManager,
   ReadonlyRecursive,
   TContextBase,
-  TContextShape,
+  TContextShape
 } from '@debugr/core';
-import { LogHandler, LogLevel } from '@debugr/core';
+import { LogLevel } from '@debugr/core';
 import { ConsoleFormatter } from './consoleFormatter';
 import type { ConsoleLogHandlerOptions } from './types';
 
 export class ConsoleLogHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> extends LogHandler<TTaskContext, TGlobalContext> {
-  public readonly threshold: LogLevel | number;
-
-  public readonly identifier: string = 'console';
-
-  public readonly doesNeedFormatters: boolean = true;
+> implements LogHandlerPlugin<TTaskContext, TGlobalContext> {
+  public readonly id: string = 'console';
 
   private readonly options: ConsoleLogHandlerOptions;
 
-  private formatter?: ConsoleFormatter<TTaskContext, TGlobalContext>;
+  private readonly threshold: LogLevel | number;
 
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options?: ConsoleLogHandlerOptions,
-  ): ConsoleLogHandler<TTaskContext, TGlobalContext> {
-    return new ConsoleLogHandler<TTaskContext, TGlobalContext>(options);
-  }
+  private formatter?: ConsoleFormatter<TTaskContext, TGlobalContext>;
 
   public constructor(
     options: ConsoleLogHandlerOptions = {},
     formatter?: ConsoleFormatter<TTaskContext, TGlobalContext>,
   ) {
-    super();
-    this.threshold = options.threshold ?? LogLevel.INFO;
     this.options = options;
+    this.threshold = options.threshold ?? LogLevel.INFO;
     this.formatter = formatter;
   }
 
-  public injectPluginManager(pluginManager: PluginManager<TTaskContext, TGlobalContext>): void {
+  public injectLogger(
+    logger: Logger<TTaskContext, TGlobalContext>,
+    pluginManager: PluginManager<TTaskContext, TGlobalContext>,
+  ): void {
     if (!this.formatter) {
       this.formatter = new ConsoleFormatter<TTaskContext, TGlobalContext>(
         pluginManager,
@@ -53,6 +49,8 @@ export class ConsoleLogHandler<
   public log(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): void {
     if (!this.formatter) {
       throw new Error('Logger was incorrectly initialized, no formatter found');
+    } else if (entry.level < this.threshold) {
+      return;
     }
 
     console.log(this.formatter.format(entry));

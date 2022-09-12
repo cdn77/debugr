@@ -1,6 +1,5 @@
 import type {
   LogEntry,
-  PluginManager,
   ReadonlyRecursive,
   SmartMap,
   TContextBase,
@@ -8,46 +7,8 @@ import type {
 } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
 import { createHash } from 'crypto';
-import type { HtmlFormatterPlugin } from './formatters';
-import {
-  GraphQLHtmlFormatter,
-  HttpHtmlFormatter,
-  isHtmlFormatter,
-  SqlHtmlFormatter,
-} from './formatters';
 import type { TaskData, TaskLogEntry, TaskLogInfo } from './types';
 import { isTaskBoundary } from './types';
-
-export function getFormatters<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = TContextShape,
->(
-  pluginManager: PluginManager<TTaskContext, TGlobalContext>,
-): Record<string, HtmlFormatterPlugin<TTaskContext, TGlobalContext>> {
-  const formatters = Object.fromEntries(
-    pluginManager.find(isHtmlFormatter).map((p) => [p.entryFormat, p]),
-  );
-
-  for (const format of pluginManager.getKnownEntryFormats()) {
-    if (!formatters[format]) {
-      switch (format) {
-        case 'graphql':
-          formatters[format] = new GraphQLHtmlFormatter();
-          break;
-        case 'http':
-          formatters[format] = new HttpHtmlFormatter();
-          break;
-        case 'sql':
-          formatters[format] = new SqlHtmlFormatter();
-          break;
-        default:
-          throw new Error(`Missing HTML formatter plugin for the '${format}' entry format`);
-      }
-    }
-  }
-
-  return formatters;
-}
 
 export function getTaskLogInfo(entries: SmartMap<TaskLogEntry, TaskData>): TaskLogInfo {
   const tasks: number[] = [];

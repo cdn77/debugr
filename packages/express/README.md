@@ -2,13 +2,13 @@ Express plugin for Debugr
 =========================
 
 This plugin provides Debugr middleware for the Express web server.
-With this middleware the Debugr logger will automatically be
-forked for each HTTP request that Express handles; additionally
-both the HTTP request and the response from your app will be logged
-and the logger will be automatically flushed when the response is sent.
-If the HTTP response code is >= 500 (or >= 400 if the `e4xx` option is set)
-the response will be logged with the `Logger.ERROR` level, likely causing
-the logger to be marked for writing and a dump file created.
+With this middleware a new task will automatically be started for each
+HTTP request that Express handles; additionally, both the HTTP request and
+the HTTP response or any error which reaches Express error handling
+will be automatically logged. If the HTTP response code is >= 500
+(or >= 400 if the `e4xx` option is set) the response will be logged
+with the `Logger.ERROR` level, otherwise the level configured in the plugin
+options will be used.
 
 ## Installation
 
@@ -18,74 +18,56 @@ npm install --save @debugr/express
 
 ## Usage
 
-With Express integration and plugin:
-
 ```typescript
-import { ExpressLogger } from '@debugr/express';
 import * as express from 'express';
-import { 
-  Logger, 
-  Debugr, 
-  LogLevel,
-} from '@debugr/core';
+import { Logger, LogLevel } from '@debugr/core';
+import { ExpressLogger } from '@debugr/express';
 import { ConsoleLogHandler } from '@debugr/console-handler';
-import { HttpConsoleFormatter } from '@debugr/http-console-formatter';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-// There are all dependent formatters checked and validated.
-const debugr = Debugr.create(globalContext, 
-  [
-    ConsoleLogHandler.create(
-      LogLevel.info,
-    ),
-  ],
-  [
-    ExpressLogger.create(),
-    // Need to add formatter between ExpressLogger and ConsoleLogHandler
-    HttpConsoleFormatter.create(),
-  ],
-);
+const logger = new Logger(globalContext, [
+  new ConsoleLogHandler({
+    threshold: LogLevel.INFO,
+  }),
+  new ExpressLogger(),
+]);
 
 const app = express();
 
 // as the very first middleware:
-app.use(debugr.getPlugin('express').createRequestHandler());
+app.use(logger.getPlugin('express').createRequestHandler());
 
 // apply your other middlewares like body parser and your routes
-
 app.post('/my-api', function(req, res) {
-  // in all your middlewares you can now access req.logger:
-  req.logger.info('User id: %d', req.userId);
-
   // ...
 });
 
 // and then as the very last middleware:
-app.use(debugr.getPlugin('express').createErrorHandler());
+app.use(logger.getPlugin('express').createErrorHandler());
 
 app.listen(8000);
 ```
 
 ## Options
 
-The `expressLogger()` function can take an object with the following
-keys as the first argument:
+The `ExpressLogger` constructor accepts an optional `options` object
+with the following keys as the first argument:
 
-| Option                    | Type       | Default                       | Description                                                                                             |
-| ------------------------- | ---------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `level`                   | `number`   | `Logger.INFO`                 | The default level at which the request and response will be logged                                      |
-| `e4xx`                    | `boolean`  | `false`                       | Consider HTTP 4xx status code as an error response and log appropriately                                |
-| `captureBody`             |            |                               | See below; global setting for both request and response                                                 |
-| `excludeHeaders`          | `string[]` |                               | Redact the contents of the specified headers when logging; global setting for both request and response |
-| `request`                 | `object`   |                               | Request-specific logging options                                                                        |
-| `request.captureBody`     |            |                               | See below; overrides global setting                                                                     |
-| `request.excludeHeaders`  | `string[]` | `['Authorization', 'Cookie']` | Redact the contents of the specified headers when logging; overrides global setting                     |
-| `response`                | `object`   |                               | Response-specific logging options                                                                       |
-| `response.captureBody`    |            |                               | See below; overrides global setting                                                                     |
-| `response.excludeHeaders` | `string[]` | `['Set-Cookie']`              | Redact the contents of the specified headers when logging; overrides global setting                     |
+| Option                    | Type                 | Default                       | Description                                                                                             |
+|---------------------------|----------------------|-------------------------------|---------------------------------------------------------------------------------------------------------|
+| `level`                   | `LogLevel`, `number` | `Logger.INFO`                 | The default level at which the request and response will be logged                                      |
+| `e4xx`                    | `boolean`            | `false`                       | Consider HTTP 4xx status code as an error response and log appropriately                                |
+| `captureBody`             |                      |                               | See below; global setting for both request and response                                                 |
+| `excludeHeaders`          | `string[]`           |                               | Redact the contents of the specified headers when logging; global setting for both request and response |
+| `request`                 | `object`             |                               | Request-specific logging options                                                                        |
+| `request.captureBody`     |                      |                               | See below; overrides global setting                                                                     |
+| `request.excludeHeaders`  | `string[]`           | `['Authorization', 'Cookie']` | Redact the contents of the specified headers when logging; overrides global setting                     |
+| `response`                | `object`             |                               | Response-specific logging options                                                                       |
+| `response.captureBody`    |                      |                               | See below; overrides global setting                                                                     |
+| `response.excludeHeaders` | `string[]`           | `['Set-Cookie']`              | Redact the contents of the specified headers when logging; overrides global setting                     |
 
 ### `captureBody`
 
@@ -93,7 +75,7 @@ The `captureBody` option controls whether the request or response body
 will be captured in the debug log. It can be set in many ways, so it bears
 explaining in more detail:
  - A `boolean` simply means what `boolean` usually means - `captureBody: true`
-   will capture the body *always*. This is usually slightly overkill. Typically
+   will capture the body *always*. This is probably slightly overkill. Typically,
    you'll use this to *disable* capturing the raw request body if you're sure
    you don't ever care about it - e.g. if you log the decoded body by another plugin.
  - A `number` means "max size in bytes" - the body will be captured if its size

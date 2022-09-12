@@ -1,4 +1,9 @@
-import type { CaptureBodyOption, HttpHeaders, NormalizedCaptureBodyOption } from './types';
+import type {
+  CaptureBodyChecker,
+  CaptureBodyOption,
+  HeaderFilter,
+  HttpHeaders,
+} from "./types";
 
 const httpStatusMap: Record<number, string> = {
   100: 'Continue',
@@ -78,77 +83,78 @@ export function formatHttpHeaders(headers: HttpHeaders): string {
     .join('\n');
 }
 
-export function filterHeaders(headers: HttpHeaders, exclude?: RegExp): HttpHeaders {
-  if (!exclude) {
-    return headers;
+export function createHttpHeadersFilter(exclude?: string[]): HeaderFilter {
+  if (!exclude || !exclude.length) {
+    return (headers) => headers;
   }
 
-  const filtered = { ...headers };
+  const patterns = exclude.map((header) => header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = new RegExp(`^(?:${patterns.join('|')})$`, 'i');
 
-  for (const header of Object.keys(filtered)) {
-    if (exclude.test(header)) {
-      filtered[header] = '**redacted**';
-    }
-  }
+  return (headers) => {
+    const filtered = { ...headers };
 
-  return filtered;
-}
-
-export function normalizeCaptureOption(option?: CaptureBodyOption): NormalizedCaptureBodyOption {
-  if (typeof option === 'boolean' || typeof option === 'number' || option === undefined) {
-    return option || false;
-  } else if (typeof option === 'string' || Array.isArray(option)) {
-    return normalizeTypePattern(option);
-  } else {
-    const map = new Map<RegExp, number>();
-
-    for (const [type, length] of Object.entries(option)) {
-      const pattern = normalizeTypePattern(type);
-      pattern && map.set(pattern, length);
+    for (const header of Object.keys(filtered)) {
+      if (pattern.test(header)) {
+        filtered[header] = '**redacted**';
+      }
     }
 
-    return map;
-  }
+    return filtered;
+  };
 }
 
-export function isCaptureEnabled(
-  option: NormalizedCaptureBodyOption,
-  contentType?: string,
-  contentLength?: number,
-): boolean {
+export function createHttpCaptureChecker(option: CaptureBodyOption = false): CaptureBodyChecker {
   if (typeof option === 'boolean') {
-    return option;
-  } else if (typeof option === 'number') {
-    return contentLength !== undefined && contentLength <= option;
-  } else {
+    return () => option;
+  }
+
+  if (typeof option === 'number') {
+    return (rawContentType, rawContentLength) => {
+      const contentLength = normalizeContentLength(rawContentLength);
+      return contentLength !== undefined && contentLength <= option;
+    };
+  }
+
+  if (Array.isArray(option) || typeof option === 'string') {
+    const pattern = normalizeTypePattern(option);
+
+    return (rawContentType) => {
+      const contentType = normalizeContentType(rawContentType);
+      return contentType !== undefined && pattern.test(contentType);
+    };
+  }
+
+  const map = new Map<RegExp, CaptureBodyChecker>();
+
+  for (const [pattern, test] of Object.entries(option)) {
+    map.set(normalizeTypePattern(pattern), createHttpCaptureChecker(test));
+  }
+
+  return (rawContentType, rawContentLength) => {
+    const contentType = normalizeContentType(rawContentType);
+
     if (contentType === undefined) {
       return false;
     }
 
-    if (option instanceof Map) {
-      if (contentLength === undefined) {
-        return false;
+    for (const [pattern, test] of map) {
+      if (pattern.test(contentType)) {
+        return test(rawContentType, rawContentLength);
       }
-
-      for (const [pattern, length] of option) {
-        if (pattern.test(contentType)) {
-          return contentLength <= length;
-        }
-      }
-
-      return false;
-    } else {
-      return option.test(contentType);
     }
-  }
+
+    return false;
+  };
 }
 
-function normalizeTypePattern(str: string | string[]): RegExp | false {
-  if (!str.length) {
-    return false;
+function normalizeTypePattern(str: string | string[]): RegExp {
+  const types = (Array.isArray(str) ? str.join(',') : str).trim().split(/\s*,\s*|\s+/g);
+
+  if (!types.length) {
+    throw new TypeError(`Invalid pattern: ${JSON.stringify(str)}`);
   }
 
-  const types = Array.isArray(str) ? str : str.split(/\s*,\s*|\s+/g);
   const patterns = types.map((type) =>
     type
       .toLowerCase()
@@ -166,13 +172,4 @@ export function normalizeContentType(type?: number | string | string[]): string 
 export function normalizeContentLength(length?: number | string | string[]): number | undefined {
   const value = Array.isArray(length) ? length[0] : length;
   return typeof value === 'string' ? parseInt(value, 10) : value;
-}
-
-export function normalizeHeaderPattern(headers?: string[]): RegExp | undefined {
-  if (!headers || !headers.length) {
-    return undefined;
-  }
-
-  const patterns = headers.map((header) => header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  return new RegExp(`^(?:${patterns.join('|')})$`, 'i');
 }

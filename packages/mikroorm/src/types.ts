@@ -5,11 +5,11 @@ export type MikroORMLogNamespace = LoggerNamespace;
 export type MikroORMLogLevel = 'info' | 'warning' | 'error';
 
 export type MikroORMNamespaceMap = {
-  [namespace in MikroORMLogNamespace]: LogLevel;
+  [namespace in MikroORMLogNamespace]: LogLevel | number;
 };
 
 export type MikroORMLevelMap = {
-  [level in MikroORMLogLevel]: LogLevel;
+  [level in MikroORMLogLevel]: LogLevel | number;
 };
 
 export type MikroORMPluginOptions = {

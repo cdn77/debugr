@@ -1,7 +1,8 @@
 import type {
+  CaptureBodyChecker,
   CaptureBodyOption,
+  HeaderFilter,
   HttpHeaders,
-  NormalizedCaptureBodyOption,
 } from '@debugr/http-common';
 
 export type Options = {
@@ -23,12 +24,12 @@ export type NormalizedOptions = {
   level: number;
   e4xx: boolean;
   request: {
-    captureBody: NormalizedCaptureBodyOption;
-    excludeHeaders?: RegExp;
+    isCaptureEnabled: CaptureBodyChecker;
+    filterHeaders: HeaderFilter;
   };
   response: {
-    captureBody: NormalizedCaptureBodyOption;
-    excludeHeaders?: RegExp;
+    isCaptureEnabled: CaptureBodyChecker;
+    filterHeaders: HeaderFilter;
   };
 };
 

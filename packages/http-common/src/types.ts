@@ -5,7 +5,6 @@ export interface HttpHeaders {
 }
 
 export interface HttpRequestData {
-  type: 'request';
   method: string;
   uri: string;
   headers?: HttpHeaders;
@@ -16,7 +15,6 @@ export interface HttpRequestData {
 }
 
 export interface HttpResponseData {
-  type: 'response';
   status: number;
   message?: string;
   headers?: HttpHeaders;
@@ -25,13 +23,25 @@ export interface HttpResponseData {
   lengthMismatch?: boolean;
 }
 
-export interface HttpLogEntry<
+export interface HttpRequestLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  format: 'http';
-  data: HttpRequestData | HttpResponseData;
+  type: 'http.request';
+  data: HttpRequestData;
 }
 
-export type CaptureBodyOption = boolean | number | string | string[] | Record<string, number>;
-export type NormalizedCaptureBodyOption = boolean | number | RegExp | Map<RegExp, number>;
+export interface HttpResponseLogEntry<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> extends LogEntry<TTaskContext, TGlobalContext> {
+  type: 'http.response';
+  data: HttpResponseData;
+}
+
+export type HeaderFilter = (headers: HttpHeaders) => HttpHeaders;
+export type CaptureBodyOption = boolean | number | string | string[] | Record<string, boolean | number>;
+export type CaptureBodyChecker = (
+  rawContentType?: number | string | string[],
+  rawContentLength?: number | string | string[],
+) => boolean;

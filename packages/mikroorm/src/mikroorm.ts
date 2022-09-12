@@ -1,6 +1,6 @@
-import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
-import type { SqlLogEntry } from '@debugr/sql-common';
+import type { SqlQueryLogEntry } from '@debugr/sql-common';
 import type {
   LogContext,
   Logger as MikroORMLoggerInterface,
@@ -25,23 +25,17 @@ const defaultLevelMap: MikroORMLevelMap = {
 export class MikroORMPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements Plugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
+> implements CollectorPlugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
 {
   public readonly id: string = 'mikroorm';
 
-  public readonly entryFormat: string = 'sql';
+  public readonly entryTypes: string[] = ['sql.query'];
 
   private readonly namespaceMap: MikroORMNamespaceMap;
 
   private readonly levelMap: MikroORMLevelMap;
 
   private logger: Logger;
-
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options?: MikroORMPluginOptions,
-  ): MikroORMPlugin<TTaskContext, TGlobalContext> {
-    return new MikroORMPlugin<TTaskContext, TGlobalContext>(options);
-  }
 
   constructor({ namespaces = {}, levels = {} }: MikroORMPluginOptions = {}) {
     this.namespaceMap = { ...defaultNamespaceMap, ...namespaces };
@@ -70,8 +64,8 @@ export class MikroORMPlugin<
 
   logQuery(context: LogContext): void {
     if (context.query) {
-      this.logger.add<SqlLogEntry>({
-        format: 'sql',
+      this.logger.add<SqlQueryLogEntry>({
+        type: 'sql.query',
         level: this.levelMap[context.level ?? 'info'],
         data: {
           query: context.query,

@@ -11,7 +11,7 @@ export class DefaultHtmlFormatter<
 
   readonly id: string = 'debugr-default-html-formatter';
 
-  readonly entryFormat: string = '*';
+  readonly entryType: string = '*';
 
   readonly targetHandler = 'html' as const;
 

@@ -1,4 +1,4 @@
-export * from './debugr';
 export * from './logger';
-export * from './plugins';
+export * from './pluginManager';
+export * from './types';
 export * from './utils';

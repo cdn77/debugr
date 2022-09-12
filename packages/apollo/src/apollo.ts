@@ -1,17 +1,17 @@
-import type { Logger, Plugin, TContextBase, TContextShape } from '@debugr/core';
+import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
 import { LogLevel } from '@debugr/core';
-import type { GraphQlLogEntry } from '@debugr/graphql-common';
+import type { GraphQLQueryLogEntry } from '@debugr/graphql-common';
 import type { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import type { FullOptions, Options } from './types';
 
 export class ApolloPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements Plugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
+> implements CollectorPlugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
 {
   readonly id: string = 'apollo';
 
-  readonly entryFormat = 'graphql' as const;
+  readonly entryTypes: string[] = ['graphql.query'];
 
   private readonly options: FullOptions;
 
@@ -19,14 +19,9 @@ export class ApolloPlugin<
 
   constructor(options?: Options) {
     this.options = {
-      level: options?.level || LogLevel.INFO,
+      level: options?.level ?? LogLevel.INFO,
+      forceSubtask: options?.forceSubtask ?? false,
     };
-  }
-
-  public static create<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>(
-    options?: Options,
-  ): ApolloPlugin<TTaskContext, TGlobalContext> {
-    return new ApolloPlugin<TTaskContext, TGlobalContext>(options);
   }
 
   injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
@@ -35,7 +30,7 @@ export class ApolloPlugin<
 
   public getApolloMiddleware() {
     return async (resolve: any): Promise<any> => {
-      return this.logger.runTask(resolve, true);
+      return this.logger.runTask(resolve, !this.options.forceSubtask);
     };
   }
 
@@ -51,8 +46,8 @@ export class ApolloPlugin<
         operation && logger.setContextProperty('queryName', operation);
 
         if (ctx.request.query) {
-          logger.add<GraphQlLogEntry>({
-            format: this.entryFormat,
+          logger.add<GraphQLQueryLogEntry>({
+            type: 'graphql.query',
             level: options.level,
             data: {
               query: ctx.request.query,
