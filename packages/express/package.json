@@ -1,6 +1,6 @@
 {
   "name": "@debugr/express",
-  "version": "3.0.0-rc.3",
+  "version": "3.0.0-rc.4",
   "description": "Express.js plugin for Debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,8 +11,8 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.5",
-    "@debugr/http-common": "^3.0.0-rc.3"
+    "@debugr/core": "^3.0.0-rc.6",
+    "@debugr/http-common": "^3.0.0-rc.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.9",
