@@ -127,9 +127,7 @@ export function formatData(data: any): string {
   }
 }
 
-export function resolveFormatters<
-  TFormatter extends FormatterPlugin,
->(
+export function resolveFormatters<TFormatter extends FormatterPlugin>(
   pluginManager: PluginManager<any, any>,
   filter: FormatterPluginTypeGuard<TFormatter>,
   defaults: Record<string, () => TFormatter>,

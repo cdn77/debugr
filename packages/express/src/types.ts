@@ -5,7 +5,7 @@ import type {
   HttpHeaders,
 } from '@debugr/http-common';
 
-export type Options = {
+export type ExpressCollectorOptions = {
   level?: number;
   e4xx?: boolean;
   captureBody?: CaptureBodyOption;

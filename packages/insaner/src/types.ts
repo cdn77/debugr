@@ -1,6 +1,6 @@
 import type { HeaderFilter } from '@debugr/http-common';
 
-export type Options = {
+export type InsanerCollectorOptions = {
   level?: number;
   e4xx?: boolean;
   excludeHeaders?: string[];

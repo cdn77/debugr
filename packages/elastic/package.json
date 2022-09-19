@@ -1,0 +1,47 @@
+{
+  "name": "@debugr/elastic",
+  "version": "3.0.0-rc.5",
+  "description": "Elastic log handler for Debugr",
+  "author": {
+    "name": "Dan Kadera",
+    "email": "dan.kadera@cdn77.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "@debugr/core": "^3.0.0-rc.5",
+    "@elastic/elasticsearch": "^7.15.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "build": {
+    "src": "src/index.ts",
+    "externals": [
+      "@elastic/elasticsearch",
+      "uuid"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:cleanup": "../../.run build:cleanup",
+    "build:compile": "../../.run build:compile",
+    "build:declarations": "../../.run build:declarations",
+    "build:prettify": "../../.run build:prettify",
+    "build:main": "../../.run build:main",
+    "build": "../../.run build",
+    "lint": "../../.run lint",
+    "preversion": "../../.run release"
+  }
+}

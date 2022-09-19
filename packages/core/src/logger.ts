@@ -2,14 +2,15 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
 import { PluginManager } from './pluginManager';
 import type {
+  HandlerPlugin,
   LogEntry,
-  LogHandlerPlugin,
   Plugin,
+  PluginId,
+  Plugins,
   TContextBase,
-  TContextShape
+  TContextShape,
 } from './types';
-import type { PluginId, Plugins } from './types';
-import { isLogHandlerPlugin, isTaskAwareLogHandlerPlugin } from './types';
+import { isHandlerPlugin, isTaskAwareHandlerPlugin } from './types';
 import { LogLevel } from './types';
 import { clone, SmartMap, wrapPossiblePromise } from './utils';
 
@@ -18,12 +19,9 @@ export class Logger<
   TGlobalContext extends TContextShape = TContextShape,
 > {
   private readonly globalContext: TGlobalContext;
-
   private readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
-
   private readonly taskContextStorage: AsyncLocalStorage<Partial<TTaskContext>>;
-
-  private readonly handlers: SmartMap<string, LogHandlerPlugin<TTaskContext, TGlobalContext>>;
+  private readonly handlers: SmartMap<string, HandlerPlugin<TTaskContext, TGlobalContext>>;
 
   public constructor(
     globalContext: TGlobalContext,
@@ -40,10 +38,9 @@ export class Logger<
 
     this.pluginManager.init(this);
 
-    this.handlers = new SmartMap(this.pluginManager.find(isLogHandlerPlugin).map((handler) => [
-      handler.id,
-      handler,
-    ]));
+    this.handlers = new SmartMap(
+      this.pluginManager.find(isHandlerPlugin).map((handler) => [handler.id, handler]),
+    );
   }
 
   public runTask<R>(callback: () => R, dontOverrideTask: boolean = false): R {
@@ -65,7 +62,7 @@ export class Logger<
     const newContext: Partial<TTaskContext> = context ? clone(context) : {};
 
     const mainCallback = this.handlers.reduceRight(
-      (child, parent) => (isTaskAwareLogHandlerPlugin(parent) ? () => parent.runTask(child) : child),
+      (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),
       envelopedCallback,
     );
 

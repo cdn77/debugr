@@ -24,6 +24,7 @@ case "$1" in
     ;;
   lint)
     eslint -c "${BASE}/.eslint.build.rc" --fix 'src/**/*.ts'
+    prettier --config "${BASE}/.prettierrc" --write 'src/**/*.ts'
     ;;
   release)
     run-s lint build

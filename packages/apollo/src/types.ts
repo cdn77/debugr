@@ -1,9 +1,3 @@
-export type Options = {
+export type ApolloCollectorOptions = {
   level?: number;
-  forceSubtask?: boolean;
-};
-
-export type FullOptions = {
-  level: number;
-  forceSubtask: boolean;
 };

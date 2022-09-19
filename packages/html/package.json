@@ -1,0 +1,47 @@
+{
+  "name": "@debugr/html",
+  "version": "3.0.0-rc.5",
+  "description": "Html log handler for Debugr",
+  "author": {
+    "name": "Dan Kadera",
+    "email": "dan.kadera@cdn77.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "@debugr/core": "^3.0.0-rc.5",
+    "@debugr/http-common": "^3.0.0-rc.3",
+    "@debugr/graphql-common": "^3.0.0-rc.3",
+    "@debugr/sql-common": "^3.0.0-rc.3"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "build": {
+    "src": "src/index.ts",
+    "externals": [
+      "async_hooks",
+      "crypto",
+      "fs/promises",
+      "path"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:cleanup": "../../.run build:cleanup",
+    "build:compile": "../../.run build:compile",
+    "build:declarations": "../../.run build:declarations",
+    "build:prettify": "../../.run build:prettify",
+    "build:main": "../../.run build:main",
+    "build": "../../.run build",
+    "lint": "../../.run lint",
+    "preversion": "../../.run release"
+  }
+}

@@ -1,7 +1,7 @@
-import { ApolloPlugin } from './apollo';
-import type { Options } from './types';
+export * from './apolloCollector';
+export * from './types';
 
-export { ApolloPlugin, Options };
+import type { ApolloCollector } from './apolloCollector';
 
 declare module '@debugr/core' {
   export interface TContextFixed {
@@ -12,6 +12,6 @@ declare module '@debugr/core' {
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = TContextShape,
   > {
-    apollo: ApolloPlugin<TTaskContext, TGlobalContext>;
+    apollo: ApolloCollector<TTaskContext, TGlobalContext>;
   }
 }

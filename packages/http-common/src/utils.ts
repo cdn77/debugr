@@ -1,9 +1,4 @@
-import type {
-  CaptureBodyChecker,
-  CaptureBodyOption,
-  HeaderFilter,
-  HttpHeaders,
-} from "./types";
+import type { CaptureBodyChecker, CaptureBodyOption, HeaderFilter, HttpHeaders } from './types';
 
 const httpStatusMap: Record<number, string> = {
   100: 'Continue',

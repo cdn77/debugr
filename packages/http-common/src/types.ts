@@ -40,7 +40,12 @@ export interface HttpResponseLogEntry<
 }
 
 export type HeaderFilter = (headers: HttpHeaders) => HttpHeaders;
-export type CaptureBodyOption = boolean | number | string | string[] | Record<string, boolean | number>;
+export type CaptureBodyOption =
+  | boolean
+  | number
+  | string
+  | string[]
+  | Record<string, boolean | number>;
 export type CaptureBodyChecker = (
   rawContentType?: number | string | string[],
   rawContentLength?: number | string | string[],

@@ -8,7 +8,7 @@ export class PluginManager<
 > {
   private readonly plugins: Plugins<TTaskContext, TGlobalContext>;
 
-  constructor() {
+  public constructor() {
     this.plugins = {};
   }
 
@@ -43,7 +43,6 @@ export class PluginManager<
   }
 
   public getKnownEntryTypes(): string[] {
-    const formats = new Set(this.find(isCollectorPlugin).flatMap((p) => p.entryTypes));
-    return [...formats];
+    return [...new Set(this.find(isCollectorPlugin).flatMap((p) => p.entryTypes))];
   }
 }

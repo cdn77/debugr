@@ -16,18 +16,18 @@ Standalone Apollo Server:
 ```typescript
 import { ApolloServer } from 'apollo-server';
 import { Logger, LogLevel } from '@debugr/core';
-import { ApolloLogger } from '@debugr/apollo';
-import { ConsoleLogHandler } from '@debugr/console-handler';
+import { ApolloCollector } from '@debugr/apollo';
+import { ConsoleHandler } from '@debugr/console';
 
 const globalContext = {
   applicationName: 'example',
 };
 
 const logger = new Logger(globalContext, [
-  new ConsoleLogHandler({
+  new ConsoleHandler({
     threshold: LogLevel.INFO,
   }),
-  new ApolloLogger(),
+  new ApolloCollector(),
 ]);
 
 const server = new ApolloServer({
@@ -44,20 +44,20 @@ With Express integration and plugin:
 import { ApolloServer } from 'apollo-server-express';
 import * as express from 'express';
 import { Logger, LogLevel } from '@debugr/core';
-import { ExpressLogger } from '@debugr/express';
-import { ApolloLogger } from '@debugr/apollo';
-import { ConsoleLogHandler } from '@debugr/console-handler';
+import { ExpressCollector } from '@debugr/express';
+import { ApolloCollector } from '@debugr/apollo';
+import { ConsoleHandler } from '@debugr/console';
 
 const globalContext = {
   applicationName: 'example',
 };
 
 const logger = new Logger(globalContext, [
-  new ConsoleLogHandler({
+  new ConsoleHandler({
     threshold: LogLevel.INFO,
   }),
-  new ExpressLogger(),
-  new ApolloLogger(),
+  new ExpressCollector(),
+  new ApolloCollector(),
 ]);
 
 const app = express();
@@ -80,10 +80,9 @@ app.listen(8000);
 
 ### Options
 
-The `ApolloLogger` constructor accepts an optional `options` object
+The `ApolloCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
 | Option         | Type                 | Default         | Description                                                                                                          |
 |----------------|----------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | `level`        | `LogLevel`, `number` | `LogLevel.INFO` | The level at which GraphQL queries are logged.                                                                       |
-| `forceSubtask` | `boolean`            | `false`         | Whether a subtask should be always started. By default, a subtask is only started if another task doesn't exist yet. |
