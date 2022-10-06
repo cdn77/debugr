@@ -30,10 +30,10 @@ Log Handlers are responsible for deciding what to do with log entries. The `Logg
 in Debugr doesn't write the log entries anywhere by itself - it delegates this work to configured
 Log Handlers.
 
-- [`@debugr/console-handler`] - Outputs formatted entries to console
-- [`@debugr/elastic-handler`] - Sends structured entries to an Elastic index
-- [`@debugr/html-handler`] - Creates Tracy-style HTML dump files
-- [`@debugr/slack-handler`] - Sends messages to a Slack channel
+- [`@debugr/console`] - Outputs formatted entries to console
+- [`@debugr/elastic`] - Sends structured entries to an Elastic index
+- [`@debugr/html`] - Creates Tracy-style HTML dump files
+- [`@debugr/slack`] - Sends messages to a Slack channel
 
 ### Plugins:
 
@@ -53,18 +53,18 @@ stuff will be done automatically for you.
 
 ```typescript
 import { Logger, LogLevel } from '@debugr/core';
-import { ConsoleLogHandler } from '@debugr/console-handler';
-import { HtmlLogHandler } from '@debugr/html-handler';
+import { ConsoleHandler } from '@debugr/console';
+import { HtmlHandler } from '@debugr/html';
 
 const globalContext = {
   applicationName: 'example',
 };
 
 const logger = new Logger(globalContext, [
-  new ConsoleLogHandler({
+  new ConsoleHandler({
     threshold: LogLevel.INFO
   }),
-  new HtmlLogHandler({
+  new HtmlHandler({
     threshold: LogLevel.ERROR,
     outputDir: __dirname + '/log',
   }),
@@ -185,12 +185,14 @@ The `Logger` instance has the following methods:
 
 ## Development
 
-To release a new version of a package, run the following command in the package
-directory:
+To release a new version of a package, run the following command in the root directory of Debugr:
 
 ```bash
-npm --no-git-tag-version --force version <major|minor|patch>
+tools/upgrade-version.js <package> <major|minor|patch|premajor|preminor|prepatch|prerelease>
 ```
+
+This will update the `version` key in the package's `package.json`, as well as update the version
+constraint in any other Debugr packages which depend on the affected package.
 
 Next, commit your changes and push the new commits to the repository;
 any packages with updated version in `package.json` will be automatically
@@ -198,10 +200,10 @@ published to NPM.
 
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
-[`@debugr/console-handler`]: ./packages/console-handler
-[`@debugr/elastic-handler`]: ./packages/elastic-handler
-[`@debugr/html-handler`]: ./packages/html-handler
-[`@debugr/slack-handler`]: ./packages/slack-handler
+[`@debugr/console`]: ./packages/console
+[`@debugr/elastic`]: ./packages/elastic
+[`@debugr/html`]: ./packages/html
+[`@debugr/slack`]: ./packages/slack
 [`@debugr/apollo`]: ./packages/apollo
 [`@debugr/express`]: ./packages/express
 [`@debugr/insaner`]: ./packages/insaner
