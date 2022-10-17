@@ -1,9 +1,9 @@
-import type { ImmutableDate, LogLevel } from '@debugr/core';
+import type { ImmutableDate, LogLevel, MappedRecord } from '@debugr/core';
 import type { ConsoleColor } from './maps';
 
 export type ConsoleHandlerOptions = {
-  threshold?: LogLevel | number;
-  levelMap?: Record<number, string>;
-  colorMap?: Record<number, ConsoleColor>;
+  threshold?: LogLevel;
+  levelMap?: MappedRecord<LogLevel, string>;
+  colorMap?: MappedRecord<LogLevel, ConsoleColor>;
   timestamp?: boolean | ((ts: ImmutableDate) => string);
 };

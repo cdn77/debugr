@@ -1,5 +1,5 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { formatData, isEmpty } from '@debugr/core';
+import { EntryType, formatData, isEmpty } from '@debugr/core';
 import type { SqlQueryFormatter, SqlQueryLogEntry } from '@debugr/sql-common';
 import { createQueryFormatter, formatQueryTime } from '@debugr/sql-common';
 import { dim } from 'ansi-colors';
@@ -9,8 +9,8 @@ export class SqlQueryConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
-  public readonly id: string = 'debugr-sql-query-console-formatter';
-  public readonly entryType: string = 'sql.query';
+  public readonly id = 'debugr-sql-query-console-formatter';
+  public readonly entryType = EntryType.SqlQuery;
 
   private readonly formatQuery: SqlQueryFormatter;
 

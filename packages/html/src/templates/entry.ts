@@ -1,24 +1,24 @@
-import type { ImmutableDate } from '@debugr/core';
+import type { ImmutableDate, LogLevel } from '@debugr/core';
 import { levelToValue, pad, pad3 } from '@debugr/core';
 import { escapeHtml } from './utils';
 
 export class EntryTemplate {
-  private readonly levelMap: Map<number, string>;
+  private readonly levelMap: Map<LogLevel, string>;
 
-  public constructor(levelMap: Map<number, string>) {
+  public constructor(levelMap: Map<LogLevel, string>) {
     this.levelMap = levelMap;
   }
 
   public render(
     ts: string,
-    level: number,
+    level: LogLevel,
     content: string,
     label?: string,
     task?: number,
     defining: boolean = false,
     taskStates?: string,
   ): string {
-    const classes: string[] = ['entry', `entry-${levelToValue(this.levelMap, level)}`];
+    const classes: string[] = ['entry', `entry-${levelToValue(this.levelMap, level, 'unknown')}`];
     task !== undefined && classes.push(`task-${task}`);
     defining && classes.push('defining-entry');
 

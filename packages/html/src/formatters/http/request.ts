@@ -1,4 +1,5 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
+import { EntryType } from '@debugr/core';
 import type { HttpRequestLogEntry } from '@debugr/http-common';
 import { escapeHtml } from '../../templates';
 import { AbstractHttpHtmlFormatter } from './abstract';
@@ -7,8 +8,8 @@ export class HttpRequestHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHttpHtmlFormatter<TTaskContext, TGlobalContext> {
-  public readonly id: string = 'debugr-http-request-html-formatter';
-  public readonly entryType: string = 'http.request';
+  public readonly id = 'debugr-http-request-html-formatter';
+  public readonly entryType = EntryType.HttpRequest;
 
   public getEntryLabel(): string {
     return 'HTTP request';

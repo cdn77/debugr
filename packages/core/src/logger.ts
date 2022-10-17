@@ -115,20 +115,16 @@ export class Logger<
     return this.log(LogLevel.FATAL, message, dataOrError, maybeData);
   }
 
-  public log(level: LogLevel | number, data: Record<string, any> | Error): this;
+  public log(level: LogLevel, data: Record<string, any> | Error): this;
+  public log(level: LogLevel, message: string | [string, ...any], data?: Record<string, any>): this;
   public log(
-    level: LogLevel | number,
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): this;
-  public log(
-    level: LogLevel | number,
+    level: LogLevel,
     message: string | [string, ...any],
     error: Error,
     data?: Record<string, any>,
   ): this;
   public log(
-    level: LogLevel | number,
+    level: LogLevel,
     messageOrDataOrError: Record<string, any> | Error | string | [string, ...any],
     maybeDataOrError?: Record<string, any> | Error,
     maybeData?: Record<string, any>,

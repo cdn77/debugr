@@ -11,7 +11,7 @@ export interface SlackHandlerOptions<
   TGlobalContext extends TContextShape = TContextShape,
 > {
   webhookUrl: string;
-  threshold?: LogLevel | number;
+  threshold?: LogLevel;
   channel?: string;
   username?: string;
   iconUrl?: string;

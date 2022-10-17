@@ -1,4 +1,12 @@
 import type { LogEntry, TContextBase, TContextShape } from '@debugr/core';
+import type { EntryType } from '@debugr/core';
+
+declare module '@debugr/core' {
+  export const enum EntryType {
+    HttpRequest = 'http.request',
+    HttpResponse = 'http.response',
+  }
+}
 
 export interface HttpHeaders {
   [header: string]: number | string | string[] | undefined;
@@ -27,7 +35,7 @@ export interface HttpRequestLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  type: 'http.request';
+  type: EntryType.HttpRequest;
   data: HttpRequestData;
 }
 
@@ -35,7 +43,7 @@ export interface HttpResponseLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  type: 'http.response';
+  type: EntryType.HttpResponse;
   data: HttpResponseData;
 }
 

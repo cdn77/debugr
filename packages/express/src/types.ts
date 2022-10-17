@@ -1,3 +1,4 @@
+import type { LogLevel } from '@debugr/core';
 import type {
   CaptureBodyChecker,
   CaptureBodyOption,
@@ -6,7 +7,7 @@ import type {
 } from '@debugr/http-common';
 
 export type ExpressCollectorOptions = {
-  level?: number;
+  level?: LogLevel;
   e4xx?: boolean;
   captureBody?: CaptureBodyOption;
   excludeHeaders?: string[];
@@ -21,7 +22,7 @@ export type ExpressCollectorOptions = {
 };
 
 export type NormalizedOptions = {
-  level: number;
+  level: LogLevel;
   e4xx: boolean;
   request: {
     isCaptureEnabled: CaptureBodyChecker;

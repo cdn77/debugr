@@ -1,6 +1,6 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { LogLevel } from '@debugr/core';
-import type { GraphQLQueryLogEntry } from '@debugr/graphql-common';
+import { EntryType, LogLevel, PluginKind } from '@debugr/core';
+import type { GraphqlQueryLogEntry } from '@debugr/graphql-common';
 import type { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import type { ApolloCollectorOptions } from './types';
 
@@ -9,9 +9,10 @@ export class ApolloCollector<
   TGlobalContext extends TContextShape = TContextShape,
 > implements CollectorPlugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
 {
-  public readonly id: string = 'apollo';
-  public readonly kind = 'collector' as const;
-  public readonly entryTypes: string[] = ['graphql.query'];
+  public readonly id = 'apollo';
+  public readonly kind = PluginKind.Collector;
+  public readonly entryTypes = [EntryType.GraphqlQuery];
+
   private readonly level: LogLevel;
   private logger: Logger<TTaskContext, TGlobalContext>;
 
@@ -35,8 +36,8 @@ export class ApolloCollector<
         operation && logger.setContextProperty('queryName', operation);
 
         if (ctx.request.query) {
-          logger.add<GraphQLQueryLogEntry>({
-            type: 'graphql.query',
+          logger.add<GraphqlQueryLogEntry>({
+            type: EntryType.GraphqlQuery,
             level,
             data: {
               query: ctx.request.query,

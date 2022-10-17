@@ -1,12 +1,14 @@
 import type {
+  EntryType,
   ImmutableDate,
   LogEntry,
+  MappedRecord,
   PluginManager,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { levelToValue, normalizeMap, resolveFormatters } from '@debugr/core';
-import { dim, unstyle } from 'ansi-colors';
+import { levelToValue, LogLevel, normalizeMap, resolveFormatters } from '@debugr/core';
+import { blue, dim, unstyle } from 'ansi-colors';
 import type { ConsoleFormatterPlugin } from './formatters';
 import { DefaultConsoleFormatter, isConsoleFormatter } from './formatters';
 import type { ConsoleColor } from './maps';
@@ -19,15 +21,18 @@ export class ConsoleFormatter<
   TGlobalContext extends TContextShape,
 > {
   private readonly timestamp: boolean | ((ts: ImmutableDate) => string);
-  private readonly levelMap: Map<number, string>;
-  private readonly colorMap: Map<number, ConsoleColor>;
-  private readonly formatters: Record<string, ConsoleFormatterPlugin<TTaskContext, TGlobalContext>>;
+  private readonly levelMap: Map<LogLevel, string>;
+  private readonly colorMap: Map<LogLevel, ConsoleColor>;
+  private readonly formatters: MappedRecord<
+    EntryType,
+    ConsoleFormatterPlugin<TTaskContext, TGlobalContext>
+  >;
   private readonly defaultFormatter: DefaultConsoleFormatter<TTaskContext, TGlobalContext>;
 
   public constructor(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
-    levelMap: Record<number, string> = {},
-    colorMap: Record<number, ConsoleColor> = {},
+    levelMap: MappedRecord<LogLevel, string> = {},
+    colorMap: MappedRecord<LogLevel, ConsoleColor> = {},
     timestamp: boolean | ((ts: ImmutableDate) => string) = true,
   ) {
     this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
@@ -42,7 +47,7 @@ export class ConsoleFormatter<
   }
 
   protected formatError(e: Error): string {
-    return this.formatLines(-1, this.defaultFormatter.formatError(e));
+    return this.formatLines(LogLevel.INTERNAL, this.defaultFormatter.formatError(e));
   }
 
   protected *tryFormatEntry(entry: LogEntry<TTaskContext, TGlobalContext>): Generator<string> {
@@ -63,14 +68,14 @@ export class ConsoleFormatter<
     entry: LogEntry<TTaskContext, TGlobalContext>,
     noPlugin: boolean = false,
   ): string {
-    const formatter = !noPlugin && entry.type ? this.formatters[entry.type] : this.defaultFormatter;
-
+    const formatter =
+      (!noPlugin && entry.type && this.formatters[entry.type]) || this.defaultFormatter;
     return this.formatLines(entry.level, formatter.formatEntry(entry), entry.ts);
   }
 
-  protected formatLines(level: number, content: string, ts?: ImmutableDate): string {
-    const color = levelToValue(this.colorMap, level);
-    const lvl = levelToValue(this.levelMap, level);
+  protected formatLines(level: LogLevel, content: string, ts?: ImmutableDate): string {
+    const color = levelToValue(this.colorMap, level, blue);
+    const lvl = levelToValue(this.levelMap, level, '??');
     const prefix = `${this.formatTimestamp(ts)}[${color(lvl)}] `;
     const indent = unstyle(prefix).replace(/./g, ' ');
     return `${prefix}${content.split(/\n/g).join(`\n${indent}`)}`;

@@ -1,5 +1,5 @@
 import type { Logger } from './logger';
-import type { Plugin, PluginId, Plugins, TContextBase, TContextShape } from './types';
+import type { EntryType, Plugin, PluginId, Plugins, TContextBase, TContextShape } from './types';
 import { isCollectorPlugin } from './types';
 
 export class PluginManager<
@@ -42,7 +42,7 @@ export class PluginManager<
     return Object.values(this.plugins).filter(predicate);
   }
 
-  public getKnownEntryTypes(): string[] {
+  public getKnownEntryTypes(): EntryType[] {
     return [...new Set(this.find(isCollectorPlugin).flatMap((p) => p.entryTypes))];
   }
 }

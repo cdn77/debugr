@@ -1,5 +1,11 @@
-import type { LogEntry, ReadonlyRecursive, TContextBase, TContextShape } from '@debugr/core';
-import { cleanUpStackTrace } from '@debugr/core';
+import type {
+  EntryType,
+  LogEntry,
+  ReadonlyRecursive,
+  TContextBase,
+  TContextShape,
+} from '@debugr/core';
+import { cleanUpStackTrace, PluginKind } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import type { HtmlFormatterPlugin } from './types';
 
@@ -9,9 +15,10 @@ export abstract class AbstractHtmlFormatter<
 > implements HtmlFormatterPlugin<TTaskContext, TGlobalContext>
 {
   public abstract readonly id: string;
-  public readonly kind = 'formatter' as const;
-  public abstract readonly entryType: string;
-  public readonly targetHandler = 'html' as const;
+  public readonly kind = PluginKind.Formatter;
+  public abstract readonly entryType: EntryType;
+  public readonly targetHandler = 'html';
+
   protected readonly separator: string = '\n            ';
 
   public getEntryLabel?(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string;

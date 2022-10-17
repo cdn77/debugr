@@ -1,13 +1,15 @@
 import type {
+  EntryType,
   ImmutableDate,
   LogEntry,
+  MappedRecord,
   PluginManager,
   ReadonlyRecursive,
   SmartMap,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { normalizeMap, resolveFormatters } from '@debugr/core';
+import { LogLevel, normalizeMap, resolveFormatters } from '@debugr/core';
 import type { HtmlFormatterPlugin } from './formatters';
 import { DefaultHtmlFormatter, isHtmlFormatter } from './formatters';
 import { defaultColorMap, defaultFormatters, defaultLevelMap } from './maps';
@@ -22,13 +24,16 @@ export class HtmlRenderer<
 > {
   private readonly layout: LayoutTemplate;
   private readonly entry: EntryTemplate;
-  private readonly formatters: Record<string, HtmlFormatterPlugin<TTaskContext, TGlobalContext>>;
+  private readonly formatters: MappedRecord<
+    EntryType,
+    HtmlFormatterPlugin<TTaskContext, TGlobalContext>
+  >;
   private readonly defaultFormatter: DefaultHtmlFormatter<TTaskContext, TGlobalContext>;
 
   public constructor(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
-    levelMap: Record<number, string> = {},
-    colorMap: Record<number, string> = {},
+    levelMap: MappedRecord<LogLevel, string> = {},
+    colorMap: MappedRecord<LogLevel, string> = {},
   ) {
     const levels = normalizeMap({ ...defaultLevelMap, ...levelMap });
     const colors = normalizeMap({ ...defaultColorMap, ...colorMap });
@@ -84,9 +89,11 @@ export class HtmlRenderer<
   protected getEntryTitle(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): string {
-    if (entry.type && entry.type in this.formatters) {
+    const formatter = entry.type && this.formatters[entry.type];
+
+    if (formatter) {
       try {
-        return this.formatters[entry.type].getEntryTitle(entry);
+        return formatter.getEntryTitle(entry);
       } catch (e) {
         /* noop */
       }
@@ -147,7 +154,8 @@ export class HtmlRenderer<
     taskRenderer?: TaskRenderer,
     noPlugin: boolean = false,
   ): string {
-    const formatter = !noPlugin && entry.type ? this.formatters[entry.type] : this.defaultFormatter;
+    const formatter =
+      (!noPlugin && entry.type && this.formatters[entry.type]) || this.defaultFormatter;
 
     return this.entry.render(
       this.entry.formatTimestamp(entry.ts, previousTs),
@@ -163,7 +171,7 @@ export class HtmlRenderer<
   protected renderError(error: Error, task?: number, taskRenderer?: TaskRenderer): string {
     return this.entry.render(
       '',
-      -1,
+      LogLevel.INTERNAL,
       this.defaultFormatter.renderError(error, false),
       undefined,
       task,

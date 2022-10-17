@@ -1,5 +1,11 @@
-import type { LogEntry, ReadonlyRecursive, TContextBase, TContextShape } from '@debugr/core';
-import { cleanUpStackTrace } from '@debugr/core';
+import type {
+  EntryType,
+  LogEntry,
+  ReadonlyRecursive,
+  TContextBase,
+  TContextShape,
+} from '@debugr/core';
+import { cleanUpStackTrace, PluginKind } from '@debugr/core';
 import { dim, red } from 'ansi-colors';
 import type { ConsoleFormatterPlugin } from './types';
 
@@ -9,9 +15,9 @@ export abstract class AbstractConsoleFormatter<
 > implements ConsoleFormatterPlugin<TTaskContext, TGlobalContext>
 {
   public abstract readonly id: string;
-  public readonly kind = 'formatter' as const;
-  public abstract readonly entryType: string;
-  public readonly targetHandler = 'console' as const;
+  public readonly kind = PluginKind.Formatter;
+  public abstract readonly entryType: EntryType;
+  public readonly targetHandler = 'console';
 
   public abstract formatEntry(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,

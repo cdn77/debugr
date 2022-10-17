@@ -5,7 +5,7 @@ import type {
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { LogLevel } from '@debugr/core';
+import { LogLevel, PluginKind } from '@debugr/core';
 import { Client } from '@elastic/elasticsearch';
 import { AsyncLocalStorage } from 'async_hooks';
 import { v4 } from 'uuid';
@@ -14,11 +14,12 @@ import type { ElasticHandlerOptions, ElasticOptions } from './types';
 export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
   implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext>
 {
-  public readonly id: string = 'elastic';
-  public readonly kind = 'handler' as const;
+  public readonly id = 'elastic';
+  public readonly kind = PluginKind.Handler;
+
   private readonly elasticClient: Client;
   private readonly options: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
-  private readonly threshold: LogLevel | number;
+  private readonly threshold: LogLevel;
   private readonly asyncStorage: AsyncLocalStorage<string[]>;
   private lastError?: Date;
 

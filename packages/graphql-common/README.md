@@ -12,22 +12,22 @@ be installed and used automatically when required.
 The package exports the following type definitions:
 
 ```typescript
-export interface GraphQLQueryData {
+export interface GraphqlQueryData {
   query: string;                   // the complete GraphQL query as a string
   variables?: Record<string, any>; // any variables passed along with the request
   operation?: string;              // the extracted operation name, e.g. 'query getAllUsers'
 }
 
-export interface GraphQLQueryLogEntry<
+export interface GraphqlQueryLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
   type: 'graphql.query';
-  data: GraphQLQueryData;
+  data: GraphqlQueryData;
 }
 ```
 
-There is also a utility function called `getGraphQLOperation()` which attempts
-to extract the GraphQL operation from the `GraphQLQueryData` object, either
+There is also a utility function called `getGraphqlOperation()` which attempts
+to extract the GraphQL operation from the `GraphqlQueryData` object, either
 by returning its `operation` property if it's nonempty, or by extracting the start
 of the GraphQL query until the first `{` character.

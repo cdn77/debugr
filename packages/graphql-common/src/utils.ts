@@ -1,5 +1,5 @@
-import type { GraphQLQueryData } from './types';
+import type { GraphqlQueryData } from './types';
 
-export function getGraphQLOperation(data: GraphQLQueryData): string | undefined {
+export function getGraphqlOperation(data: GraphqlQueryData): string | undefined {
   return data.operation ?? (data.query.replace(/{[\s\S]*$/, '').trim() || undefined);
 }

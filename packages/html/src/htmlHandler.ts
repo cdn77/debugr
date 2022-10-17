@@ -7,7 +7,7 @@ import type {
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { LogLevel, SmartMap, wrapPossiblePromise } from '@debugr/core';
+import { LogLevel, PluginKind, SmartMap, wrapPossiblePromise } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
 import { HtmlFileWriter } from './fileWriter';
 import { HtmlRenderer } from './htmlRenderer';
@@ -20,8 +20,9 @@ export class HtmlHandler<
   TGlobalContext extends TContextShape = TContextShape,
 > implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext>
 {
-  public readonly id: string = 'html';
-  public readonly kind = 'handler' as const;
+  public readonly id = 'html';
+  public readonly kind = PluginKind.Handler;
+
   private readonly writer: HtmlWriter;
   private readonly options: HtmlHandlerOptions;
   private renderer?: HtmlRenderer<TTaskContext, TGlobalContext>;
@@ -127,7 +128,7 @@ export class HtmlHandler<
     });
   }
 
-  public setTaskThreshold(threshold: number): void {
+  public setTaskThreshold(threshold: LogLevel): void {
     const task = this.asyncStorage.getStore();
 
     if (task) {

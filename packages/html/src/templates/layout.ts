@@ -1,22 +1,23 @@
+import type { LogLevel } from '@debugr/core';
 import { levelToValue } from '@debugr/core';
 import { StylesTemplate } from './styles';
 import { escapeHtml } from './utils';
 
 export class LayoutTemplate {
-  private readonly levelMap: Map<number, string>;
-  private readonly colorMap: Map<number, string>;
+  private readonly levelMap: Map<LogLevel, string>;
+  private readonly colorMap: Map<LogLevel, string>;
   private readonly styles: StylesTemplate;
 
-  public constructor(levelMap: Map<number, string>, colorMap: Map<number, string>) {
+  public constructor(levelMap: Map<LogLevel, string>, colorMap: Map<LogLevel, string>) {
     this.levelMap = levelMap;
     this.colorMap = colorMap;
     this.styles = new StylesTemplate(levelMap, colorMap);
   }
 
   public render(
-    level: number,
+    level: LogLevel,
     title: string,
-    usedLevels: number[],
+    usedLevels: LogLevel[],
     totalTasks: number,
     maxParallelTasks: number,
     content: string,
@@ -35,7 +36,7 @@ export class LayoutTemplate {
   }
 
   protected renderHead(
-    level: number,
+    level: LogLevel,
     title: string,
     totalTasks: number,
     maxParallelTasks: number,
@@ -46,13 +47,13 @@ export class LayoutTemplate {
     ${this.styles.render(totalTasks, maxParallelTasks)}`;
   }
 
-  protected renderHeader(level: number, title: string): string {
-    return `<header class="bg-${levelToValue(this.levelMap, level)}">
+  protected renderHeader(level: LogLevel, title: string): string {
+    return `<header class="bg-${levelToValue(this.levelMap, level, 'unknown')}">
       <h1>${escapeHtml(title)}</h1>
     </header>`;
   }
 
-  protected renderBody(usedLevels: number[], totalTasks: number, content: string): string {
+  protected renderBody(usedLevels: LogLevel[], totalTasks: number, content: string): string {
     return `<main>
       ${this.renderControls(usedLevels, totalTasks)}
 
@@ -62,7 +63,7 @@ export class LayoutTemplate {
     </main>`;
   }
 
-  protected renderControls(usedLevels: number[], totalTasks: number): string {
+  protected renderControls(usedLevels: LogLevel[], totalTasks: number): string {
     const levels = [...this.levelMap.entries()]
       .filter(([level]) => usedLevels.includes(level))
       .map(([, name]) => name);

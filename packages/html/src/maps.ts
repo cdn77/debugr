@@ -1,37 +1,36 @@
-import { LogLevel } from '@debugr/core';
+import type { MappedRecord } from '@debugr/core';
+import { EntryType, LogLevel } from '@debugr/core';
 import type { HtmlFormatterPlugin } from './formatters';
 import {
-  GraphQLQueryHtmlFormatter,
+  GraphqlQueryHtmlFormatter,
   HttpRequestHtmlFormatter,
   HttpResponseHtmlFormatter,
   SqlQueryHtmlFormatter,
 } from './formatters';
 
-export const defaultLevelMap: Record<number, string> = {
+export const defaultLevelMap: MappedRecord<LogLevel, string> = {
   [LogLevel.TRACE]: 'trace',
   [LogLevel.DEBUG]: 'debug',
   [LogLevel.INFO]: 'info',
   [LogLevel.WARNING]: 'warning',
   [LogLevel.ERROR]: 'error',
   [LogLevel.FATAL]: 'fatal',
-  [-1]: 'internal',
-  0: 'unknown',
+  [LogLevel.INTERNAL]: 'internal',
 };
 
-export const defaultColorMap: Record<number, string> = {
+export const defaultColorMap: MappedRecord<LogLevel, string> = {
   [LogLevel.TRACE]: '#cccccc',
   [LogLevel.DEBUG]: '#c8edff',
   [LogLevel.INFO]: '#ffffaa',
   [LogLevel.WARNING]: '#ffaa00',
   [LogLevel.ERROR]: '#ff4444',
   [LogLevel.FATAL]: '#ff0000',
-  [-1]: '#da47ff',
-  0: '#4747ff',
+  [LogLevel.INTERNAL]: '#da47ff',
 };
 
-export const defaultFormatters: Record<string, () => HtmlFormatterPlugin> = {
-  'graphql.query': () => new GraphQLQueryHtmlFormatter(),
-  'http.request': () => new HttpRequestHtmlFormatter(),
-  'http.response': () => new HttpResponseHtmlFormatter(),
-  'sql.query': () => new SqlQueryHtmlFormatter(),
+export const defaultFormatters: MappedRecord<EntryType, () => HtmlFormatterPlugin> = {
+  [EntryType.GraphqlQuery]: () => new GraphqlQueryHtmlFormatter(),
+  [EntryType.HttpRequest]: () => new HttpRequestHtmlFormatter(),
+  [EntryType.HttpResponse]: () => new HttpResponseHtmlFormatter(),
+  [EntryType.SqlQuery]: () => new SqlQueryHtmlFormatter(),
 };

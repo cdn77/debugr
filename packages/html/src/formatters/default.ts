@@ -1,5 +1,11 @@
-import type { LogEntry, ReadonlyRecursive, TContextBase, TContextShape } from '@debugr/core';
-import { formatData, isEmpty, levelToValue } from '@debugr/core';
+import type {
+  LogEntry,
+  LogLevel,
+  ReadonlyRecursive,
+  TContextBase,
+  TContextShape,
+} from '@debugr/core';
+import { EntryType, formatData, isEmpty, levelToValue } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
@@ -7,12 +13,13 @@ export class DefaultHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
-  public readonly id: string = 'debugr-default-html-formatter';
-  public readonly entryType: string = '*';
-  public readonly targetHandler = 'html' as const;
-  private readonly levelMap: Map<number, string>;
+  public readonly id = 'debugr-default-html-formatter';
+  public readonly entryType = EntryType.Any;
+  public readonly targetHandler = 'html';
 
-  public constructor(levelMap: Map<number, string>) {
+  private readonly levelMap: Map<LogLevel, string>;
+
+  public constructor(levelMap: Map<LogLevel, string>) {
     super();
     this.levelMap = levelMap;
   }

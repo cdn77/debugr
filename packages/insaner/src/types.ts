@@ -1,7 +1,8 @@
+import type { LogLevel } from '@debugr/core';
 import type { HeaderFilter } from '@debugr/http-common';
 
 export type InsanerCollectorOptions = {
-  level?: number;
+  level?: LogLevel;
   e4xx?: boolean;
   excludeHeaders?: string[];
   request?: {
@@ -13,7 +14,7 @@ export type InsanerCollectorOptions = {
 };
 
 export type NormalizedOptions = {
-  level: number;
+  level: LogLevel;
   e4xx: boolean;
   request: {
     filterHeaders: HeaderFilter;

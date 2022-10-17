@@ -5,17 +5,18 @@ import type {
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { LogLevel } from '@debugr/core';
+import { LogLevel, PluginKind } from '@debugr/core';
 import fetch from 'node-fetch';
 import type { SlackHandlerOptions } from './types';
 
 export class SlackHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
   implements HandlerPlugin<TTaskContext>
 {
-  public readonly id: string = 'slack';
-  public readonly kind = 'handler' as const;
+  public readonly id = 'slack';
+  public readonly kind = PluginKind.Handler;
+
   private readonly options: SlackHandlerOptions<TTaskContext, TGlobalContext>;
-  private readonly threshold: LogLevel | number;
+  private readonly threshold: LogLevel;
 
   public constructor(options: SlackHandlerOptions<TTaskContext, TGlobalContext>) {
     this.options = options;

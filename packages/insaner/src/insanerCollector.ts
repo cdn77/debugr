@@ -1,5 +1,5 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { LogLevel } from '@debugr/core';
+import { EntryType, LogLevel, PluginKind } from '@debugr/core';
 import type { HttpRequestLogEntry, HttpResponseLogEntry } from '@debugr/http-common';
 import type { HttpRequest, HttpResponse, HttpServer, MiddlewareNext } from 'insaner';
 import { HttpForcedResponse } from 'insaner';
@@ -11,9 +11,10 @@ export class InsanerCollector<
   TGlobalContext extends TContextShape = TContextShape,
 > implements CollectorPlugin<TTaskContext, TGlobalContext>
 {
-  public readonly id: string = 'insaner';
-  public readonly kind = 'collector' as const;
-  public readonly entryTypes: string[] = ['http.request', 'http.response'];
+  public readonly id = 'insaner';
+  public readonly kind = PluginKind.Collector;
+  public readonly entryTypes = [EntryType.HttpRequest, EntryType.HttpResponse];
+
   private readonly options: NormalizedOptions;
   private logger: Logger<TTaskContext, TGlobalContext>;
 
@@ -41,7 +42,7 @@ export class InsanerCollector<
   protected createRequestHandler() {
     return (request: HttpRequest) => {
       this.logger.add<HttpRequestLogEntry>({
-        type: 'http.request',
+        type: EntryType.HttpRequest,
         level: this.options.level,
         data: {
           method: request.method,
@@ -66,7 +67,7 @@ export class InsanerCollector<
         response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
 
       this.logger.add<HttpResponseLogEntry>({
-        type: 'http.response',
+        type: EntryType.HttpResponse,
         level,
         data: {
           status: response.status,

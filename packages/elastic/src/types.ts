@@ -12,7 +12,7 @@ export interface ElasticHandlerOptions<
   TGlobalContext extends TContextShape = TContextShape,
 > {
   index: string | ((entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>) => string);
-  threshold?: LogLevel | number;
+  threshold?: LogLevel;
   bodyMapper?: (
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ) => Record<string, any>;

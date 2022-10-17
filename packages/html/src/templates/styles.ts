@@ -1,10 +1,12 @@
 // noinspection CssInvalidPropertyValue
 
-export class StylesTemplate {
-  private readonly levelMap: Map<number, string>;
-  private readonly colorMap: Map<number, string>;
+import type { LogLevel } from '@debugr/core';
 
-  public constructor(levelMap: Map<number, string>, colorMap: Map<number, string>) {
+export class StylesTemplate {
+  private readonly levelMap: Map<LogLevel, string>;
+  private readonly colorMap: Map<LogLevel, string>;
+
+  public constructor(levelMap: Map<LogLevel, string>, colorMap: Map<LogLevel, string>) {
     this.levelMap = levelMap;
     this.colorMap = colorMap;
   }
@@ -96,6 +98,7 @@ export class StylesTemplate {
       }
 
 ${generateRules('      .bg-% { background: %; }', levelColors)}
+      .bg-unknown { background: #4747ff; }
       .bg-grey { background: #bbb; }
 
       .controls {
@@ -189,6 +192,7 @@ ${generateRules('      .bg-% { background: %; }', levelColors)}
       }
 
 ${generateRules('      .entry.entry-% .entry-label { background: %; }', levelColors)}
+      .entry.entry-unknown .enry-label { background: #4747ff; }
 
       .text-muted {
         color: #777;

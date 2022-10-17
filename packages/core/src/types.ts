@@ -1,7 +1,8 @@
 import type { Logger } from './logger';
 import type { PluginManager } from './pluginManager';
 
-export enum LogLevel {
+export const enum LogLevel {
+  INTERNAL = -1,
   TRACE = 10,
   DEBUG = 20,
   INFO = 30,
@@ -23,6 +24,10 @@ export type TContextBase = TContextShape & TContextFixed;
 
 export type ReadonlyRecursive<T> = {
   readonly [P in keyof T]: Readonly<T[P]>;
+};
+
+export type MappedRecord<K extends string | number | symbol, V> = {
+  [k in K]?: V;
 };
 
 export type ImmutableDate = Omit<
@@ -48,22 +53,32 @@ export type LogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > = {
-  level: LogLevel | number;
+  level: LogLevel;
   taskContext?: Partial<TTaskContext>;
   globalContext: TGlobalContext;
   message?: string;
   error?: Error;
   data?: Record<string, any>;
-  type?: string;
+  type?: EntryType;
   ts: ImmutableDate;
 };
+
+export const enum PluginKind {
+  Collector = 'collector',
+  Formatter = 'formatter',
+  Handler = 'handler',
+}
+
+export const enum EntryType {
+  Any = '*',
+}
 
 export interface Plugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > {
   readonly id: string;
-  readonly kind: string;
+  readonly kind: PluginKind;
   injectLogger?(
     logger: Logger<TTaskContext, TGlobalContext>,
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
@@ -74,8 +89,8 @@ export interface CollectorPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends Plugin<TTaskContext, TGlobalContext> {
-  readonly kind: 'collector';
-  readonly entryTypes: string[];
+  readonly kind: PluginKind.Collector;
+  readonly entryTypes: readonly EntryType[];
 }
 
 export function isCollectorPlugin<
@@ -84,15 +99,15 @@ export function isCollectorPlugin<
 >(
   plugin: Plugin<TTaskContext, TGlobalContext>,
 ): plugin is CollectorPlugin<TTaskContext, TGlobalContext> {
-  return plugin.kind === 'collector';
+  return plugin.kind === PluginKind.Collector;
 }
 
 export interface FormatterPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends Plugin<TTaskContext, TGlobalContext> {
-  readonly kind: 'formatter';
-  readonly entryType: string;
+  readonly kind: PluginKind.Formatter;
+  readonly entryType: EntryType;
   readonly targetHandler: string;
 }
 
@@ -102,7 +117,7 @@ export function isFormatterPlugin<
 >(
   plugin: Plugin<TTaskContext, TGlobalContext>,
 ): plugin is FormatterPlugin<TTaskContext, TGlobalContext> {
-  return plugin.kind === 'formatter';
+  return plugin.kind === PluginKind.Formatter;
 }
 
 export type FormatterPluginTypeGuard<TFormatter extends FormatterPlugin<any, any>> = {
@@ -113,7 +128,7 @@ export interface HandlerPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends Plugin<TTaskContext, TGlobalContext> {
-  readonly kind: 'handler';
+  readonly kind: PluginKind.Handler;
   log(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): Promise<void> | void;
 }
 
@@ -123,7 +138,7 @@ export function isHandlerPlugin<
 >(
   plugin: Plugin<TTaskContext, TGlobalContext>,
 ): plugin is HandlerPlugin<TTaskContext, TGlobalContext> {
-  return plugin.kind === 'handler';
+  return plugin.kind === PluginKind.Handler;
 }
 
 export interface TaskAwareHandlerPlugin<

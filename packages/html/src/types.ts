@@ -2,6 +2,7 @@ import type {
   ImmutableDate,
   LogEntry,
   LogLevel,
+  MappedRecord,
   ReadonlyRecursive,
   SmartMap,
   TContextBase,
@@ -9,10 +10,10 @@ import type {
 } from '@debugr/core';
 
 export type HtmlHandlerOptions = {
-  threshold?: LogLevel | number;
+  threshold?: LogLevel;
   cloneData?: boolean;
-  levelMap?: Record<number, string>;
-  colorMap?: Record<number, string>;
+  levelMap?: MappedRecord<LogLevel, string>;
+  colorMap?: MappedRecord<LogLevel, string>;
 };
 
 export type HtmlHandlerRequiredOptions = HtmlHandlerOptions & {
@@ -53,7 +54,7 @@ export type TaskLog<
 
 export type TaskLogInfo = {
   maxParallelTasks: number;
-  usedLevels: number[];
+  usedLevels: LogLevel[];
 };
 
 export type TaskData<

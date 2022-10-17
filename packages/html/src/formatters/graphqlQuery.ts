@@ -1,30 +1,30 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { formatData, isEmpty } from '@debugr/core';
-import type { GraphQLQueryLogEntry } from '@debugr/graphql-common';
-import { getGraphQLOperation } from '@debugr/graphql-common';
+import { EntryType, formatData, isEmpty } from '@debugr/core';
+import type { GraphqlQueryLogEntry } from '@debugr/graphql-common';
+import { getGraphqlOperation } from '@debugr/graphql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
-export class GraphQLQueryHtmlFormatter<
+export class GraphqlQueryHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
-  public readonly id: string = 'debugr-graphql-query-html-formatter';
-  public readonly entryType: string = 'graphql.query';
+  public readonly id = 'debugr-graphql-query-html-formatter';
+  public readonly entryType = EntryType.GraphqlQuery;
 
   public getEntryLabel(): string {
     return 'GraphQL query';
   }
 
-  public getEntryTitle(entry: GraphQLQueryLogEntry<TTaskContext, TGlobalContext>): string {
+  public getEntryTitle(entry: GraphqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }
 
-    return getGraphQLOperation(entry.data) ?? 'Unknown GraphQL operation';
+    return getGraphqlOperation(entry.data) ?? 'Unknown GraphQL operation';
   }
 
-  public renderEntry(entry: GraphQLQueryLogEntry<TTaskContext, TGlobalContext>): string {
+  public renderEntry(entry: GraphqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the GraphQLFormatter plugin');
     }

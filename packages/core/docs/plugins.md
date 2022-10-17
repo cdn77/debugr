@@ -1,4 +1,0 @@
-Plugin development
-==================
-
-tbd
