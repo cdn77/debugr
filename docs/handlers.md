@@ -34,7 +34,7 @@ const user = await db.find(User, 'some id');
 logger.info('Resolved user:', { user }); // 1
 
 user.name = request.newName;             // 2
-await em.persist(user);                  // 3
+await db.persist(user);                  // 3
 
 logger.info(['Renamed to "%s"', user.name]);
 ```
@@ -49,7 +49,7 @@ executing - so any remaining handlers' `log()` would be called, then `logger.add
 return, then `logger.log()` would return, then `logger.info()` would return and then the
 line marked `2` would be executed, altering the `User` object, before execution of the original
 synchronous code was paused at the `await` on line `3` (well, more precisely, somewhere
-_within_ the `em.persist()` call). Only afterwards could the asynchronous code in the
+_within_ the `db.persist()` call). Only afterwards could the asynchronous code in the
 handler's `log()` be resumed - but the `User` object contained in the log entry the handler
 is still processing has already been mutated, and so the handler will incorrectly log
 something roughly equivalent to `Resolved user: { name: "${request.newName}" }`.
