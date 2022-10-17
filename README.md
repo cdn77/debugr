@@ -114,6 +114,17 @@ the whole queue is formatted into a timestamped HTML dump file in the configured
 The filename also contains a hash derived from the first entry which matched the configured threshold;
 this hash can often be used to find identical or similar errors.
 
+### Logging mutable data
+
+Debugr can handle structured data in addition to plain string messages, but care needs to be taken
+when logging such structured data, because some handlers will not process the data immediately;
+if the application keeps a reference to the logged data and then mutates it in any way, there's
+a chance that what ends up being logged is the mutated data, as opposed to the data as it was
+at the time it was passed to the logger. An easy remedy is to never log data which is mutated
+farther down the road, but if you do need to log something and then mutate it later, you can
+take a snapshot of the data when logging it. There's a helper function called `clone()` exported
+from `@debugr/core` which you can use for this purpose if needed.
+
 ### Context
 
 There are two types of _context objects_ in Debugr: the global context object you pass as the first
