@@ -48,11 +48,25 @@ This allows you to amend the definition with your own custom log levels like thi
 
 ```typescript
 declare module '@debugr/core' {
-  export enum LogLevel {
+  export const enum LogLevel {
     CUSTOM_WARNING = 45,
   }
 }
 ```
+
+**Important:** `const enum` types are mutually exclusive with the TypeScript
+compiler option `isolatedModules`, which some transpilers (e.g. Babel) use.
+This means that if you need this option enabled, you cannot use `const enum`
+types. It is currently unclear how this can be worked around in Debugr context.
+
+The predefined log levels in Debugr are:
+
+ - `LogLevel.TRACE` (numeric value `10`)
+ - `LogLevel.DEBUG` (numeric value `20`)
+ - `LogLevel.INFO` (numeric value `30`)
+ - `LogLevel.WARNING` (numeric value `40`)
+ - `LogLevel.ERROR` (numeric value `50`)
+ - `LogLevel.FATAL` (numeric value `60`)
 
 ## Entry types
 
@@ -123,6 +137,13 @@ flowchart LR
   h2 --> s2[(Storage)]
   h2 <--> f2(Formatter)
 ```
+
+The public API of the `Logger` class which user-land code will most often use is the `log()`
+method or its shortcuts (`trace()`, `info()` and so on). The `log()` method simply constructs
+a generic `LogEntry` and passes it to the `Logger.add()` method, which passes it on to all
+configured handlers. Plugins will typically use a combination of `Logger.log()` for generic
+entries and `Logger.add()` for specialised entries, but in the end, all entries must pass
+through the `Logger.add()` method.
 
 
 [`@debugr/http-common`]: ../packages/http-common

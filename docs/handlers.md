@@ -11,6 +11,9 @@ the generic [`Plugin` interface] and adds the following methods and properties:
 
  - `public log(entry: LogEntry): Promise<void> | void`: This method will be called from
    `Logger.add()`. Whatever a handler wants to do with log entries is up to the handler.
+   Note that unlike many other logging frameworks Debugr doesn't filter log entries
+   by itself in any way - it passes _all_ entries to _all_ handlers, and it is up to the
+   handlers to implement any relevant logic if they need to ignore some entries.
  - `public runTask?<R>(cb: () => R): R`: This optional method can be implemented by
    handlers which need to integrate with Debugr tasks, e.g. to wrap the task execution
    in their internal `AsyncLocalStorage` instance.
@@ -26,7 +29,7 @@ data passed to Debugr will not be altered by user-land code before handlers get 
 to process the data, or take a snapshot to be processed later. Consider the following:
 
 ```typescript
-const user = await em.find(User, 'some id');
+const user = await db.find(User, 'some id');
 
 logger.info('Resolved user:', { user }); // 1
 

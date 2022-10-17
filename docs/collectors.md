@@ -39,16 +39,16 @@ the way you need:
 ```typescript
 export declare class Scheduler {
   // middlewares will be called first, before any job lifecycle hooks
-  public addMiddleware(mw: (cb: () => Promise<void> | void) => Promise<void> | void): void;
+  public addMiddleware(mw: (job: string, cb: () => Promise<void> | void) => Promise<void> | void): void;
   
   // called at the start of a job after all middlewares run, but before the job itself runs
-  public onJobStart(cb: () => void): void;
+  public onJobStart(job: string, cb: () => void): void;
   
   // called at the end of a job after the job returns, but before returning to middlewares
-  public onJobEnd(cb: (err?: Error) => void): void;
+  public onJobEnd(job: string, cb: (err?: Error) => void): void;
   
   // schedules a callback to be called every N seconds
-  public schedule(job: () => Promise<void> | void, interval: number): void;
+  public schedule(job: string, cb: () => Promise<void> | void, interval: number): void;
 }
 ```
 
@@ -93,15 +93,22 @@ export class SchedulerCollector implements CollectorPlugin {
    * return scheduler;
    */
   public install(scheduler: Scheduler): void {
+    // Debugr Tasks integration
     if (this.wrapTasks) {
-      scheduler.addMiddleware((cb) => this.logger.runTask(cb));
+      scheduler.addMiddleware((job, cb) => this.logger.runTask(() => {
+        // Collectors can provide additional metadata about the current task
+        // via the task context:
+        this.logger.setContextProperty('jobName', job);
+
+        return cb();
+      }));
     }
 
-    scheduler.onJobStart(() => this.logger.info('Cron job started'));
-    scheduler.onJobEnd((err) =>
+    scheduler.onJobStart((job) => this.logger.info(['Cron job "%s" started', job]));
+    scheduler.onJobEnd((job, err) =>
       err
-        ? this.logger.error('Cron job ended with error', err)
-        : this.logger.info('Cron job ended successfully')
+        ? this.logger.error(['Cron job "%s" ended with error', job], err)
+        : this.logger.info(['Cron job "%s" ended successfully', job])
     );
   }
 }
