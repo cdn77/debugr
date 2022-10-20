@@ -11,7 +11,6 @@ import type {
 
 export type HtmlHandlerOptions = {
   threshold?: LogLevel;
-  cloneData?: boolean;
   levelMap?: MappedRecord<LogLevel, string>;
   colorMap?: MappedRecord<LogLevel, string>;
 };

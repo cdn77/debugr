@@ -18,61 +18,6 @@ the generic [`Plugin` interface] and adds the following methods and properties:
    handlers which need to integrate with Debugr tasks, e.g. to wrap the task execution
    in their internal `AsyncLocalStorage` instance.
 
-## Entry snapshots
-
-One thing worth noting is that the call chain all the way from the public `Logger` API
-methods through the semi-internal `add()` method down to the handlers' `log()` method is
-_synchronous_, so whatever the handlers do _synchronously_ (until the first `await`)
-within `log()` should be _fast_, otherwise it will slow down code executing at the calling
-site. This is intentional on the part of Debugr: this way we can _guarantee_ that any mutable
-data passed to Debugr will not be altered by user-land code before handlers get a chance
-to process the data, or take a snapshot to be processed later. Consider the following:
-
-```typescript
-const user = await db.find(User, 'some id');
-
-logger.info('Resolved user:', { user }); // 1
-
-user.name = request.newName;             // 2
-await db.persist(user);                  // 3
-
-logger.info(['Renamed to "%s"', user.name]);
-```
-
-The `logger.info()` call at `1` will synchronously delegate to `logger.log()`, which
-will also synchronously delegate to `logger.add()`, which, in turn, will synchronously
-delegate to all registered handlers' `handler.log()`. Now imagine a Handler would perform
-an asynchronous operation inside its `log()` before processing the passed log entry.
-The execution of that handler's `log()` method would pause at the point of the first `await`
-and the rest of the _synchronous_ code which was executing up to that point would continue
-executing - so any remaining handlers' `log()` would be called, then `logger.add()` would
-return, then `logger.log()` would return, then `logger.info()` would return and then the
-line marked `2` would be executed, altering the `User` object, before execution of the original
-synchronous code was paused at the `await` on line `3` (well, more precisely, somewhere
-_within_ the `db.persist()` call). Only afterwards could the asynchronous code in the
-handler's `log()` be resumed - but the `User` object contained in the log entry the handler
-is still processing has already been mutated, and so the handler will incorrectly log
-something roughly equivalent to `Resolved user: { name: "${request.newName}" }`.
-
-So how do you avoid this? Well, if your handler serialises the entry in some way, e.g. to
-send it over the wire to an external service, then the only thing you need to do is make
-sure this serialisation takes place during the synchronous part of code execution, that is,
-before the code stops to `await` something. But also note that when you `await someFunctionCall()`,
-then the synchronous code _within_ `someFunctionCall()` also gets executed synchronously
-at the point the function is called, and only when an `await` is encountered is execution
-paused and a Promise is returned to be awaited on the previous level. Thus, for example,
-the [Elastic handler] doesn't suffer from this issue, even though it doesn't explicitly
-do anything to avoid it - because its `log()` method synchronously delegates to the Elastic
-SDK's `index()` method, which, also synchronously, serialises the entire request payload
-using `JSON.stringify()`. So there is no chance of user-land code possibly modifying the
-entry data between the data entering Debugr internals and being serialised to be sent
-to Elastic.
-
-If your code _doesn't_ serialise the entry, your other option is to use the `clone()`
-helper exported from `@debugr/core`. This function uses the V8 `serialize()` and `deserialize()`
-functions, which are faster than `JSON.stringify()` and `JSON.parse()` and will also
-be able to handle some native objects which cannot be represented with JSON (e.g. `Date`s).
-
 ## Output formatting
 
 A handler usually either forwards the data elsewhere for further processing in some sort of
@@ -83,7 +28,62 @@ format expected by exactly one Handler plugin. Packages providing a Handler plug
 also provide default Formatters for that specific Handler plugin and there is a utility in Debugr
 core which simplifies some of the initial setup.
 
-(todo: more info about how handlers _use_ formatters)
+Handlers which make use of Formatters will usually provide a default formatter for entry types
+which don't have a specific Formatter provided either by the Handler package itself, or by
+third-party plugins. For example the `@debugr/console` package provides a `DefaultConsoleFormatter`
+plugin and four specialised formatters for HTTP requests and responses, GraphQL queries and
+SQL queries. During Debugr initialisation the handler's `injectLogger()` method is called;
+here the handler can examine all the registered Collector plugins to see which entry types it
+should expect to receive and check if there are suitable Formatter plugins registered for them.
+If a formatter for a given entry type is missing the handler can register it.
+
+It sounds complicated, but there's a utility function exported from `@debugr/core` which does
+most of the heavy lifting. In practice the code used to implement this functionality for
+a hypothetical handler called `AwesomeHandler` might look like this:
+
+```typescript
+import type { FormatterPlugin, HandlerPlugin, Plugin, PluginManager, Logger, LogEntry } from '@debugr/core';
+import { resolveFormatters } from '@debugr/core';
+
+export interface AwesomeFormatter extends FormatterPlugin {
+  targetHandler: 'awesome';
+
+  doSomethingAwesome(entry: LogEntry): unknown;
+}
+
+// a map of entry types to factories which can create the appropriate formatters:
+const defaultFormatters = {
+  [EntryType.HttpRequest]: () => new HttpRequestAwesomeFormatter(),
+  [EntryType.HttpResponse]: () => new HttpResponseAwesomeFormatter(),
+  [EntryType.GraphqlQuery]: () => new GraphqlQueryAwesomeFormatter(),
+  [EntryType.SqlQuery]: () => new SqlQueryAwesomeFormatter(),
+};
+
+// a type guard for the AwesomeFormatter interface
+function isAwesomeFormatter(plugin: Plugin): plugin is AwesomeFormatter {
+  return isFormatterPlugin(plugin) && plugin.targetHandler === 'awesome';
+}
+
+export class AwesomeHandler implements HandlerPlugin {
+  defaultFormatter = new DefaultAwesomeFormatter();
+
+  // ...
+
+  injectLogger(logger: Logger, pluginManager: PluginManager): void {
+    // the resolveFormatters() function will do all the logic described above for us,
+    // and the result will be a map of entry type to AwesomeFormatter instance for that
+    // entry type:
+    this.formatters = resolveFormatters(pluginManager, isAwesomeFormatter, defaultFormatters);
+  }
+
+  log(entry: LogEntry): void {
+    // get & use a specialised formatter, or fall back to the default:
+    const formatter = entry.type && this.formatters[entry.type] || this.defaultFormatter;
+    const formattedEntry = formatter.doSomethingAwesome(entry);
+    // ...
+  }
+}
+```
 
 ## Tasks
 
@@ -116,6 +116,6 @@ context, but it might also make sense to do other things, like cleanup after a t
 
 ## Handler errors
 
-(tbd)
+If an error happens within a Handler plugin, the Handler should handle the error internally.
 
 [Elastic handler]: ../packages/elastic
