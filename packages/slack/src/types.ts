@@ -6,6 +6,13 @@ import type {
   TContextShape,
 } from '@debugr/core';
 
+export type MessageFormatter<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> = (
+  entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+) => Record<string, any> | undefined | null | false | 0 | '';
+
 export interface SlackHandlerOptions<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
@@ -16,8 +23,5 @@ export interface SlackHandlerOptions<
   username?: string;
   iconUrl?: string;
   iconEmoji?: string;
-  errorCallback?: (error: Error) => void;
-  bodyMapper?: (
-    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-  ) => Record<string, any>;
+  formatter?: MessageFormatter<TTaskContext, TGlobalContext>;
 }
