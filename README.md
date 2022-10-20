@@ -135,8 +135,9 @@ at the time it was passed to the logger. There are three ways you can deal with 
    which is usually fast enough and should be relatively safe in terms of cloning objects which
    might have methods or hidden references to vast structures (like some ORM entities do);
    the latter uses the V8 `deserialize(serialize(data))` functions, which may be even faster and
-   supports some objects which JSON doesn't (like `Date`), but in some rare cases might result
-   in cloning a much larger object than you intended due to the aforementioned hidden references.
+   supports circular references as well as some objects which JSON doesn't (like `Date`), but in
+   some rare cases might result in cloning a much larger object than you intended due to the
+   aforementioned hidden references.
  - Or you can apply a system-wide _cloning strategy_ by setting the `cloningStrategy` option when
    creating a `Logger` instance. This will apply the `snapshot.json()` or `snapshot.v8()` function
    under the hood to _all_ data that you log using the `logger.log()` method or one of its aliases,
