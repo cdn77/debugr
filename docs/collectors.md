@@ -29,6 +29,15 @@ execution paths that your plugin would cover, so if your plugin does provide tas
 considered polite to provide an option which can disable this behaviour in order to prevent (usually harmless,
 but often unnecessary) double-wrapping of tasks.
 
+## Logging mutable data
+
+As explained in the [main readme], problems may arise when one logs mutable data. Collectors should ideally
+avoid this issue altogether by _not_ cloning anything that might be mutated. Importantly, the global cloning
+strategy users can set on the `Logger` instance affects only data which passes through the `logger.log()`
+method - anything you log using the `logger.add()` method will _never_ be cloned automatically. You can still
+use the `snapshot.v8()` and `snapshot.json()` helpers if needed, both for `data` logged using `logger.log()`
+and the `data` inside entries logged using `logger.add()`.
+
 ## An example Collector plugin
 
 Let's say your application is using a 3rd party library to run some code at a scheduled time - a "Cron"
@@ -116,3 +125,4 @@ export class SchedulerCollector implements CollectorPlugin {
 
 
 [`Plugin` interface]: ./general.md#plugin-types
+[main readme]: ../README.md#logging-mutable-data

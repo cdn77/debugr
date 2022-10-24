@@ -2,17 +2,16 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
 import { PluginManager } from './pluginManager';
 import type {
-  HandlerPlugin,
+CloningStrategy,  HandlerPlugin,
   LogEntry,
-  Plugin,
+  LoggerOptions,
   PluginId,
   Plugins,
   TContextBase,
-  TContextShape,
+  TContextShape
 } from './types';
-import { isHandlerPlugin, isTaskAwareHandlerPlugin } from './types';
-import { LogLevel } from './types';
-import { clone, SmartMap, wrapPossiblePromise } from './utils';
+import { isHandlerPlugin, isTaskAwareHandlerPlugin, LogLevel } from './types';
+import { SmartMap, snapshot, wrapPossiblePromise } from './utils';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextBase,
@@ -20,16 +19,19 @@ export class Logger<
 > {
   private readonly globalContext: TGlobalContext;
   private readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
+  private readonly cloningStrategy?: CloningStrategy;
   private readonly taskContextStorage: AsyncLocalStorage<Partial<TTaskContext>>;
   private readonly handlers: SmartMap<string, HandlerPlugin<TTaskContext, TGlobalContext>>;
 
-  public constructor(
-    globalContext: TGlobalContext,
-    plugins: Plugin<TTaskContext, TGlobalContext>[] = [],
-    pluginManager?: PluginManager<TTaskContext, TGlobalContext>,
-  ) {
+  public constructor({
+    globalContext,
+    plugins = [],
+    pluginManager = new PluginManager(),
+    cloningStrategy,
+  }: LoggerOptions<TTaskContext, TGlobalContext>) {
     this.globalContext = globalContext;
-    this.pluginManager = pluginManager ?? new PluginManager();
+    this.pluginManager = pluginManager;
+    this.cloningStrategy = cloningStrategy;
     this.taskContextStorage = new AsyncLocalStorage();
 
     for (const plugin of plugins) {
@@ -59,7 +61,7 @@ export class Logger<
       return envelopedCallback();
     }
 
-    const newContext: Partial<TTaskContext> = context ? clone(context) : {};
+    const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : {};
 
     const mainCallback = this.handlers.reduceRight(
       (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),
@@ -152,6 +154,10 @@ export class Logger<
       data = messageOrDataOrError;
     }
 
+    if (this.cloningStrategy && !snapshot.isSnapshot(data)) {
+      data = snapshot.take(data, this.cloningStrategy);
+    }
+
     return this.add({
       level,
       message,
@@ -170,9 +176,9 @@ export class Logger<
       ts: new Date(),
     };
 
-    this.handlers.forEach((handler) => {
+    for (const handler of this.handlers.values()) {
       handler.log(fullEntry);
-    });
+    }
 
     return this;
   }

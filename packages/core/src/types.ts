@@ -11,6 +11,21 @@ export const enum LogLevel {
   FATAL = 50,
 }
 
+export enum CloningStrategy {
+  Json = 'json',
+  V8 = 'v8',
+}
+
+export type LoggerOptions<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> = {
+  globalContext: TGlobalContext,
+  plugins?: Plugin<TTaskContext, TGlobalContext>[],
+  pluginManager?: PluginManager<TTaskContext, TGlobalContext>,
+  cloningStrategy?: CloningStrategy,
+};
+
 export type TContextShape = {
   [property: string]: TContextShape | Date | string | number | boolean | undefined | null;
 };
