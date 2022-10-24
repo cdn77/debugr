@@ -1,5 +1,6 @@
 import type {
   LogEntry,
+  Logger,
   ReadonlyRecursive,
   TaskAwareHandlerPlugin,
   TContextBase,
@@ -21,7 +22,8 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
   private readonly options: ElasticHandlerOptions<TTaskContext, TGlobalContext>;
   private readonly threshold: LogLevel;
   private readonly asyncStorage: AsyncLocalStorage<string[]>;
-  private lastError?: Date;
+  private readonly localErrors: WeakSet<Error>;
+  private logger?: Logger;
 
   public constructor(options: ElasticOptions<TTaskContext, TGlobalContext>);
   public constructor(
@@ -33,51 +35,49 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
     this.elasticClient = elasticClient ?? new Client(options);
     this.threshold = options.threshold ?? LogLevel.TRACE;
     this.asyncStorage = new AsyncLocalStorage();
+    this.localErrors = new WeakSet();
+  }
+
+  public injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
+    this.logger = logger;
   }
 
   public runTask<R>(callback: () => R): R {
     const stack: string[] = [...(this.asyncStorage.getStore() || []), v4()];
-
     return this.asyncStorage.run(stack, callback);
   }
 
   public async log(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
-    if (entry.level < this.threshold) {
+    if (
+      entry.level >= LogLevel.TRACE && entry.level < this.threshold
+      || entry.error && this.localErrors.has(entry.error)
+    ) {
       return;
     }
 
     try {
-      await this.elasticClient.index({
-        index:
-          typeof this.options.index === 'string' ? this.options.index : this.options.index(entry),
-        body: this.options.bodyMapper
-          ? this.options.bodyMapper(entry)
-          : this.defaultBodyMapper(entry),
-      });
-    } catch (error) {
-      if (this.options.errorMsThreshold) {
-        if (
-          !this.lastError ||
-          this.lastError.getTime() - new Date().getTime() > this.options.errorMsThreshold
-        ) {
-          if (this.options.errorCallback) {
-            this.options.errorCallback(error);
-          } else {
-            console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
-            this.lastError = new Date();
-          }
-        }
-      } else if (this.options.errorCallback) {
-        this.options.errorCallback(error);
-      } else {
-        console.log('ELASTIC CONNECTION ERROR HAPPENED', error);
+      const body = this.options.transformer
+        ? this.options.transformer(entry)
+        : this.defaultTransformer(entry);
+
+      if (!body) {
+        return;
       }
+
+      const index = typeof this.options.index === 'string'
+        ? this.options.index
+        : this.options.index(entry);
+
+      await this.elasticClient.index({ index, body });
+    } catch (error) {
+      this.localErrors.add(error);
+      this.logger?.log(LogLevel.INTERNAL, error);
     }
   }
 
-  private defaultBodyMapper({
+  private defaultTransformer({
     data,
     taskContext,
     globalContext,
@@ -88,7 +88,7 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
       context: {
         ...globalContext,
         ...(taskContext || {}),
-        subtaskIds: this.asyncStorage.getStore(),
+        taskStack: this.asyncStorage.getStore(),
       },
       data: JSON.stringify(data),
     };
