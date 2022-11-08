@@ -112,7 +112,8 @@ flowchart TD
 ```
 
 Usually handlers use this encapsulation mechanism to run the task within an `AsyncLocalStorage.run()`
-context, but it might also make sense to do other things, like cleanup after a task is finished.
+context, but it might also make sense to do other things, like clean up after a task is finished
+or update the task context data.
 
 ## Handler errors
 
