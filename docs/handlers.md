@@ -89,7 +89,7 @@ export class AwesomeHandler implements HandlerPlugin {
 
 Handlers may or may not care about Debugr tasks. Handlers which do care need to implement
 the `runTask()` method; this method will be called from within `Logger.runTask()`. When calling
-`Logger.runTask()`, Debugr constructs a "Russian doll" out of all the handlers which implement
+`Logger.runTask()`, Debugr constructs a nested call chain out of all the handlers which implement
 the `runTask()` method. Actual execution order of individual handlers' `runTask()` method is
 not well-defined and shouldn't be important - but any individual handler's implementation of the
 method will be called either by the `Logger` itself or by the previous handler in the chain,
