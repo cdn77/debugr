@@ -4,8 +4,6 @@ The Debugr core is very simple and only does a couple of things.
 Most of the actual work is delegated to various plugins. This document
 describes the core concepts of how the Debugr core works.
 
-(todo: explain log entries, plugin types, log levels)
-
 ## Log Entries
 
 Log entries are objects which represent data to be logged, along with some

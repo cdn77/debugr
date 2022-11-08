@@ -116,6 +116,28 @@ context, but it might also make sense to do other things, like cleanup after a t
 
 ## Handler errors
 
-If an error happens within a Handler plugin, the Handler should handle the error internally.
+There's a couple of conventional ways of dealing with errors thrown inside Handler plugins:
+ - If a Formatter plugin fails to format an entry and it's not the default generic formatter,
+   the handler can try formatting the entry using the default generic formatter and append
+   some information about the fact. This is good when the only issue is formatting, since it
+   means that the offending entry will still appear at the correct place in the log history.
+ - If there is some kind of failure preventing the Handler from logging anything at all
+   (e.g. readonly or inaccessible filesystem, network error etc.), then the Handler can simply
+   log the error using the usual `Logger.log()` method (provided it keeps a reference to the
+   Logger instance). In this case the entry should be logged at the `LogLevel.INTERNAL` level,
+   which has a numeric value of `-1`. This will give other handlers an opportunity to log the
+   error where it could otherwise be lost. If a Handler wants to log internal errors this way,
+   it MUST implement some logic to prevent an infinite loop from occurring. One option is to use
+   a `WeakSet` to keep track of errors logged from the handler itself and to ignore any entries
+   which are already present in this set; take a look at the Elastic or Slack handlers' source
+   for an example.
+ - Obviously a Handler can also use any other means of handling internal errors - though it should
+   adhere to some guiding principles:
+   - Errors should rarely be ignored completely - at the very least, they should produce some
+     console output.
+   - Errors in Debugr should rarely cause the entire app to crash - Debugr should help _prevent_
+     your app from crashing, after all.
+   - Entries which _caused_ an error inside a handler have already been handled by other handlers,
+     so there's no need to log them again when handling the error they caused.
 
 [Elastic handler]: ../packages/elastic
