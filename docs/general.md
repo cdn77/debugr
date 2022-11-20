@@ -47,7 +47,7 @@ This allows you to amend the definition with your own custom log levels like thi
 ```typescript
 declare module '@debugr/core' {
   export const enum LogLevel {
-    CUSTOM_WARNING = 35,
+    CUSTOM_WARNING = 45,
   }
 }
 ```
