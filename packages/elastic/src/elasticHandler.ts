@@ -33,7 +33,7 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
   public constructor(options: any, elasticClient?: Client) {
     this.options = options;
     this.elasticClient = elasticClient ?? new Client(options);
-    this.threshold = options.threshold ?? LogLevel.TRACE;
+    this.threshold = options.threshold ?? LogLevel.ALL;
     this.asyncStorage = new AsyncLocalStorage();
     this.localErrors = new WeakSet();
   }
@@ -51,7 +51,7 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
     if (
-      entry.level >= LogLevel.TRACE && entry.level < this.threshold
+      entry.level >= LogLevel.ALL && entry.level < this.threshold
       || entry.error && this.localErrors.has(entry.error)
     ) {
       return;

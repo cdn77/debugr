@@ -35,7 +35,7 @@ export class SlackHandler<TTaskContext extends TContextBase, TGlobalContext exte
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
     if (
-      entry.level >= LogLevel.TRACE && entry.level < this.threshold
+      entry.level >= LogLevel.ALL && entry.level < this.threshold
       || entry.error && this.localErrors.has(entry.error)
     ) {
       return;

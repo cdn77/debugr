@@ -59,12 +59,19 @@ types. It is currently unclear how this can be worked around in Debugr context.
 
 The predefined log levels in Debugr are:
 
- - `LogLevel.TRACE` (numeric value `0`)
- - `LogLevel.DEBUG` (numeric value `10`)
- - `LogLevel.INFO` (numeric value `20`)
- - `LogLevel.WARNING` (numeric value `30`)
- - `LogLevel.ERROR` (numeric value `40`)
- - `LogLevel.FATAL` (numeric value `50`)
+ - `LogLevel.TRACE` (numeric value `10`)
+ - `LogLevel.DEBUG` (numeric value `20`)
+ - `LogLevel.INFO` (numeric value `30`)
+ - `LogLevel.WARNING` (numeric value `40`)
+ - `LogLevel.ERROR` (numeric value `50`)
+ - `LogLevel.FATAL` (numeric value `60`)
+
+There are also two special log levels which typically aren't used from userland code:
+
+ - `LogLevel.INTERNAL` (numeric value `-1`) - used for entries generated from errors
+   thrown inside Debugr or its plugins
+ - `LogLevel.ALL` (numeric value `0`) - used in conjunction with filters which discard
+   entries below a specified level; means "all non-internal entries should pass"
 
 ## Entry types
 

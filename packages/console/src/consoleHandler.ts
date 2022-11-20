@@ -49,7 +49,7 @@ export class ConsoleHandler<
   public log(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): void {
     if (!this.formatter) {
       throw new Error('Logger was incorrectly initialized, no formatter found');
-    } else if (entry.level >= LogLevel.TRACE && entry.level < this.threshold) {
+    } else if (entry.level >= LogLevel.ALL && entry.level < this.threshold) {
       return;
     }
 
