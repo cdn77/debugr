@@ -25,6 +25,7 @@
     "src": "src/index.ts",
     "externals": [
       "@elastic/elasticsearch",
+      "async_hooks",
       "uuid"
     ]
   },
