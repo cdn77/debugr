@@ -57,14 +57,14 @@ compiler option `isolatedModules`, which some transpilers (e.g. Babel) use.
 This means that if you need this option enabled, you cannot use `const enum`
 types. It is currently unclear how this can be worked around in Debugr context.
 
-The predefined log levels in Debugr are:
+The predefined log levels and their loose semantics in Debugr are:
 
- - `LogLevel.TRACE` (numeric value `10`)
- - `LogLevel.DEBUG` (numeric value `20`)
- - `LogLevel.INFO` (numeric value `30`)
- - `LogLevel.WARNING` (numeric value `40`)
- - `LogLevel.ERROR` (numeric value `50`)
- - `LogLevel.FATAL` (numeric value `60`)
+ - `LogLevel.TRACE` (numeric value `10`) - occasionally potentially useful noise
+ - `LogLevel.DEBUG` (numeric value `20`) - detailed debugging data, e.g. SQL queries, requests to external APIs etc.
+ - `LogLevel.INFO` (numeric value `30`) - noteworthy events in regular application flow, e.g. user logged in
+ - `LogLevel.WARNING` (numeric value `40`) - events somebody should check out eventually, but nothing too serious
+ - `LogLevel.ERROR` (numeric value `50`) - serious recoverable errors (e.g. failure to handle a specific request), needs attention soon
+ - `LogLevel.FATAL` (numeric value `60`) - unrecoverable errors which bring down the entire application, needs attention now
 
 There are also two special log levels which typically aren't used from userland code:
 
