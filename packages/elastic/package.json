@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@debugr/core": "^3.0.0-rc.6",
-    "@elastic/elasticsearch": "^7.15.0",
+    "@elastic/elasticsearch": "^7.17.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

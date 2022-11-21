@@ -6,8 +6,10 @@ const snapshots: WeakSet<any> = new WeakSet();
 export const snapshot = {
   take<T>(data: T, strategy: CloningStrategy): T {
     switch (strategy) {
-      case CloningStrategy.Json: return snapshot.json(data);
-      case CloningStrategy.V8: return snapshot.v8(data);
+      case CloningStrategy.Json:
+        return snapshot.json(data);
+      case CloningStrategy.V8:
+        return snapshot.v8(data);
     }
   },
   json<T>(data: T): T {

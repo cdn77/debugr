@@ -15,7 +15,7 @@
     "@debugr/graphql-common": "^3.0.0-rc.3",
     "@debugr/http-common": "^3.0.0-rc.4",
     "@debugr/sql-common": "^3.0.0-rc.3",
-    "ansi-colors": "^4.1.1"
+    "ansi-colors": "^4.1.3"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

@@ -14,10 +14,10 @@
     "@debugr/core": "^3.0.0-rc.6"
   },
   "devDependencies": {
-    "@sqltools/formatter": "^1.2.3"
+    "@sqltools/formatter": "^1.2.5"
   },
   "peerDependencies": {
-    "@sqltools/formatter": "^1.2.3"
+    "@sqltools/formatter": "^1.2.5"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

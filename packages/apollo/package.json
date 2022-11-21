@@ -15,11 +15,11 @@
     "@debugr/graphql-common": "^3.0.0-rc.3"
   },
   "devDependencies": {
-    "apollo-server-plugin-base": "^3.6.0",
+    "apollo-server-plugin-base": "^3.6.3",
     "graphql": "^15.4.0"
   },
   "peerDependencies": {
-    "apollo-server-plugin-base": "^3.6.0",
+    "apollo-server-plugin-base": "^3.6.3",
     "graphql": "^15.4.0"
   },
   "src": "src/index.ts",

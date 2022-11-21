@@ -21,10 +21,10 @@ export type LoggerOptions<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > = {
-  globalContext: TGlobalContext,
-  plugins?: Plugin<TTaskContext, TGlobalContext>[],
-  pluginManager?: PluginManager<TTaskContext, TGlobalContext>,
-  cloningStrategy?: CloningStrategy,
+  globalContext: TGlobalContext;
+  plugins?: Plugin<TTaskContext, TGlobalContext>[];
+  pluginManager?: PluginManager<TTaskContext, TGlobalContext>;
+  cloningStrategy?: CloningStrategy;
 };
 
 export type TContextShape = {

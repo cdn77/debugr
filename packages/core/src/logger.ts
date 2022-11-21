@@ -2,13 +2,14 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
 import { PluginManager } from './pluginManager';
 import type {
-CloningStrategy,  HandlerPlugin,
+  CloningStrategy,
+  HandlerPlugin,
   LogEntry,
   LoggerOptions,
   PluginId,
   Plugins,
   TContextBase,
-  TContextShape
+  TContextShape,
 } from './types';
 import { isHandlerPlugin, isTaskAwareHandlerPlugin, LogLevel } from './types';
 import { SmartMap, snapshot, wrapPossiblePromise } from './utils';

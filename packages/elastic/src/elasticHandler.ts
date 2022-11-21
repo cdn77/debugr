@@ -51,8 +51,8 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
     if (
-      entry.level >= LogLevel.ALL && entry.level < this.threshold
-      || entry.error && this.localErrors.has(entry.error)
+      (entry.level >= LogLevel.ALL && entry.level < this.threshold) ||
+      (entry.error && this.localErrors.has(entry.error))
     ) {
       return;
     }
@@ -66,9 +66,8 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
         return;
       }
 
-      const index = typeof this.options.index === 'string'
-        ? this.options.index
-        : this.options.index(entry);
+      const index =
+        typeof this.options.index === 'string' ? this.options.index : this.options.index(entry);
 
       await this.elasticClient.index({ index, body });
     } catch (error) {

@@ -1,6 +1,6 @@
-import typescript from '@rollup/plugin-typescript';
-import babel from '@rollup/plugin-babel';
-import * as path from 'path';
+const typescript = require('@rollup/plugin-typescript');
+const babel = require('@rollup/plugin-babel');
+const path = require('path');
 
 // eslint-disable-next-line import/no-dynamic-require
 const pkg = require(path.resolve('package.json'));
@@ -22,7 +22,7 @@ if (pkg.build.externals) {
   external.push(...pkg.build.externals);
 }
 
-export default [
+module.exports = [
   {
     input: pkg.build.src,
 
