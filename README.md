@@ -83,7 +83,7 @@ logger.runTask(async () => {
   logger.info(['An info message with %d %s %s', 3, 'printf-style', 'params']);
   logger.warning({ custom: 'data', is: 'supported also' });
   logger.error(new Error('Which shan\'t disappear without a trace!'));
-  logger.log(Logger.INFO, 'Just so you know');
+  logger.log(LogLevel.INFO, 'Just so you know');
 });
 ```
 
