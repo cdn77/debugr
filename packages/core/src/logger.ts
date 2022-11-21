@@ -2,36 +2,36 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
 import { PluginManager } from './pluginManager';
 import type {
+CloningStrategy,  HandlerPlugin,
   LogEntry,
-  LogHandlerPlugin,
-  Plugin,
+  LoggerOptions,
+  PluginId,
+  Plugins,
   TContextBase,
   TContextShape
 } from './types';
-import type { PluginId, Plugins } from './types';
-import { isLogHandlerPlugin, isTaskAwareLogHandlerPlugin } from './types';
-import { LogLevel } from './types';
-import { clone, SmartMap, wrapPossiblePromise } from './utils';
+import { isHandlerPlugin, isTaskAwareHandlerPlugin, LogLevel } from './types';
+import { SmartMap, snapshot, wrapPossiblePromise } from './utils';
 
 export class Logger<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > {
   private readonly globalContext: TGlobalContext;
-
   private readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
-
+  private readonly cloningStrategy?: CloningStrategy;
   private readonly taskContextStorage: AsyncLocalStorage<Partial<TTaskContext>>;
+  private readonly handlers: SmartMap<string, HandlerPlugin<TTaskContext, TGlobalContext>>;
 
-  private readonly handlers: SmartMap<string, LogHandlerPlugin<TTaskContext, TGlobalContext>>;
-
-  public constructor(
-    globalContext: TGlobalContext,
-    plugins: Plugin<TTaskContext, TGlobalContext>[] = [],
-    pluginManager?: PluginManager<TTaskContext, TGlobalContext>,
-  ) {
+  public constructor({
+    globalContext,
+    plugins = [],
+    pluginManager = new PluginManager(),
+    cloningStrategy,
+  }: LoggerOptions<TTaskContext, TGlobalContext>) {
     this.globalContext = globalContext;
-    this.pluginManager = pluginManager ?? new PluginManager();
+    this.pluginManager = pluginManager;
+    this.cloningStrategy = cloningStrategy;
     this.taskContextStorage = new AsyncLocalStorage();
 
     for (const plugin of plugins) {
@@ -40,10 +40,9 @@ export class Logger<
 
     this.pluginManager.init(this);
 
-    this.handlers = new SmartMap(this.pluginManager.find(isLogHandlerPlugin).map((handler) => [
-      handler.id,
-      handler,
-    ]));
+    this.handlers = new SmartMap(
+      this.pluginManager.find(isHandlerPlugin).map((handler) => [handler.id, handler]),
+    );
   }
 
   public runTask<R>(callback: () => R, dontOverrideTask: boolean = false): R {
@@ -62,10 +61,10 @@ export class Logger<
       return envelopedCallback();
     }
 
-    const newContext: Partial<TTaskContext> = context ? clone(context) : {};
+    const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : {};
 
     const mainCallback = this.handlers.reduceRight(
-      (child, parent) => (isTaskAwareLogHandlerPlugin(parent) ? () => parent.runTask(child) : child),
+      (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),
       envelopedCallback,
     );
 
@@ -118,20 +117,16 @@ export class Logger<
     return this.log(LogLevel.FATAL, message, dataOrError, maybeData);
   }
 
-  public log(level: LogLevel | number, data: Record<string, any> | Error): this;
+  public log(level: LogLevel, data: Record<string, any> | Error): this;
+  public log(level: LogLevel, message: string | [string, ...any], data?: Record<string, any>): this;
   public log(
-    level: LogLevel | number,
-    message: string | [string, ...any],
-    data?: Record<string, any>,
-  ): this;
-  public log(
-    level: LogLevel | number,
+    level: LogLevel,
     message: string | [string, ...any],
     error: Error,
     data?: Record<string, any>,
   ): this;
   public log(
-    level: LogLevel | number,
+    level: LogLevel,
     messageOrDataOrError: Record<string, any> | Error | string | [string, ...any],
     maybeDataOrError?: Record<string, any> | Error,
     maybeData?: Record<string, any>,
@@ -159,6 +154,10 @@ export class Logger<
       data = messageOrDataOrError;
     }
 
+    if (this.cloningStrategy && !snapshot.isSnapshot(data)) {
+      data = snapshot.take(data, this.cloningStrategy);
+    }
+
     return this.add({
       level,
       message,
@@ -177,9 +176,9 @@ export class Logger<
       ts: new Date(),
     };
 
-    this.handlers.forEach((handler) => {
+    for (const handler of this.handlers.values()) {
       handler.log(fullEntry);
-    });
+    }
 
     return this;
   }

@@ -14,12 +14,13 @@
     "prettier"
   ],
   "rules": {
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/explicit-member-accessibility": "error",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/consistent-type-imports": "error",
     "no-constant-condition": "off",
     "simple-import-sort/imports": ["error", { "groups": [["^\\u0000", "^@?\\w", "^", "^\\."]] }]
   }

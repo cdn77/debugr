@@ -20,20 +20,20 @@ npm install --save @debugr/insaner
 ## Usage
 
 ```typescript
-import { InsanerLogger } from '@debugr/insaner';
+import { InsanerCollector } from '@debugr/insaner';
 import { HttpServer, HttpRequest, HttpForbiddenError } from 'insaner';
 import { Logger, LogLevel } from '@debugr/core';
-import { ConsoleLogHandler } from '@debugr/console-handler';
+import { ConsoleHandler } from '@debugr/console';
 
 const globalContext = {
   applicationName: 'example',
 };
 
 const logger = new Logger(globalContext, [
-  new ConsoleLogHandler({
+  new ConsoleHandler({
     threshold: LogLevel.INFO,
   }),
-  new InsanerLogger(),
+  new InsanerCollector(),
 ]);
 
 const server = new HttpServer();
@@ -51,7 +51,7 @@ server.listen(8000);
 
 ## Options
 
-The `InsanerLogger` constructor accepts an optional `options` object
+The `InsanerCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
 | Option                    | Type                 | Default                       | Description                                                                                             |

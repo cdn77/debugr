@@ -1,6 +1,6 @@
 import { LogLevel } from '@debugr/core';
 import { createHttpCaptureChecker, createHttpHeadersFilter } from '@debugr/http-common';
-import type { NormalizedOptions, Options } from './types';
+import type { ExpressCollectorOptions, NormalizedOptions } from './types';
 
 export function normalizeOptions({
   level,
@@ -9,7 +9,7 @@ export function normalizeOptions({
   captureBody,
   request,
   response,
-}: Options = {}): NormalizedOptions {
+}: ExpressCollectorOptions = {}): NormalizedOptions {
   return {
     level: level ?? LogLevel.INFO,
     e4xx: e4xx ?? false,

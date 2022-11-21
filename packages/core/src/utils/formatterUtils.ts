@@ -1,17 +1,16 @@
 import type { PluginManager } from '../pluginManager';
-import type { FormatterPlugin, FormatterPluginTypeGuard } from '../types';
+import type { FormatterPlugin, FormatterPluginTypeGuard, MappedRecord } from '../types';
+import type { EntryType, LogLevel } from '../types';
 
-export function normalizeMap<V>(map: Record<number, V>): Map<number, V> {
+export function normalizeMap<K extends number, V>(map: MappedRecord<K, V>): Map<K, V> {
   return new Map(
     Object.entries(map)
-      .map(([level, value]) => [parseInt(level, 10), value] as const)
+      .map(([level, value]) => [parseInt(level, 10), value] as any)
       .sort(([a], [b]) => a - b),
   );
 }
 
-export function levelToValue<V>(map: Map<number, V>, level: number, fallback?: number): V;
-export function levelToValue<V, F>(map: Map<number, V>, level: number, fallback: F): V | F;
-export function levelToValue<V>(map: Map<number, V>, level: number, fallback: any = 0): V | any {
+export function levelToValue<V>(map: Map<LogLevel, V>, level: LogLevel, fallback?: V): V {
   const exact = map.get(level);
 
   if (exact) {
@@ -24,7 +23,7 @@ export function levelToValue<V>(map: Map<number, V>, level: number, fallback: an
     }
   }
 
-  return typeof fallback === 'number' ? map.get(fallback)! : fallback;
+  return fallback ?? map.values().next().value;
 }
 
 export function isEmpty(o: Record<string, any> | undefined): boolean {
@@ -127,24 +126,22 @@ export function formatData(data: any): string {
   }
 }
 
-export function resolveFormatters<
-  TFormatter extends FormatterPlugin,
->(
+export function resolveFormatters<TFormatter extends FormatterPlugin>(
   pluginManager: PluginManager<any, any>,
   filter: FormatterPluginTypeGuard<TFormatter>,
-  defaults: Record<string, () => TFormatter>,
-): Record<string, TFormatter> {
+  defaults: MappedRecord<EntryType, () => TFormatter>,
+): MappedRecord<EntryType, TFormatter> {
   const formatters = Object.fromEntries(
     pluginManager.find(filter).map((plugin) => [plugin.entryType, plugin]),
   );
 
   for (const type of pluginManager.getKnownEntryTypes()) {
     if (!formatters[type]) {
-      if (defaults[type]) {
-        formatters[type] = defaults[type]();
+      const factory = defaults[type];
+
+      if (factory) {
+        formatters[type] = factory();
         pluginManager.register(formatters[type]);
-      } else {
-        throw new Error(`Missing formatter for '${type}' entries`);
       }
     }
   }

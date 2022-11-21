@@ -1,9 +1,5 @@
-export type Options = {
-  level?: number;
-  forceSubtask?: boolean;
-};
+import type { LogLevel } from '@debugr/core';
 
-export type FullOptions = {
-  level: number;
-  forceSubtask: boolean;
+export type ApolloCollectorOptions = {
+  level?: LogLevel;
 };

@@ -1,4 +1,5 @@
 {
   "useWorkspaces": true,
+  "useNx": true,
   "version": "independent"
 }

@@ -1,13 +1,13 @@
-import type { MikroORMPlugin } from './mikroorm';
-
-export * from './mikroorm';
+export * from './mikroormCollector';
 export * from './types';
+
+import type { MikroORMCollector } from './mikroormCollector';
 
 declare module '@debugr/core' {
   export interface Plugins<
     TTaskContext extends TContextBase = TContextBase,
     TGlobalContext extends TContextShape = TContextShape,
   > {
-    mikroorm: MikroORMPlugin<TTaskContext, TGlobalContext>;
+    mikroorm: MikroORMCollector<TTaskContext, TGlobalContext>;
   }
 }

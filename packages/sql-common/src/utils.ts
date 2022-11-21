@@ -1,4 +1,4 @@
-export type SqlQueryFormatter = (query: string) => string;
+import type { SqlQueryFormatter } from './types';
 
 export function createQueryFormatter(): SqlQueryFormatter {
   try {

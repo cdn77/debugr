@@ -21,18 +21,18 @@ npm install --save @debugr/express
 ```typescript
 import * as express from 'express';
 import { Logger, LogLevel } from '@debugr/core';
-import { ExpressLogger } from '@debugr/express';
-import { ConsoleLogHandler } from '@debugr/console-handler';
+import { ExpressCollector } from '@debugr/express';
+import { ConsoleHandler } from '@debugr/console';
 
 const globalContext = {
   applicationName: 'example',
 };
 
 const logger = new Logger(globalContext, [
-  new ConsoleLogHandler({
+  new ConsoleHandler({
     threshold: LogLevel.INFO,
   }),
-  new ExpressLogger(),
+  new ExpressCollector(),
 ]);
 
 const app = express();
@@ -53,7 +53,7 @@ app.listen(8000);
 
 ## Options
 
-The `ExpressLogger` constructor accepts an optional `options` object
+The `ExpressCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
 | Option                    | Type                 | Default                       | Description                                                                                             |

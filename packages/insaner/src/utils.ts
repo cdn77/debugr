@@ -1,6 +1,6 @@
 import { LogLevel } from '@debugr/core';
 import { createHttpHeadersFilter } from '@debugr/http-common';
-import type { NormalizedOptions, Options } from './types';
+import type { InsanerCollectorOptions, NormalizedOptions } from './types';
 
 export function normalizeOptions({
   level,
@@ -8,7 +8,7 @@ export function normalizeOptions({
   excludeHeaders,
   request,
   response,
-}: Options = {}): NormalizedOptions {
+}: InsanerCollectorOptions = {}): NormalizedOptions {
   return {
     level: level ?? LogLevel.INFO,
     e4xx: e4xx ?? false,

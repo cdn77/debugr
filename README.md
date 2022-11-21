@@ -30,10 +30,10 @@ Log Handlers are responsible for deciding what to do with log entries. The `Logg
 in Debugr doesn't write the log entries anywhere by itself - it delegates this work to configured
 Log Handlers.
 
-- [`@debugr/console-handler`] - Outputs formatted entries to console
-- [`@debugr/elastic-handler`] - Sends structured entries to an Elastic index
-- [`@debugr/html-handler`] - Creates Tracy-style HTML dump files
-- [`@debugr/slack-handler`] - Sends messages to a Slack channel
+- [`@debugr/console`] - Outputs formatted entries to console
+- [`@debugr/elastic`] - Sends structured entries to an Elastic index
+- [`@debugr/html`] - Creates Tracy-style HTML dump files
+- [`@debugr/slack`] - Sends messages to a Slack channel
 
 ### Plugins:
 
@@ -53,22 +53,25 @@ stuff will be done automatically for you.
 
 ```typescript
 import { Logger, LogLevel } from '@debugr/core';
-import { ConsoleLogHandler } from '@debugr/console-handler';
-import { HtmlLogHandler } from '@debugr/html-handler';
+import { ConsoleHandler } from '@debugr/console';
+import { HtmlHandler } from '@debugr/html';
 
 const globalContext = {
   applicationName: 'example',
 };
 
-const logger = new Logger(globalContext, [
-  new ConsoleLogHandler({
-    threshold: LogLevel.INFO
-  }),
-  new HtmlLogHandler({
-    threshold: LogLevel.ERROR,
-    outputDir: __dirname + '/log',
-  }),
-]);
+const logger = new Logger({
+  globalContext,
+  plugins: [
+    new ConsoleHandler({
+      threshold: LogLevel.INFO
+    }),
+    new HtmlHandler({
+      threshold: LogLevel.ERROR,
+      outputDir: __dirname + '/log',
+    }),
+  ],
+});
 
 // Wrap anything you consider a "task" in a callback and pass that callback
 // to `logger.runTask()` like this:
@@ -113,6 +116,43 @@ is found, the entire queue is silently discarded; if at least one matching entry
 the whole queue is formatted into a timestamped HTML dump file in the configured log directory.
 The filename also contains a hash derived from the first entry which matched the configured threshold;
 this hash can often be used to find identical or similar errors.
+
+### Logging mutable data
+
+Debugr can handle structured data in addition to plain string messages, but care needs to be taken
+when logging such structured data, because some handlers will not process the data immediately;
+if the application keeps a reference to the logged data and then mutates it in any way, there's
+a chance that what ends up being logged is the mutated data, as opposed to the data as it was
+at the time it was passed to the logger. There are three ways you can deal with this problem:
+
+ - Never mutate logged data. That's often easy to do, just don't keep references to data you log,
+   so you're not tempted. This is the way.
+ - Selectively clone mutable data when you're logging it. If there's only a couple of places in your
+   application where you need to log mutable data which you expect to be mutated down the road,
+   you can clone the data before sending it to Debugr. You can use the `snapshot` helper exported
+   from `@debugr/core` for this purpose; it has two methods, `snapshot.json()` and `snapshot.v8()`,
+   which differ in the method they use for cloning data. The former uses `JSON.parse(JSON.stringify(data))`,
+   which is usually fast enough and should be relatively safe in terms of cloning objects which
+   might have methods or hidden references to vast structures (like some ORM entities do);
+   the latter uses the V8 `deserialize(serialize(data))` functions, which may be even faster and
+   supports circular references as well as some objects which JSON doesn't (like `Date`), but in
+   some rare cases might result in cloning a much larger object than you intended due to the
+   aforementioned hidden references.
+ - Or you can apply a system-wide _cloning strategy_ by setting the `cloningStrategy` option when
+   creating a `Logger` instance. This will apply the `snapshot.json()` or `snapshot.v8()` function
+   under the hood to _all_ data that you log using the `logger.log()` method or one of its aliases,
+   _except_ for data which you cloned manually using either of the helper functions prior to passing
+   the data to the logger. This way the data will only be cloned once - either explicitly by your code,
+   or implicitly by the logger. This is intended as a stopgap solution for situations when you have
+   a large codebase and you wish to transition to selective cloning gradually - once you cover all
+   the places where you _need_ to clone the data, you can just turn off the global cloning strategy.
+   Cloning all data passed to Debugr by default incurs a potentially heavy performance penalty,
+   which is why we don't do this by default and don't recommend it if you can avoid it.
+
+**N.B.** Just to be clear, when we say _data_ in this context, we're talking about the `data` argument
+of the `logger.log()` method and its aliases (see below). Printf-style messages using `[format, ...args]`
+are formatted immediately, so they don't suffer from this issue, and `Error` objects don't often get
+mutated, so there's probably no point cloning them either.
 
 ### Context
 
@@ -185,12 +225,14 @@ The `Logger` instance has the following methods:
 
 ## Development
 
-To release a new version of a package, run the following command in the package
-directory:
+To release a new version of a package, run the following command in the root directory of Debugr:
 
 ```bash
-npm --no-git-tag-version --force version <major|minor|patch>
+tools/upgrade-version.js <package> <major|minor|patch|premajor|preminor|prepatch|prerelease>
 ```
+
+This will update the `version` key in the package's `package.json`, as well as update the version
+constraint in any other Debugr packages which depend on the affected package.
 
 Next, commit your changes and push the new commits to the repository;
 any packages with updated version in `package.json` will be automatically
@@ -198,10 +240,10 @@ published to NPM.
 
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
-[`@debugr/console-handler`]: ./packages/console-handler
-[`@debugr/elastic-handler`]: ./packages/elastic-handler
-[`@debugr/html-handler`]: ./packages/html-handler
-[`@debugr/slack-handler`]: ./packages/slack-handler
+[`@debugr/console`]: ./packages/console
+[`@debugr/elastic`]: ./packages/elastic
+[`@debugr/html`]: ./packages/html
+[`@debugr/slack`]: ./packages/slack
 [`@debugr/apollo`]: ./packages/apollo
 [`@debugr/express`]: ./packages/express
 [`@debugr/insaner`]: ./packages/insaner
