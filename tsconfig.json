@@ -14,6 +14,7 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
+    "preserveConstEnums": true,
     "types": ["node"]
   },
   "exclude": ["packages/*/dist/**"]
