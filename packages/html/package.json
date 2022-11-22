@@ -1,6 +1,6 @@
 {
   "name": "@debugr/html",
-  "version": "3.0.0-rc.6",
+  "version": "3.0.0-rc.7",
   "description": "Html log handler for Debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,10 +11,10 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.6",
-    "@debugr/http-common": "^3.0.0-rc.4",
-    "@debugr/graphql-common": "^3.0.0-rc.3",
-    "@debugr/sql-common": "^3.0.0-rc.3"
+    "@debugr/core": "^3.0.0-rc.7",
+    "@debugr/http-common": "^3.0.0-rc.5",
+    "@debugr/graphql-common": "^3.0.0-rc.4",
+    "@debugr/sql-common": "^3.0.0-rc.4"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
