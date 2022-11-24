@@ -59,7 +59,7 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
 
     try {
       const body = this.options.transformer
-        ? this.options.transformer(entry)
+        ? this.options.transformer(entry, this.asyncStorage.getStore())
         : this.defaultTransformer(entry);
 
       if (!body) {

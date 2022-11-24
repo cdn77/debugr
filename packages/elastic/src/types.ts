@@ -12,6 +12,7 @@ export type EntryTransformer<
   TGlobalContext extends TContextShape = TContextShape,
 > = (
   entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  taskStack?: string[],
 ) => Record<string, any> | undefined;
 
 export interface ElasticHandlerOptions<
