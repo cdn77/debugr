@@ -4,6 +4,7 @@ import type { ExpressCollectorOptions, NormalizedOptions } from './types';
 
 export function normalizeOptions({
   level,
+  errorLevel,
   e4xx,
   excludeHeaders,
   captureBody,
@@ -12,6 +13,7 @@ export function normalizeOptions({
 }: ExpressCollectorOptions = {}): NormalizedOptions {
   return {
     level: level ?? LogLevel.INFO,
+    errorLevel: errorLevel ?? LogLevel.ERROR,
     e4xx: e4xx ?? false,
     request: {
       isCaptureEnabled: createHttpCaptureChecker(

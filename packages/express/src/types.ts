@@ -8,6 +8,7 @@ import type {
 
 export type ExpressCollectorOptions = {
   level?: LogLevel;
+  errorLevel?: LogLevel;
   e4xx?: boolean;
   captureBody?: CaptureBodyOption;
   excludeHeaders?: string[];
@@ -23,6 +24,7 @@ export type ExpressCollectorOptions = {
 
 export type NormalizedOptions = {
   level: LogLevel;
+  errorLevel: LogLevel;
   e4xx: boolean;
   request: {
     isCaptureEnabled: CaptureBodyChecker;

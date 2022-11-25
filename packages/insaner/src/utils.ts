@@ -4,6 +4,7 @@ import type { InsanerCollectorOptions, NormalizedOptions } from './types';
 
 export function normalizeOptions({
   level,
+  errorLevel,
   e4xx,
   excludeHeaders,
   request,
@@ -11,6 +12,7 @@ export function normalizeOptions({
 }: InsanerCollectorOptions = {}): NormalizedOptions {
   return {
     level: level ?? LogLevel.INFO,
+    errorLevel: errorLevel ?? LogLevel.ERROR,
     e4xx: e4xx ?? false,
     request: {
       filterHeaders: createHttpHeadersFilter(

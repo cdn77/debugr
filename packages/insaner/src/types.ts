@@ -3,6 +3,7 @@ import type { HeaderFilter } from '@debugr/http-common';
 
 export type InsanerCollectorOptions = {
   level?: LogLevel;
+  errorLevel?: LogLevel;
   e4xx?: boolean;
   excludeHeaders?: string[];
   request?: {
@@ -15,6 +16,7 @@ export type InsanerCollectorOptions = {
 
 export type NormalizedOptions = {
   level: LogLevel;
+  errorLevel: LogLevel;
   e4xx: boolean;
   request: {
     filterHeaders: HeaderFilter;
