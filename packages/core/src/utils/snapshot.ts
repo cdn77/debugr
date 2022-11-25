@@ -13,22 +13,22 @@ export const snapshot = {
     }
   },
   json<T>(data: T): T {
-    try {
-      const dolly = JSON.parse(JSON.stringify(data));
-      snapshots.add(dolly);
-      return dolly;
-    } catch {
+    if (data === undefined) {
       return data;
     }
+
+    const dolly = JSON.parse(JSON.stringify(data));
+    snapshots.add(dolly);
+    return dolly;
   },
   v8<T>(data: T): T {
-    try {
-      const dolly = deserialize(serialize(data));
-      snapshots.add(dolly);
-      return dolly;
-    } catch {
+    if (data === undefined) {
       return data;
     }
+
+    const dolly = deserialize(serialize(data));
+    snapshots.add(dolly);
+    return dolly;
   },
   isSnapshot(data: any): boolean {
     return snapshots.has(data);
