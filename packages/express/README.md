@@ -44,7 +44,8 @@ app.post('/my-api', function(req, res) {
   // ...
 });
 
-// and then as the very last middleware:
+// and then as the very last middleware - this will log
+// any uncaught errors thrown in middlewares and request handlers:
 app.use(logger.getPlugin('express').createErrorHandler());
 
 app.listen(8000);
@@ -59,6 +60,7 @@ with the following keys as the first argument:
 |---------------------------|----------------------|-------------------------------|---------------------------------------------------------------------------------------------------------|
 | `level`                   | `LogLevel`, `number` | `Logger.INFO`                 | The level at which the request and response will be logged                                              |
 | `errorLevel`              | `LogLevel`, `number` | `Logger.ERROR`                | The level at which error responses will be logged                                                       |
+| `uncaughtLevel`           | `LogLevel`, `number` | `options.errorLevel`          | The level at which uncaught errors which reach the collector's error handler middleware will be logged  |
 | `e4xx`                    | `boolean`            | `false`                       | Consider HTTP 4xx status code as an error response and log appropriately                                |
 | `captureBody`             |                      |                               | See below; global setting for both request and response                                                 |
 | `excludeHeaders`          | `string[]`           |                               | Redact the contents of the specified headers when logging; global setting for both request and response |

@@ -41,7 +41,7 @@ export class ExpressCollector<
 
   public createErrorHandler(): ErrorRequestHandler {
     return (err, req, res, next) => {
-      this.logger.error(err);
+      this.logger.log(this.options.uncaughtLevel, err);
       next(err);
     };
   }
