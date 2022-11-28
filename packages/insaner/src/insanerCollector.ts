@@ -56,7 +56,7 @@ export class InsanerCollector<
   protected createErrorHandler() {
     return (request: HttpRequest, error: Error) => {
       if (!(error instanceof HttpForcedResponse)) {
-        this.logger.error(error);
+        this.logger.log(this.options.uncaughtLevel, error);
       }
     };
   }

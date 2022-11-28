@@ -83,6 +83,6 @@ app.listen(8000);
 The `ApolloCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
-| Option         | Type                 | Default         | Description                                                                                                          |
-|----------------|----------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
-| `level`        | `LogLevel`, `number` | `LogLevel.INFO` | The level at which GraphQL queries are logged.                                                                       |
+| Option         | Type       | Default         | Description                                                                                                          |
+|----------------|------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| `level`        | `LogLevel` | `LogLevel.INFO` | The level at which GraphQL queries are logged.                                                                       |

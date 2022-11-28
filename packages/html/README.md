@@ -69,7 +69,7 @@ e.g. sending the files to a central API.
 | Option      | Type                     | Default          | Description                                                                                                                                    |
 |-------------|--------------------------|------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `outputDir` | `string`                 |                  | The directory where dump files will be written. Will be created if nonexistent. **Required** if a `HtmlWriter` instance is not provided.       |
-| `threshold` | `LogLevel`, `number`     | `LogLevel.ERROR` | The default threshold which needs to be reached or exceeded in order for a dump file to be generated.                                          |
+| `threshold` | `LogLevel`               | `LogLevel.ERROR` | The default threshold which needs to be reached or exceeded in order for a dump file to be generated.                                          |
 | `levelMap`  | `Record<number, string>` |                  | A map of custom log levels to their string representation.                                                                                     |
 | `colorMap`  | `Record<number, string>` |                  | A map of custom log levels to a CSS color which should be used in the generated dumps.                                                         |
 
