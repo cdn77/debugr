@@ -78,7 +78,7 @@ e.g. sending the files to a central API.
 The `HtmlHandler` class has a couple of interesting methods mentioned above which you can use
 to influence whether a dump file will be generated for a particular task or subtask. Here they are:
 
- - `handler.setThreshold(threshold: number): void` - This method can change the level at or above which
+ - `handler.setThreshold(threshold: LogLevel): void` - This method can change the level at or above which
    a log entry needs to be in order for a dump file to be generated. Note that it doesn't work retroactively -
    an entry is compared against the threshold at the time it is logged, so if you increase the threshold after
    an entry already exceeded the original threshold, the dump file will still be generated; and similarly,
