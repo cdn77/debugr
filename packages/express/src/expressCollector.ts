@@ -116,9 +116,14 @@ export class ExpressCollector<
         };
       }
 
-      if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
-        capture && (info.body += chunk.toString());
-        info.bodyLength += Buffer.isBuffer(chunk) ? chunk.byteLength : chunk.length;
+      try {
+        if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
+          info.bodyLength += Buffer.isBuffer(chunk) ? chunk.byteLength : chunk.length;
+          capture && (info.body += chunk.toString());
+        }
+      } catch (e) {
+        this.logger.warning('Failed to capture response body', e);
+        capture = false;
       }
     };
 
