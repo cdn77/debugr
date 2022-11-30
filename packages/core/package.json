@@ -1,6 +1,6 @@
 {
   "name": "@debugr/core",
-  "version": "3.0.0-rc.8",
+  "version": "3.0.0-rc.9",
   "description": "Advanced application logger",
   "author": {
     "name": "Dan Kadera",

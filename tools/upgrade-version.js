@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const { exec } = require('child_process');
 const { writeFile } = require('fs/promises');
 const { resolve } = require('path');
 const semver = require('semver');
@@ -44,4 +45,18 @@ if (!/^(major|minor|patch|premajor|preminor|prepatch|prerelease)$/.test(type)) {
       }
     }
   }
+
+  console.log('Updating package-lock.json...');
+
+  await new Promise((resolve, reject) => {
+    exec('npm install --package-lock-only', { encoding: 'utf-8' }, (err, stdout, stderr) => {
+      if (err) {
+        console.log('Failed to update package-lock.json:');
+        console.log(stdout || stderr);
+        reject();
+      } else {
+        resolve();
+      }
+    });
+  });
 })();

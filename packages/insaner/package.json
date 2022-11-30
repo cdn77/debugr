@@ -1,6 +1,6 @@
 {
   "name": "@debugr/insaner",
-  "version": "3.0.0-rc.5",
+  "version": "3.0.0-rc.6",
   "description": "Insaner plugin for Advanced application logger",
   "author": {
     "name": "Dan Kadera",
@@ -11,7 +11,7 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.8",
+    "@debugr/core": "^3.0.0-rc.9",
     "@debugr/http-common": "^3.0.0-rc.5"
   },
   "devDependencies": {
