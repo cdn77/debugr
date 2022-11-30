@@ -7,8 +7,7 @@ HTTP request that Express handles; additionally, both the HTTP request and
 the HTTP response or any error which reaches Express error handling
 will be automatically logged. If the HTTP response code is >= 500
 (or >= 400 if the `e4xx` option is set) the response will be logged
-with the `Logger.ERROR` level, otherwise the level configured in the plugin
-options will be used.
+with the configured error level.
 
 ## Installation
 
@@ -45,7 +44,8 @@ app.post('/my-api', function(req, res) {
   // ...
 });
 
-// and then as the very last middleware:
+// and then as the very last middleware - this will log
+// any uncaught errors thrown in middlewares and request handlers:
 app.use(logger.getPlugin('express').createErrorHandler());
 
 app.listen(8000);
@@ -56,18 +56,20 @@ app.listen(8000);
 The `ExpressCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
-| Option                    | Type                 | Default                       | Description                                                                                             |
-|---------------------------|----------------------|-------------------------------|---------------------------------------------------------------------------------------------------------|
-| `level`                   | `LogLevel`, `number` | `Logger.INFO`                 | The default level at which the request and response will be logged                                      |
-| `e4xx`                    | `boolean`            | `false`                       | Consider HTTP 4xx status code as an error response and log appropriately                                |
-| `captureBody`             |                      |                               | See below; global setting for both request and response                                                 |
-| `excludeHeaders`          | `string[]`           |                               | Redact the contents of the specified headers when logging; global setting for both request and response |
-| `request`                 | `object`             |                               | Request-specific logging options                                                                        |
-| `request.captureBody`     |                      |                               | See below; overrides global setting                                                                     |
-| `request.excludeHeaders`  | `string[]`           | `['Authorization', 'Cookie']` | Redact the contents of the specified headers when logging; overrides global setting                     |
-| `response`                | `object`             |                               | Response-specific logging options                                                                       |
-| `response.captureBody`    |                      |                               | See below; overrides global setting                                                                     |
-| `response.excludeHeaders` | `string[]`           | `['Set-Cookie']`              | Redact the contents of the specified headers when logging; overrides global setting                     |
+| Option                    | Type       | Default                       | Description                                                                                             |
+|---------------------------|------------|-------------------------------|---------------------------------------------------------------------------------------------------------|
+| `level`                   | `LogLevel` | `Logger.INFO`                 | The level at which the request and response will be logged                                              |
+| `errorLevel`              | `LogLevel` | `Logger.ERROR`                | The level at which error responses will be logged                                                       |
+| `uncaughtLevel`           | `LogLevel` | `options.errorLevel`          | The level at which uncaught errors which reach the collector's error handler middleware will be logged  |
+| `e4xx`                    | `boolean`  | `false`                       | Consider HTTP 4xx status code as an error response and log appropriately                                |
+| `captureBody`             |            |                               | See below; global setting for both request and response                                                 |
+| `excludeHeaders`          | `string[]` |                               | Redact the contents of the specified headers when logging; global setting for both request and response |
+| `request`                 | `object`   |                               | Request-specific logging options                                                                        |
+| `request.captureBody`     |            |                               | See below; overrides global setting                                                                     |
+| `request.excludeHeaders`  | `string[]` | `['Authorization', 'Cookie']` | Redact the contents of the specified headers when logging; overrides global setting                     |
+| `response`                | `object`   |                               | Response-specific logging options                                                                       |
+| `response.captureBody`    |            |                               | See below; overrides global setting                                                                     |
+| `response.excludeHeaders` | `string[]` | `['Set-Cookie']`              | Redact the contents of the specified headers when logging; overrides global setting                     |
 
 ### `captureBody`
 

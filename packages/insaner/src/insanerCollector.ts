@@ -1,5 +1,5 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, LogLevel, PluginKind } from '@debugr/core';
+import { EntryType, PluginKind } from '@debugr/core';
 import type { HttpRequestLogEntry, HttpResponseLogEntry } from '@debugr/http-common';
 import type { HttpRequest, HttpResponse, HttpServer, MiddlewareNext } from 'insaner';
 import { HttpForcedResponse } from 'insaner';
@@ -56,7 +56,7 @@ export class InsanerCollector<
   protected createErrorHandler() {
     return (request: HttpRequest, error: Error) => {
       if (!(error instanceof HttpForcedResponse)) {
-        this.logger.error(error);
+        this.logger.log(this.options.uncaughtLevel, error);
       }
     };
   }
@@ -64,7 +64,9 @@ export class InsanerCollector<
   protected createResponseHandler() {
     return (response: HttpResponse) => {
       const level =
-        response.status >= (this.options.e4xx ? 400 : 500) ? LogLevel.ERROR : this.options.level;
+        response.status >= (this.options.e4xx ? 400 : 500)
+          ? this.options.errorLevel
+          : this.options.level;
 
       this.logger.add<HttpResponseLogEntry>({
         type: EntryType.HttpResponse,

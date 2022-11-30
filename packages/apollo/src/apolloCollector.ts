@@ -13,11 +13,11 @@ export class ApolloCollector<
   public readonly kind = PluginKind.Collector;
   public readonly entryTypes = [EntryType.GraphqlQuery];
 
-  private readonly level: LogLevel;
+  private readonly options: ApolloCollectorOptions;
   private logger: Logger<TTaskContext, TGlobalContext>;
 
-  public constructor(options?: ApolloCollectorOptions) {
-    this.level = options?.level ?? LogLevel.INFO;
+  public constructor(options: ApolloCollectorOptions = {}) {
+    this.options = options;
   }
 
   public injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
@@ -26,7 +26,7 @@ export class ApolloCollector<
 
   public requestDidStart = async (): Promise<GraphQLRequestListener> => {
     const logger = this.logger;
-    const level = this.level;
+    const options = this.options;
 
     return {
       didResolveOperation: async (ctx): Promise<void> => {
@@ -38,7 +38,7 @@ export class ApolloCollector<
         if (ctx.request.query) {
           logger.add<GraphqlQueryLogEntry>({
             type: EntryType.GraphqlQuery,
-            level,
+            level: options.level ?? LogLevel.INFO,
             data: {
               query: ctx.request.query,
               variables: ctx.request.variables,
@@ -49,7 +49,7 @@ export class ApolloCollector<
       },
       didEncounterErrors: async ({ errors }): Promise<void> => {
         for (const err of errors) {
-          logger.error(err.originalError ?? err);
+          logger.log(options.errorLevel ?? LogLevel.ERROR, err.originalError ?? err);
         }
       },
     };
