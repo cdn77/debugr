@@ -14,7 +14,7 @@
     "@debugr/core": "^3.0.0-rc.9",
     "@debugr/graphql-common": "^3.0.0-rc.4",
     "@debugr/http-common": "^3.0.0-rc.5",
-    "@debugr/sql-common": "^3.0.0-rc.4",
+    "@debugr/sql-common": "^3.0.0-rc.5",
     "ansi-colors": "^4.1.3"
   },
   "main": "dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sql-common",
-  "version": "3.0.0-rc.4",
+  "version": "3.0.0-rc.5",
   "description": "Common interfaces and utility functions for SQL plugins",
   "author": {
     "name": "Dan Kadera",
@@ -18,6 +18,11 @@
   },
   "peerDependencies": {
     "@sqltools/formatter": "^1.2.5"
+  },
+  "peerDependenciesMeta": {
+    "@sqltools/formatter": {
+      "optional": true
+    }
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

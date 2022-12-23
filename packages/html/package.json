@@ -14,7 +14,7 @@
     "@debugr/core": "^3.0.0-rc.9",
     "@debugr/http-common": "^3.0.0-rc.5",
     "@debugr/graphql-common": "^3.0.0-rc.4",
-    "@debugr/sql-common": "^3.0.0-rc.4"
+    "@debugr/sql-common": "^3.0.0-rc.5"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
