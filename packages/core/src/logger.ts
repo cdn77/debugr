@@ -64,7 +64,7 @@ export class Logger<
     }
 
     // @ts-expect-error Dont know...
-    const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : {
+    const newContext: Partial<TTaskContext> = context ? snapshot.v8({ ...context, taskStack: [...context.taskStack || [v4()], v4()]}) : {
       taskStack: [v4()],
     };
 

@@ -1,8 +1,8 @@
 import type {
+  HandlerPlugin,
   LogEntry,
   Logger,
   ReadonlyRecursive,
-  TaskAwareHandlerPlugin,
   TContextBase,
   TContextShape,
 } from '@debugr/core';
@@ -11,7 +11,7 @@ import * as Sentry from '@sentry/node';
 import type { SentryOptions } from './types';
 
 export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
-  implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext>
+  implements HandlerPlugin<TTaskContext, TGlobalContext>
 {
   public readonly id = 'sentry';
   public readonly kind = PluginKind.Handler;
@@ -30,12 +30,6 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
 
   public injectLogger(logger: Logger<TTaskContext, TGlobalContext>): void {
     this.logger = logger;
-  }
-
-  public runTask<R>(callback: () => R): R {
-    // const stack: string[] = [...(this.asyncStorage.getStore() || []), v4()];
-    // return this.asyncStorage.run(stack, callback);
-    return callback();
   }
 
   public async log(

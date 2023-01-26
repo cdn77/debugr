@@ -12,11 +12,7 @@
   },
   "dependencies": {
     "@debugr/core": "^3.0.0-rc.10",
-    "@sentry/node": "^7.33.0",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "@types/uuid": "^8.3.4"
+    "@sentry/node": "^7.33.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -24,9 +20,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "@elastic/elasticsearch",
-      "async_hooks",
-      "uuid"
+      "@sentry/node"
     ]
   },
   "files": [

@@ -8,7 +8,6 @@ export interface SentryHandlerOptions {
     breadcrumb?: LogLevel;
     capture?: LogLevel;
   };
-  errorMsThreshold?: number;
 }
 
 export type SentryOptions = Sentry.NodeOptions & SentryHandlerOptions;
