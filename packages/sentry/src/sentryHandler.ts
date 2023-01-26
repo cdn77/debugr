@@ -8,7 +8,7 @@ import type {
 } from '@debugr/core';
 import { LogLevel, PluginKind } from '@debugr/core';
 import * as Sentry from '@sentry/node';
-import type { SentryOptions } from './types';
+import type { SentryHandlerOptions, SentryOptions } from './types';
 
 export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
   implements HandlerPlugin<TTaskContext, TGlobalContext>
@@ -16,15 +16,18 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
   public readonly id = 'sentry';
   public readonly kind = PluginKind.Handler;
 
-  private readonly options: SentryOptions;
+  private readonly options: SentryHandlerOptions<TTaskContext, TGlobalContext>;
   private readonly threshold: LogLevel;
   private readonly localErrors: WeakSet<Error>;
   private logger?: Logger;
 
-  public constructor(options: SentryOptions) {
+  public constructor({ thresholds, extractMessage, ...options}: SentryOptions) {
     Sentry.init(options);
-    this.options = options;
-    this.threshold = options.thresholds?.breadcrumb ?? LogLevel.ALL;
+    this.options = {
+      thresholds,
+      extractMessage,
+    };
+    this.threshold = thresholds?.breadcrumb ?? LogLevel.ALL;
     this.localErrors = new WeakSet();
   }
 

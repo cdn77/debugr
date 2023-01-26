@@ -64,9 +64,8 @@ export class Logger<
     }
 
     // @ts-expect-error Dont know...
-    const newContext: Partial<TTaskContext> = context ? snapshot.v8({ ...context, taskStack: [...context.taskStack || [v4()], v4()]}) : {
-      taskStack: [v4()],
-    };
+    const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : { taskStack: [] };
+    newContext.taskStack?.push(v4());
 
     const mainCallback = this.handlers.reduceRight(
       (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),
