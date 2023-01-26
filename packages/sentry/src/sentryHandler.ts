@@ -51,9 +51,6 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
         Sentry.setExtra('taskContext', entry.taskContext);
       }
 
-      if (entry.error) {
-        Sentry.captureException(entry.error);
-      }
       if (entry.level >= (this.options.thresholds?.capture ?? LogLevel.ERROR)) {
         Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry));
       } else {
@@ -63,6 +60,11 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
           timestamp: entry.ts.getTime(),
         });
       }
+
+      if (entry.error) {
+        Sentry.captureException(entry.error);
+      }
+
     } catch (error) {
       this.localErrors.add(error);
       this.logger?.log(LogLevel.INTERNAL, error);
