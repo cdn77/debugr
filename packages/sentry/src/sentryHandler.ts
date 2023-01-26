@@ -46,13 +46,14 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
         return;
       }
 
-      Sentry.setExtra('globalContext', entry.globalContext);
-      if (entry.taskContext) {
-        Sentry.setExtra('taskContext', entry.taskContext);
-      }
 
       if (entry.level >= (this.options.thresholds?.capture ?? LogLevel.ERROR)) {
-        Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry));
+        Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry), {
+          extra: {
+            ...entry.taskContext,
+            ...entry.globalContext,
+          },
+        });
       } else {
         Sentry.addBreadcrumb({
           data: entry.data,
@@ -62,7 +63,12 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
       }
 
       if (entry.error) {
-        Sentry.captureException(entry.error);
+        Sentry.captureException(entry.error, {
+          extra: {
+            ...entry.taskContext,
+            ...entry.globalContext,
+          },
+        });
       }
 
     } catch (error) {
