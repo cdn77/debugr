@@ -49,11 +49,11 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
       }
 
       if (entry.level >= (this.options.thresholds?.capture ?? LogLevel.ERROR)) {
-        Sentry.captureMessage(entry.message ?? 'empty message');
+        Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry));
       } else {
         Sentry.addBreadcrumb({
           data: entry.data,
-          message: entry.message,
+          message: this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry),
           timestamp: entry.ts.getTime(),
         });
       }
@@ -61,5 +61,19 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
       this.localErrors.add(error);
       this.logger?.log(LogLevel.INTERNAL, error);
     }
+  }
+
+  private defaultExtractMessage(
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+  ): string {
+    if (entry.error) {
+      return entry.error.message;
+    }
+
+    if (entry.message) {
+      return entry.message;
+    }
+
+    return 'Empty Message';
   }
 }
