@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sentry",
-  "version": "3.0.0-rc.8",
+  "version": "3.0.0-rc.1",
   "description": "Sentry log handler for Debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,7 +11,7 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.9",
+    "@debugr/core": "^3.0.0-rc.10",
     "@sentry/node": "^7.33.0",
     "uuid": "^8.3.2"
   },
