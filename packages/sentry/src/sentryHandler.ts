@@ -46,7 +46,6 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
         return;
       }
 
-
       if (entry.level >= (this.options.thresholds?.capture ?? LogLevel.ERROR)) {
         Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry), {
           extra: {
