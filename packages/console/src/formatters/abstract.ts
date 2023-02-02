@@ -6,7 +6,7 @@ import type {
   TContextShape,
 } from '@debugr/core';
 import { cleanUpStackTrace, PluginKind } from '@debugr/core';
-import { dim, red } from 'ansi-colors';
+import type { ConsoleStyle } from '../types';
 import type { ConsoleFormatterPlugin } from './types';
 
 export abstract class AbstractConsoleFormatter<
@@ -21,12 +21,13 @@ export abstract class AbstractConsoleFormatter<
 
   public abstract formatEntry(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+    style: ConsoleStyle,
   ): string;
 
-  public formatError(error: Error): string {
+  public formatError(error: Error, style: ConsoleStyle): string {
     return this.formatParts(
-      `${red(error.name)}: ${error.message}`,
-      error.stack && dim(cleanUpStackTrace(error.stack)),
+      `${style.red(error.name)}: ${error.message}`,
+      error.stack && style.dim(cleanUpStackTrace(error.stack)),
     );
   }
 

@@ -7,13 +7,17 @@ import type {
   TContextShape,
 } from '@debugr/core';
 import { isFormatterPlugin } from '@debugr/core';
+import type { ConsoleStyle } from '../types';
 
 export interface ConsoleFormatterPlugin<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends FormatterPlugin<TTaskContext, TGlobalContext> {
   readonly targetHandler: 'console';
-  formatEntry(entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>): string;
+  formatEntry(
+    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+    style: ConsoleStyle,
+  ): string;
 }
 
 export function isConsoleFormatter<

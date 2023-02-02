@@ -1,6 +1,5 @@
 import type { MappedRecord } from '@debugr/core';
 import { EntryType, LogLevel } from '@debugr/core';
-import { dim, magenta, red, yellow } from 'ansi-colors';
 import type { ConsoleFormatterPlugin } from './formatters';
 import {
   GraphqlQueryConsoleFormatter,
@@ -8,6 +7,7 @@ import {
   HttpResponseConsoleFormatter,
   SqlQueryConsoleFormatter,
 } from './formatters';
+import type { ConsoleStyleName } from './types';
 
 export const defaultLevelMap: MappedRecord<LogLevel, string> = {
   [LogLevel.TRACE]: 'cc',
@@ -19,16 +19,14 @@ export const defaultLevelMap: MappedRecord<LogLevel, string> = {
   [LogLevel.INTERNAL]: 'ii',
 };
 
-export type ConsoleColor = (value: string) => string;
-
-export const defaultColorMap: MappedRecord<LogLevel, ConsoleColor> = {
-  [LogLevel.TRACE]: dim,
-  [LogLevel.DEBUG]: dim,
-  [LogLevel.INFO]: (value) => value,
-  [LogLevel.WARNING]: yellow,
-  [LogLevel.ERROR]: red,
-  [LogLevel.FATAL]: red,
-  [LogLevel.INTERNAL]: magenta,
+export const defaultColorMap: MappedRecord<LogLevel, ConsoleStyleName> = {
+  [LogLevel.TRACE]: 'dim',
+  [LogLevel.DEBUG]: 'dim',
+  [LogLevel.INFO]: 'none',
+  [LogLevel.WARNING]: 'yellow',
+  [LogLevel.ERROR]: 'red',
+  [LogLevel.FATAL]: 'red',
+  [LogLevel.INTERNAL]: 'magenta',
 };
 
 export const defaultFormatters: MappedRecord<EntryType, () => ConsoleFormatterPlugin> = {

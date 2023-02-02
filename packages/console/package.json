@@ -1,6 +1,6 @@
 {
   "name": "@debugr/console",
-  "version": "3.0.0-rc.7",
+  "version": "3.0.0-rc.8",
   "description": "Console log handler for Debugr",
   "author": {
     "name": "Dan Kadera",

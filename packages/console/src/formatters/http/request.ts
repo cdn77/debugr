@@ -1,7 +1,7 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
 import { EntryType } from '@debugr/core';
 import type { HttpRequestLogEntry } from '@debugr/http-common';
-import { dim } from 'ansi-colors';
+import type { ConsoleStyle } from '../../types';
 import { AbstractHttpConsoleFormatter } from './abstract';
 
 export class HttpRequestConsoleFormatter<
@@ -11,11 +11,14 @@ export class HttpRequestConsoleFormatter<
   public readonly id = 'debugr-http-request-console-formatter';
   public readonly entryType = EntryType.HttpRequest;
 
-  public formatEntry({ data, error }: HttpRequestLogEntry<TTaskContext, TGlobalContext>): string {
+  public formatEntry(
+    { data, error }: HttpRequestLogEntry<TTaskContext, TGlobalContext>,
+    style: ConsoleStyle,
+  ): string {
     return this.formatParts(
       `${data.method.toUpperCase()} ${decodeURIComponent(data.uri)}`,
-      this.formatCommonParts(data, error),
-      data.ip && dim(`Client IP: ${data.ip}`),
+      this.formatCommonParts(style, data, error),
+      data.ip && style.dim(`Client IP: ${data.ip}`),
     );
   }
 }

@@ -41,6 +41,7 @@ export class ConsoleHandler<
         pluginManager,
         this.options.levelMap,
         this.options.colorMap,
+        this.options.colors,
         this.options.timestamp,
       );
     }

@@ -8,11 +8,11 @@ import type {
   TContextShape,
 } from '@debugr/core';
 import { levelToValue, LogLevel, normalizeMap, resolveFormatters } from '@debugr/core';
-import { blue, dim, unstyle } from 'ansi-colors';
+import * as styles from './consoleStyle';
 import type { ConsoleFormatterPlugin } from './formatters';
 import { DefaultConsoleFormatter, isConsoleFormatter } from './formatters';
-import type { ConsoleColor } from './maps';
 import { defaultColorMap, defaultFormatters, defaultLevelMap } from './maps';
+import type { ConsoleColor, ConsoleStyle, ConsoleStyleName } from './types';
 
 const ts0 = new Date();
 
@@ -20,9 +20,10 @@ export class ConsoleFormatter<
   TTaskContext extends TContextBase,
   TGlobalContext extends TContextShape,
 > {
-  private readonly timestamp: boolean | ((ts: ImmutableDate) => string);
+  private readonly style: ConsoleStyle;
   private readonly levelMap: Map<LogLevel, string>;
   private readonly colorMap: Map<LogLevel, ConsoleColor>;
+  private readonly formatTimestamp: (ts?: ImmutableDate) => string;
   private readonly formatters: MappedRecord<
     EntryType,
     ConsoleFormatterPlugin<TTaskContext, TGlobalContext>
@@ -32,12 +33,14 @@ export class ConsoleFormatter<
   public constructor(
     pluginManager: PluginManager<TTaskContext, TGlobalContext>,
     levelMap: MappedRecord<LogLevel, string> = {},
-    colorMap: MappedRecord<LogLevel, ConsoleColor> = {},
+    colorMap: MappedRecord<LogLevel, ConsoleColor | ConsoleStyleName> = {},
+    colors: boolean = true,
     timestamp: boolean | ((ts: ImmutableDate) => string) = true,
   ) {
+    this.style = colors ? styles.ansi : styles.none;
     this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
-    this.colorMap = normalizeMap({ ...defaultColorMap, ...colorMap });
-    this.timestamp = timestamp;
+    this.colorMap = normalizeColorMap(this.style, { ...defaultColorMap, ...colorMap });
+    this.formatTimestamp = createTimestampFormatter(this.style, timestamp);
     this.formatters = resolveFormatters(pluginManager, isConsoleFormatter, defaultFormatters);
     this.defaultFormatter = new DefaultConsoleFormatter();
   }
@@ -47,7 +50,7 @@ export class ConsoleFormatter<
   }
 
   protected formatError(e: Error): string {
-    return this.formatLines(LogLevel.INTERNAL, this.defaultFormatter.formatError(e));
+    return this.formatLines(LogLevel.INTERNAL, this.defaultFormatter.formatError(e, this.style));
   }
 
   protected *tryFormatEntry(entry: LogEntry<TTaskContext, TGlobalContext>): Generator<string> {
@@ -70,25 +73,46 @@ export class ConsoleFormatter<
   ): string {
     const formatter =
       (!noPlugin && entry.type && this.formatters[entry.type]) || this.defaultFormatter;
-    return this.formatLines(entry.level, formatter.formatEntry(entry), entry.ts);
+    return this.formatLines(entry.level, formatter.formatEntry(entry, this.style), entry.ts);
   }
 
   protected formatLines(level: LogLevel, content: string, ts?: ImmutableDate): string {
-    const color = levelToValue(this.colorMap, level, blue);
+    const color = levelToValue(this.colorMap, level, this.style.blue);
     const lvl = levelToValue(this.levelMap, level, '??');
     const prefix = `${this.formatTimestamp(ts)}[${color(lvl)}] `;
-    const indent = unstyle(prefix).replace(/./g, ' ');
+    const indent = this.style.unstyle(prefix).replace(/./g, ' ');
     return `${prefix}${content.split(/\n/g).join(`\n${indent}`)}`;
   }
+}
 
-  protected formatTimestamp(ts?: ImmutableDate): string {
-    if (this.timestamp === false) {
-      return '';
+function normalizeColorMap(
+  style: ConsoleStyle,
+  map: MappedRecord<LogLevel, ConsoleColor | ConsoleStyleName>,
+): Map<LogLevel, ConsoleColor> {
+  for (const level of Object.keys(map)) {
+    if (typeof map[level] === 'string') {
+      map[level] = style[map[level]];
     }
-
-    const formatted =
-      typeof this.timestamp === 'function' ? this.timestamp(ts ?? ts0) : (ts ?? ts0).toISOString();
-
-    return dim(ts ? formatted : formatted.replace(/[^-]/g, '-'));
   }
+
+  return normalizeMap(map as MappedRecord<LogLevel, ConsoleColor>);
+}
+
+function createTimestampFormatter(
+  style: ConsoleStyle,
+  timestamp: ((ts: ImmutableDate) => string) | boolean,
+): (ts?: ImmutableDate) => string {
+  if (timestamp === false) {
+    return () => '';
+  }
+
+  const format = typeof timestamp === 'function'
+    ? timestamp
+    : (ts: ImmutableDate) => ts.toISOString();
+
+  return (ts) => {
+    const formatted = format(ts ?? ts0);
+    const styled = style.dim(ts ? formatted : formatted.replace(/[^-]/g, '-'));
+    return `${styled} `;
+  };
 }

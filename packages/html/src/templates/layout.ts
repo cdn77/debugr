@@ -24,6 +24,7 @@ export class LayoutTemplate {
   ): string {
     return `<!DOCTYPE html>
 <html lang="en">
+  <!-- ${escapeHtml(title)} -->
   <head>
     ${this.renderHead(level, title, totalTasks, maxParallelTasks)}
   </head>

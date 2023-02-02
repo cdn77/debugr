@@ -1,6 +1,6 @@
 {
   "name": "@debugr/html",
-  "version": "3.0.0-rc.7",
+  "version": "3.0.0-rc.8",
   "description": "Html log handler for Debugr",
   "author": {
     "name": "Dan Kadera",

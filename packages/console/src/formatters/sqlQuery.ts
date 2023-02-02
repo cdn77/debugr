@@ -2,7 +2,7 @@ import type { TContextBase, TContextShape } from '@debugr/core';
 import { EntryType, formatData, isEmpty } from '@debugr/core';
 import type { SqlQueryFormatter, SqlQueryLogEntry } from '@debugr/sql-common';
 import { createQueryFormatter, formatQueryTime } from '@debugr/sql-common';
-import { dim } from 'ansi-colors';
+import type { ConsoleStyle } from '../types';
 import { AbstractConsoleFormatter } from './abstract';
 
 export class SqlQueryConsoleFormatter<
@@ -19,7 +19,10 @@ export class SqlQueryConsoleFormatter<
     this.formatQuery = createQueryFormatter();
   }
 
-  public formatEntry(entry: SqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
+  public formatEntry(
+    entry: SqlQueryLogEntry<TTaskContext, TGlobalContext>,
+    style: ConsoleStyle,
+  ): string {
     if (!entry.data || !entry.data.query) {
       throw new Error('This entry cannot be formatted by the SqlFormatter plugin');
     }
@@ -40,10 +43,10 @@ export class SqlQueryConsoleFormatter<
 
     return this.formatParts(
       entry.message,
-      dim(this.formatQuery(entry.data.query)),
-      parameters && dim(`Parameters:\n${formatData(parameters)}`),
+      style.dim(this.formatQuery(entry.data.query)),
+      parameters && style.dim(`Parameters:\n${formatData(parameters)}`),
       typeof entry.data.error === 'string' && `Error: ${entry.data.error}`,
-      details && dim(`(${details})`),
+      details && style.dim(`(${details})`),
     );
   }
 }
