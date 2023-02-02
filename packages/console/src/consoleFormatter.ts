@@ -106,9 +106,8 @@ function createTimestampFormatter(
     return () => '';
   }
 
-  const format = typeof timestamp === 'function'
-    ? timestamp
-    : (ts: ImmutableDate) => ts.toISOString();
+  const format =
+    typeof timestamp === 'function' ? timestamp : (ts: ImmutableDate) => ts.toISOString();
 
   return (ts) => {
     const formatted = format(ts ?? ts0);

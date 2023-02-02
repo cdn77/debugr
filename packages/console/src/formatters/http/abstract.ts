@@ -9,7 +9,11 @@ export abstract class AbstractHttpConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
-  protected formatCommonParts(style: ConsoleStyle, data: HttpRequestData | HttpResponseData, error?: Error): string {
+  protected formatCommonParts(
+    style: ConsoleStyle,
+    data: HttpRequestData | HttpResponseData,
+    error?: Error,
+  ): string {
     return this.formatParts(
       data.headers && style.dim(formatHttpHeaders(data.headers)),
       data.bodyLength !== undefined && this.formatBodyInfo(style, data),
