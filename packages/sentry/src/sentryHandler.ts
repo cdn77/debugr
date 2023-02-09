@@ -46,29 +46,35 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
         return;
       }
 
-      if (entry.level >= (this.options.thresholds?.capture ?? LogLevel.ERROR)) {
-        Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry), {
-          extra: {
-            ...entry.taskContext,
-            ...entry.globalContext,
-          },
-        });
-      } else {
-        Sentry.addBreadcrumb({
-          data: entry.data,
-          message: this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry),
-          timestamp: entry.ts.getTime(),
-        });
-      }
+      Sentry.withScope((scope) => {
+        if (entry.taskContext) {
+          this.setTagsFromContext(scope, entry.taskContext);
+        }
 
-      if (entry.error) {
-        Sentry.captureException(entry.error, {
-          extra: {
-            ...entry.taskContext,
-            ...entry.globalContext,
-          },
-        });
-      }
+        if (entry.level >= (this.options.thresholds?.capture ?? LogLevel.ERROR)) {
+          Sentry.captureMessage(this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry), {
+            extra: {
+              ...entry.taskContext,
+              ...entry.globalContext,
+            },
+          });
+        } else {
+          Sentry.addBreadcrumb({
+            data: entry.data,
+            message: this.options.extractMessage ? this.options.extractMessage(entry) : this.defaultExtractMessage(entry),
+            timestamp: entry.ts.getTime(),
+          });
+        }
+
+        if (entry.error) {
+          Sentry.captureException(entry.error, {
+            extra: {
+              ...entry.taskContext,
+              ...entry.globalContext,
+            },
+          });
+        }
+      });
 
     } catch (error) {
       this.localErrors.add(error);
@@ -89,4 +95,17 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
 
     return 'Empty Message';
   }
+
+  private setTagsFromContext = (scope: Sentry.Scope, taskContext: Readonly<Partial<TTaskContext>>, prefix?: string): void => {
+    for (const key of Object.keys(taskContext)) {
+      if (taskContext[key] instanceof Date) {
+        scope.setTag(prefix ? prefix + key : key, (taskContext[key] as Date | undefined)?.getTime());
+      } if (typeof taskContext[key] === 'object') {
+        this.setTagsFromContext(scope, taskContext[key]! as Readonly<Partial<TTaskContext>>, key);
+      } else {
+        scope.setTag(prefix ? prefix + key : key, (taskContext[key] as string | number | boolean | null | undefined));
+      }
+    }
+  };
+
 }
