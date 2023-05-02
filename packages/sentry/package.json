@@ -12,7 +12,13 @@
   },
   "dependencies": {
     "@debugr/core": "^3.0.0-rc.10",
-    "@sentry/node": "^7.33.0"
+    "error-stack-parser": "^2.1.4",
+    "node-fetch": "^2.6.7",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.2",
+    "@types/uuid": "^8.3.4"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

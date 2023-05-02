@@ -5,22 +5,35 @@ import type {
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import type * as Sentry from '@sentry/node';
+import type { MappedRecord } from '@debugr/core';
 
 export interface SentryHandlerOptions<
-TTaskContext extends TContextBase = TContextBase,
-TGlobalContext extends TContextShape = TContextShape,
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
 > {
-  thresholds?: {
-    breadcrumb?: LogLevel;
-    capture?: LogLevel;
-  };
-  extractMessage?: (
-    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-  ) => string
+  dsn?: string;
+  thresholds?: Partial<SentryThresholds>;
+  extractMessage?: SentryMessageExtractor<TTaskContext, TGlobalContext>;
+  levelMap?: MappedRecord<LogLevel, SentryLogLevel>;
 }
 
-export type SentryOptions<
-TTaskContext extends TContextBase = TContextBase,
-TGlobalContext extends TContextShape = TContextShape,
-> = Sentry.NodeOptions & SentryHandlerOptions<TTaskContext, TGlobalContext>;
+export type SentryDsn = {
+  baseUri: string;
+  publicKey: string;
+  secretKey?: string;
+};
+
+export type SentryThresholds = {
+  breadcrumb: LogLevel;
+  capture: LogLevel;
+};
+
+export type SentryMessageExtractor<
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+> = (
+  entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
+) => string;
+
+export type SentryLogLevel = 'debug' | 'info' | 'warning' | 'error' | 'fatal';
+
