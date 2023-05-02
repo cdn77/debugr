@@ -26,7 +26,9 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "@sentry/node"
+      "error-stack-parser",
+      "node-fetch",
+      "uuid"
     ]
   },
   "files": [
