@@ -1,6 +1,6 @@
 {
   "name": "@debugr/elastic",
-  "version": "3.0.0-rc.8",
+  "version": "3.0.0-rc.9",
   "description": "Elastic log handler for Debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,12 +11,8 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.9",
-    "@elastic/elasticsearch": "^7.17.0",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "@types/uuid": "^8.3.4"
+    "@debugr/core": "^3.0.0-rc.10",
+    "@elastic/elasticsearch": "^7.17.0"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -24,9 +20,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "@elastic/elasticsearch",
-      "async_hooks",
-      "uuid"
+      "@elastic/elasticsearch"
     ]
   },
   "files": [

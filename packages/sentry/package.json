@@ -1,7 +1,7 @@
 {
-  "name": "@debugr/insaner",
-  "version": "3.0.0-rc.6",
-  "description": "Insaner plugin for Advanced application logger",
+  "name": "@debugr/sentry",
+  "version": "3.0.0-rc.1",
+  "description": "Sentry log handler for Debugr",
   "author": {
     "name": "Dan Kadera",
     "email": "dan.kadera@cdn77.com"
@@ -12,22 +12,23 @@
   },
   "dependencies": {
     "@debugr/core": "^3.0.0-rc.10",
-    "@debugr/http-common": "^3.0.0-rc.5"
+    "error-stack-parser": "^2.1.4",
+    "node-fetch": "^2.6.7",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "insaner": "^1.1.7"
+    "@types/node-fetch": "^2.6.2",
+    "@types/uuid": "^8.3.4"
   },
-  "peerDependencies": {
-    "insaner": "^1.1.7"
-  },
-  "src": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "build": {
     "src": "src/index.ts",
     "externals": [
-      "insaner"
+      "error-stack-parser",
+      "node-fetch",
+      "uuid"
     ]
   },
   "files": [

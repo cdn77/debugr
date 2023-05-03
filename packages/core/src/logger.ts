@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
+import { v4 } from 'uuid';
 import { PluginManager } from './pluginManager';
 import type {
   CloningStrategy,
@@ -62,7 +63,9 @@ export class Logger<
       return envelopedCallback();
     }
 
-    const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : {};
+    // @ts-expect-error Dont know...
+    const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : { taskStack: [] };
+    newContext.taskStack?.push(v4());
 
     const mainCallback = this.handlers.reduceRight(
       (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),

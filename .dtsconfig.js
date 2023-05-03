@@ -3,16 +3,17 @@ const pkg = require(path.resolve('package.json'));
 
 const importedLibraries = [
   '@debugr/apollo',
-  '@debugr/console-handler',
+  '@debugr/console',
   '@debugr/core',
-  '@debugr/elastic-handler',
+  '@debugr/elastic',
   '@debugr/express',
   '@debugr/graphql-common',
-  '@debugr/html-handler',
+  '@debugr/html',
   '@debugr/http-common',
   '@debugr/insaner',
   '@debugr/mikroorm',
-  '@debugr/slack-handler',
+  '@debugr/sentry',
+  '@debugr/slack',
   '@debugr/sql-common',
 ];
 
