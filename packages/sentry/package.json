@@ -26,6 +26,7 @@
   "build": {
     "src": "src/index.ts",
     "externals": [
+      "async_hooks",
       "error-stack-parser",
       "node-fetch",
       "uuid"
