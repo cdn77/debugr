@@ -12,21 +12,22 @@ import {
   normalizeMap,
   PluginKind
 } from '@debugr/core';
+import { wrapPossiblePromise } from '@debugr/core/src';
 import { AsyncLocalStorage } from 'async_hooks';
 import fetch from 'node-fetch';
 import { v4 } from 'uuid';
 import { defaultLevelMap } from './maps';
 import type {
   SentryDsn,
-  SentryHandlerOptions, SentryLogLevel,
+  SentryHandlerOptions,
+  SentryLogLevel,
   SentryMessageExtractor,
-  SentryThresholds
 } from './types';
 import { parseDsn, parseStackTrace } from './utils';
 
-const defaultThresholds: SentryThresholds = {
-  capture: LogLevel.ERROR,
-  breadcrumb: LogLevel.DEBUG,
+type TaskLog<TTaskContext extends TContextBase, TGlobalContext extends TContextShape> = {
+  entries: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>[];
+  lastCaptured?: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>;
 };
 
 export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
@@ -36,24 +37,33 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
   public readonly kind = PluginKind.Handler;
 
   private readonly dsn?: SentryDsn;
-  private readonly thresholds: SentryThresholds;
+  private readonly breadcrumbThreshold: LogLevel;
+  private readonly captureThreshold: LogLevel;
+  private readonly captureProbability: number;
+  private readonly captureWholeTasks: boolean;
   private readonly extractMessage: SentryMessageExtractor;
   private readonly levelMap: Map<LogLevel, SentryLogLevel>;
-  private readonly breadcrumbs: AsyncLocalStorage<ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>[]>;
+  private readonly taskLog: AsyncLocalStorage<TaskLog<TTaskContext, TGlobalContext>>;
   private readonly localErrors: WeakSet<Error>;
   private logger?: Logger;
 
   public constructor({
     dsn,
-    thresholds = {},
+    breadcrumbThreshold = LogLevel.DEBUG,
+    captureThreshold = LogLevel.ERROR,
+    captureProbability = 1,
+    captureWholeTasks = true,
     extractMessage,
     levelMap = {},
   }: SentryHandlerOptions<TTaskContext, TGlobalContext>) {
     this.dsn = parseDsn(dsn);
-    this.thresholds = { ...defaultThresholds, ...thresholds };
+    this.breadcrumbThreshold = breadcrumbThreshold;
+    this.captureThreshold = captureThreshold;
+    this.captureProbability = captureProbability;
+    this.captureWholeTasks = captureWholeTasks;
     this.extractMessage = extractMessage ?? this.defaultExtractMessage.bind(this);
     this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
-    this.breadcrumbs = new AsyncLocalStorage();
+    this.taskLog = new AsyncLocalStorage();
     this.localErrors = new WeakSet();
   }
 
@@ -62,38 +72,65 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
   }
 
   public runTask<R>(callback: () => R): R {
-    return this.breadcrumbs.getStore() ? callback() : this.breadcrumbs.run([], callback);
+    if (!this.dsn || this.taskLog.getStore()) {
+      return callback();
+    } else if (!this.captureWholeTasks) {
+      return this.taskLog.run({ entries: [] }, callback);
+    }
+
+    const log: TaskLog<TTaskContext, TGlobalContext> = { entries: [] };
+
+    return wrapPossiblePromise(() => this.taskLog.run(log, callback), {
+      finally: () => {
+        Promise.resolve().then(async () => {
+          if (log.lastCaptured) {
+            await this.capture(log.lastCaptured, log.entries);
+          }
+        });
+      },
+    });
   }
 
   public async log(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
   ): Promise<void> {
-    const breadcrumbs = this.breadcrumbs.getStore();
+    const log = this.taskLog.getStore();
 
     if (
       !this.dsn ||
-      (entry.level >= LogLevel.ALL && entry.level < (breadcrumbs ? this.thresholds.breadcrumb : this.thresholds.capture)) ||
+      (entry.level >= LogLevel.ALL && entry.level < (log ? this.breadcrumbThreshold : this.captureThreshold)) ||
       (entry.error && this.localErrors.has(entry.error))
     ) {
       return;
     }
 
-    if (entry.level === LogLevel.INTERNAL || entry.level >= this.thresholds.capture) {
-      try {
-        await this.capture(entry, breadcrumbs ?? []);
-      } catch (error) {
-        this.localErrors.add(error);
-        this.logger?.log(LogLevel.INTERNAL, error);
+    log?.entries.push(entry);
+
+    if (entry.level === LogLevel.INTERNAL || entry.level >= this.captureThreshold) {
+      if (log && this.captureWholeTasks) {
+        log.lastCaptured = entry;
+      } else {
+        try {
+          await this.capture(entry, log?.entries);
+        } catch (error) {
+          this.localErrors.add(error);
+          this.logger?.log(LogLevel.INTERNAL, error);
+        }
       }
-    } else if (breadcrumbs) {
-      breadcrumbs.push(entry);
     }
   }
 
   private async capture(
     entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-    breadcrumbs: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>[],
+    breadcrumbs: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>[] = [],
   ): Promise<void> {
+    if (Math.random() > this.captureProbability) {
+      return;
+    }
+
+    const idx = breadcrumbs.indexOf(entry);
+    idx > -1 && (breadcrumbs = breadcrumbs.slice(0, idx));
+
     await this.sendRequest('store', {
       event_id: v4().replace(/-/g, ''),
       timestamp: entry.ts.toISOString(),
@@ -156,7 +193,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
       return entry.message;
     }
 
-    return 'Empty Message';
+    return `Unknown ${entry.type ?? 'generic'} entry`;
   }
 
   private extractTags(context: Readonly<Partial<TTaskContext>>, prefix: string = ''): Record<string, any> {

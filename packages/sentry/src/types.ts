@@ -12,7 +12,10 @@ export interface SentryHandlerOptions<
   TGlobalContext extends TContextShape = TContextShape,
 > {
   dsn?: string;
-  thresholds?: Partial<SentryThresholds>;
+  breadcrumbThreshold?: LogLevel;
+  captureThreshold?: LogLevel;
+  captureProbability?: number;
+  captureWholeTasks?: boolean;
   extractMessage?: SentryMessageExtractor<TTaskContext, TGlobalContext>;
   levelMap?: MappedRecord<LogLevel, SentryLogLevel>;
 }
@@ -21,11 +24,6 @@ export type SentryDsn = {
   baseUri: string;
   publicKey: string;
   secretKey?: string;
-};
-
-export type SentryThresholds = {
-  breadcrumb: LogLevel;
-  capture: LogLevel;
 };
 
 export type SentryMessageExtractor<
