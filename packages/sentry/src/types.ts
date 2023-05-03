@@ -29,9 +29,6 @@ export type SentryDsn = {
 export type SentryMessageExtractor<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> = (
-  entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-) => string;
+> = (entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>) => string;
 
 export type SentryLogLevel = 'debug' | 'info' | 'warning' | 'error' | 'fatal';
-

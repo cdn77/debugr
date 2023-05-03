@@ -4,14 +4,9 @@ import type {
   ReadonlyRecursive,
   TaskAwareHandlerPlugin,
   TContextBase,
-  TContextShape
+  TContextShape,
 } from '@debugr/core';
-import {
-  levelToValue,
-  LogLevel,
-  normalizeMap,
-  PluginKind
-} from '@debugr/core';
+import { levelToValue, LogLevel, normalizeMap, PluginKind } from '@debugr/core';
 import { wrapPossiblePromise } from '@debugr/core/src';
 import { AsyncLocalStorage } from 'async_hooks';
 import fetch from 'node-fetch';
@@ -98,7 +93,8 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
 
     if (
       !this.dsn ||
-      (entry.level >= LogLevel.ALL && entry.level < (log ? this.breadcrumbThreshold : this.captureThreshold)) ||
+      (entry.level >= LogLevel.ALL &&
+        entry.level < (log ? this.breadcrumbThreshold : this.captureThreshold)) ||
       (entry.error && this.localErrors.has(entry.error))
     ) {
       return;
@@ -140,7 +136,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
       tags: entry.taskContext && this.extractTags(entry.taskContext),
       extra: {
         ...entry.globalContext,
-        ...entry.taskContext ?? {},
+        ...(entry.taskContext ?? {}),
       },
       ...this.getEntryPayload(entry),
     });
@@ -158,13 +154,15 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     }
 
     if (entry.error) {
-      payload.exception = [{
-        type: entry.error.name,
-        value: entry.error.message,
-        stacktrace: {
-          frames: parseStackTrace(entry.error),
+      payload.exception = [
+        {
+          type: entry.error.name,
+          value: entry.error.message,
+          stacktrace: {
+            frames: parseStackTrace(entry.error),
+          },
         },
-      }];
+      ];
     }
 
     return payload;
@@ -196,7 +194,10 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     return `Unknown ${entry.type ?? 'generic'} entry`;
   }
 
-  private extractTags(context: Readonly<Partial<TTaskContext>>, prefix: string = ''): Record<string, any> {
+  private extractTags(
+    context: Readonly<Partial<TTaskContext>>,
+    prefix: string = '',
+  ): Record<string, any> {
     const tags: Record<string, any> = {};
 
     for (const [key, value] of Object.entries(context)) {
@@ -208,7 +209,11 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
         tags[tag] = value.join(',');
       } else if (typeof value === 'object' && value !== null) {
         Object.assign(tags, this.extractTags(value, `${tag}.`));
-      } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      } else if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
         tags[tag] = value;
       }
     }
