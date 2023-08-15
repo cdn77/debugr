@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=12.0"
+    "node": ">=18"
   },
   "dependencies": {
     "@debugr/core": "^3.0.0-rc.11",
