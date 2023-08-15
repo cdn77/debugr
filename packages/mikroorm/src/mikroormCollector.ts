@@ -23,9 +23,10 @@ const defaultLevelMap: MikroORMLevelMap = {
 };
 
 export class MikroORMCollector<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = TContextShape,
-> implements CollectorPlugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
+    TTaskContext extends TContextBase = TContextBase,
+    TGlobalContext extends TContextShape = TContextShape,
+  >
+  implements CollectorPlugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
 {
   public readonly id = 'mikroorm';
   public readonly kind = PluginKind.Collector;

@@ -89,9 +89,9 @@ function normalizeColorMap(
   style: ConsoleStyle,
   map: MappedRecord<LogLevel, ConsoleColor | ConsoleStyleName>,
 ): Map<LogLevel, ConsoleColor> {
-  for (const level of Object.keys(map)) {
+  for (const level of Object.keys(map) as unknown[] as LogLevel[]) {
     if (typeof map[level] === 'string') {
-      map[level] = style[map[level]];
+      map[level] = style[map[level] as ConsoleStyleName];
     }
   }
 

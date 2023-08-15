@@ -5,9 +5,10 @@ import type { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-p
 import type { ApolloCollectorOptions } from './types';
 
 export class ApolloCollector<
-  TTaskContext extends TContextBase = TContextBase,
-  TGlobalContext extends TContextShape = TContextShape,
-> implements CollectorPlugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
+    TTaskContext extends TContextBase = TContextBase,
+    TGlobalContext extends TContextShape = TContextShape,
+  >
+  implements CollectorPlugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
 {
   public readonly id = 'apollo';
   public readonly kind = PluginKind.Collector;

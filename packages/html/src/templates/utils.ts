@@ -1,4 +1,4 @@
-const entityMap = {
+const entityMap: Record<string, string> = {
   '&': '&amp;',
   '<': '&lt;',
   '>': '&gt;',

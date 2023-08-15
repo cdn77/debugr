@@ -34,7 +34,7 @@ export class InsanerCollector<
   }
 
   protected createMiddlewareHandler() {
-    return async (next: MiddlewareNext) => {
+    return async (request: HttpRequest, next: MiddlewareNext) => {
       await this.logger.runTask(next);
     };
   }

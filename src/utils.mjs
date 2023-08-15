@@ -1,8 +1,8 @@
-const { readdir, readFile } = require('fs/promises');
-const { resolve, relative } = require('path');
+import { readdir, readFile } from 'fs/promises';
+import { resolve, relative } from 'path';
 
-async function scanPackages() {
-  const rootDir = resolve(__dirname, '..');
+export async function scanPackages() {
+  const rootDir = new URL('..', import.meta.url).pathname;
   const packagesDir = resolve(rootDir, 'packages');
   const packages = {};
 
@@ -23,7 +23,3 @@ async function scanPackages() {
 
   return packages;
 }
-
-module.exports = {
-  scanPackages,
-};

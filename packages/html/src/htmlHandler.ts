@@ -128,6 +128,14 @@ export class HtmlHandler<
     });
   }
 
+  public setTaskId(id: string): void {
+    const task = this.asyncStorage.getStore();
+
+    if (task) {
+      task.log.id = id;
+    }
+  }
+
   public setTaskThreshold(threshold: LogLevel): void {
     const task = this.asyncStorage.getStore();
 

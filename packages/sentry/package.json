@@ -1,6 +1,6 @@
 {
   "name": "@debugr/sentry",
-  "version": "3.0.0-rc.1",
+  "version": "3.0.0-rc.2",
   "description": "Sentry log handler for Debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,14 +11,14 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.10",
+    "@debugr/core": "^3.0.0-rc.11",
     "error-stack-parser": "^2.1.4",
-    "node-fetch": "^2.6.7",
-    "uuid": "^8.3.2"
+    "node-fetch": "^2.6.12",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node-fetch": "^2.6.2",
-    "@types/uuid": "^8.3.4"
+    "@types/node-fetch": "^2.6.4",
+    "@types/uuid": "^9.0.2"
   },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

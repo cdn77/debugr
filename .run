@@ -23,8 +23,8 @@ case "$1" in
     run-s build:cleanup build:main build:prettify
     ;;
   lint)
-    eslint -c "${BASE}/.eslint.build.rc" --fix 'src/**/*.ts'
     prettier --config "${BASE}/.prettierrc" --write 'src/**/*.ts'
+    eslint -c "${BASE}/.eslint.build.rc" --fix 'src/**/*.ts'
     ;;
   release)
     run-s lint build

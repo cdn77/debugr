@@ -1,6 +1,6 @@
 {
   "name": "@debugr/console",
-  "version": "3.0.0-rc.8",
+  "version": "3.0.0-rc.9",
   "description": "Console log handler for Debugr",
   "author": {
     "name": "Dan Kadera",
@@ -11,10 +11,10 @@
     "node": ">=12.0"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.10",
-    "@debugr/graphql-common": "^3.0.0-rc.4",
-    "@debugr/http-common": "^3.0.0-rc.5",
-    "@debugr/sql-common": "^3.0.0-rc.5",
+    "@debugr/core": "^3.0.0-rc.11",
+    "@debugr/graphql-common": "^3.0.0-rc.5",
+    "@debugr/http-common": "^3.0.0-rc.6",
+    "@debugr/sql-common": "^3.0.0-rc.6",
     "ansi-colors": "^4.1.3"
   },
   "main": "dist/index.js",
