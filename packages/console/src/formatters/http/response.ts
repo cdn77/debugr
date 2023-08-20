@@ -1,6 +1,7 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
 import { EntryType } from '@debugr/core';
 import type { HttpResponseLogEntry } from '@debugr/http-common';
+import { getHttpStatusMessage } from '@debugr/http-common';
 import type { ConsoleStyle } from '../../types';
 import { AbstractHttpConsoleFormatter } from './abstract';
 
@@ -16,7 +17,7 @@ export class HttpResponseConsoleFormatter<
     style: ConsoleStyle,
   ): string {
     return this.formatParts(
-      `HTTP ${data.status} ${data.message}`,
+      `HTTP ${data.status} ${data.message ?? getHttpStatusMessage(data.status)}`,
       this.formatCommonParts(style, data, error),
     );
   }

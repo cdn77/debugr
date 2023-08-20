@@ -11,7 +11,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@debugr/core": "^3.0.0-rc.11"
+    "@debugr/core": "^3.0.0-rc.12"
   },
   "devDependencies": {
     "@sqltools/formatter": "^1.2.5"

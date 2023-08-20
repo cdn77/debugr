@@ -25,6 +25,7 @@ export type LoggerOptions<
   plugins?: Plugin<TTaskContext, TGlobalContext>[];
   pluginManager?: PluginManager<TTaskContext, TGlobalContext>;
   cloningStrategy?: CloningStrategy;
+  logTaskError?: boolean | ((e: Error) => boolean);
 };
 
 export type TContextShape = {

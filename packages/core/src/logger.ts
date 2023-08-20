@@ -22,6 +22,7 @@ export class Logger<
   private readonly globalContext: TGlobalContext;
   private readonly pluginManager: PluginManager<TTaskContext, TGlobalContext>;
   private readonly cloningStrategy?: CloningStrategy;
+  private readonly logTaskError: (e: Error) => boolean;
   private readonly taskContextStorage: AsyncLocalStorage<Partial<TTaskContext>>;
   private readonly handlers: SmartMap<string, HandlerPlugin<TTaskContext, TGlobalContext>>;
 
@@ -30,11 +31,24 @@ export class Logger<
     plugins = [],
     pluginManager = new PluginManager(),
     cloningStrategy,
+    logTaskError,
   }: LoggerOptions<TTaskContext, TGlobalContext>) {
     this.globalContext = globalContext;
     this.pluginManager = pluginManager;
     this.cloningStrategy = cloningStrategy;
     this.taskContextStorage = new AsyncLocalStorage();
+
+    switch (typeof logTaskError) {
+      case 'boolean':
+        this.logTaskError = () => logTaskError;
+        break;
+      case 'function':
+        this.logTaskError = logTaskError;
+        break;
+      default:
+        this.logTaskError = () => true;
+        break;
+    }
 
     for (const plugin of plugins) {
       this.pluginManager.register(plugin);
@@ -50,29 +64,32 @@ export class Logger<
   public runTask<R>(callback: () => R, dontOverrideTask: boolean = false): R {
     const context = this.taskContextStorage.getStore();
 
-    const envelopedCallback = () => {
+    const wrappedCallback = () => {
       return wrapPossiblePromise(callback, {
         catch: (e) => {
-          this.error(e);
+          if (this.logTaskError(e)) {
+            this.error(e);
+          }
+
           throw e;
         },
       });
     };
 
     if (context && dontOverrideTask) {
-      return envelopedCallback();
+      return wrappedCallback();
     }
 
     // @ts-expect-error Dont know...
     const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : { taskStack: [] };
     newContext.taskStack?.push(v4());
 
-    const mainCallback = this.handlers.reduceRight(
+    const chain = this.handlers.reduceRight(
       (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),
-      envelopedCallback,
+      wrappedCallback,
     );
 
-    return this.taskContextStorage.run(newContext, mainCallback);
+    return this.taskContextStorage.run(newContext, chain);
   }
 
   public trace(data: Record<string, any> | Error): this;
