@@ -1,5 +1,5 @@
 import { LogLevel } from '@debugr/core';
-import { createHttpHeadersFilter } from '@debugr/http-common';
+import { createHttpCaptureChecker, createHttpHeadersFilter } from '@debugr/http-common';
 import type { InsanerCollectorOptions, NormalizedOptions } from './types';
 
 export function normalizeOptions({
@@ -7,6 +7,7 @@ export function normalizeOptions({
   errorLevel,
   uncaughtLevel,
   e4xx,
+  captureBody,
   excludeHeaders,
   request,
   response,
@@ -17,11 +18,17 @@ export function normalizeOptions({
     uncaughtLevel: uncaughtLevel ?? errorLevel ?? LogLevel.ERROR,
     e4xx: e4xx ?? false,
     request: {
+      isCaptureEnabled: createHttpCaptureChecker(
+        request?.captureBody ?? captureBody ?? { 'text/*, application/json': 2e6 },
+      ),
       filterHeaders: createHttpHeadersFilter(
         request?.excludeHeaders ?? excludeHeaders ?? ['Authorization', 'Cookie'],
       ),
     },
     response: {
+      isCaptureEnabled: createHttpCaptureChecker(
+        response?.captureBody ?? captureBody ?? { 'text/*, application/json': 2e6 },
+      ),
       filterHeaders: createHttpHeadersFilter(
         response?.excludeHeaders ?? excludeHeaders ?? ['Set-Cookie'],
       ),
