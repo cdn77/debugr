@@ -30,13 +30,14 @@ export class Logger<
     globalContext,
     plugins = [],
     pluginManager = new PluginManager(),
+    taskContextStorage = new AsyncLocalStorage(),
     cloningStrategy,
     logTaskError,
   }: LoggerOptions<TTaskContext, TGlobalContext>) {
     this.globalContext = globalContext;
     this.pluginManager = pluginManager;
     this.cloningStrategy = cloningStrategy;
-    this.taskContextStorage = new AsyncLocalStorage();
+    this.taskContextStorage = taskContextStorage;
 
     switch (typeof logTaskError) {
       case 'boolean':
@@ -59,6 +60,20 @@ export class Logger<
     this.handlers = new SmartMap(
       this.pluginManager.find(isHandlerPlugin).map((handler) => [handler.id, handler]),
     );
+  }
+
+  public with(context: Partial<TGlobalContext>): Logger<TTaskContext, TGlobalContext>;
+  public with<TChildContext extends TContextShape>(
+    context: TChildContext,
+  ): Logger<TTaskContext, TGlobalContext & TChildContext>;
+  public with(context: TContextShape): Logger<TTaskContext, any> {
+    return new Logger({
+      globalContext: { ...this.globalContext, ...context },
+      pluginManager: this.pluginManager,
+      taskContextStorage: this.taskContextStorage,
+      cloningStrategy: this.cloningStrategy,
+      logTaskError: this.logTaskError,
+    });
   }
 
   public runTask<R>(callback: () => R, dontOverrideTask: boolean = false): R {

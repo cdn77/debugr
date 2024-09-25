@@ -1,3 +1,4 @@
+import type { AsyncLocalStorage } from 'async_hooks';
 import type { Logger } from './logger';
 import type { PluginManager } from './pluginManager';
 
@@ -24,6 +25,7 @@ export type LoggerOptions<
   globalContext: TGlobalContext;
   plugins?: Plugin<TTaskContext, TGlobalContext>[];
   pluginManager?: PluginManager<TTaskContext, TGlobalContext>;
+  taskContextStorage?: AsyncLocalStorage<Partial<TTaskContext>>;
   cloningStrategy?: CloningStrategy;
   logTaskError?: boolean | ((e: Error) => boolean);
 };
