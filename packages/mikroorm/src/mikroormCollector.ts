@@ -14,6 +14,7 @@ const defaultNamespaceMap: MikroORMNamespaceMap = {
   query: LogLevel.INFO,
   'query-params': LogLevel.INFO,
   schema: LogLevel.INFO,
+  deprecated: LogLevel.WARNING,
 };
 
 const defaultLevelMap: MikroORMLevelMap = {

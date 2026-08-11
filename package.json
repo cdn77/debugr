@@ -50,5 +50,10 @@
       "prettier --write",
       "eslint --fix"
     ]
+  },
+  "allowScripts": {
+    "nx@19.8.1": true,
+    "fsevents@2.3.2": true,
+    "@apollo/protobufjs@1.2.6": true
   }
 }
