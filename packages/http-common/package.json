@@ -6,6 +6,11 @@
     "name": "Dan Kadera",
     "email": "dan.kadera@cdn77.com"
   },
+  "homepage": "https://github.com/cdn77/debugr",
+  "repository": {
+    "url": "https://github.com/cdn77/debugr",
+    "directory": "packages/http-common"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18"
