@@ -32,6 +32,7 @@ module.exports = {
       libraries: {
         importedLibraries,
       },
+      noCheck: true,
       output: {
         inlineDeclareGlobals: true,
         inlineDeclareExternals: true
