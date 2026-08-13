@@ -14,8 +14,7 @@ import type { ConsoleHandlerOptions } from './types';
 export class ConsoleHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements HandlerPlugin<TTaskContext, TGlobalContext>
-{
+> implements HandlerPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'console';
   public readonly kind = PluginKind.Handler;
 

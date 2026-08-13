@@ -22,7 +22,7 @@ to your use-case:
 
 ### Core:
 
- - [`@debugr/core`] - Boring, but necessary
+- [`@debugr/core`] - Boring, but necessary
 
 ### Log Handlers:
 
@@ -41,10 +41,10 @@ There are several plugins which bridge Debugr with various popular frameworks an
 Their main responsibility is collecting loggable data from the framework and converting it to
 a format which Debugr can process downstream.
 
- - [`@debugr/apollo`] - Apollo GraphQL server plugin
- - [`@debugr/express`] - Express HTTP server plugin
- - [`@debugr/insaner`] - Insaner HTTP server plugin
- - [`@debugr/mikroorm`] - MikroORM plugin
+- [`@debugr/apollo`] - Apollo GraphQL server plugin
+- [`@debugr/express`] - Express HTTP server plugin
+- [`@debugr/insaner`] - Insaner HTTP server plugin
+- [`@debugr/mikroorm`] - MikroORM plugin
 
 ## Usage introduction
 
@@ -64,7 +64,7 @@ const logger = new Logger({
   globalContext,
   plugins: [
     new ConsoleHandler({
-      threshold: LogLevel.INFO
+      threshold: LogLevel.INFO,
     }),
     new HtmlHandler({
       threshold: LogLevel.ERROR,
@@ -82,7 +82,7 @@ logger.runTask(async () => {
   logger.debug('A debug message');
   logger.info(['An info message with %d %s %s', 3, 'printf-style', 'params']);
   logger.warning({ custom: 'data', is: 'supported also' });
-  logger.error(new Error('Which shan\'t disappear without a trace!'));
+  logger.error(new Error("Which shan't disappear without a trace!"));
   logger.log(LogLevel.INFO, 'Just so you know');
 });
 ```
@@ -125,29 +125,29 @@ if the application keeps a reference to the logged data and then mutates it in a
 a chance that what ends up being logged is the mutated data, as opposed to the data as it was
 at the time it was passed to the logger. There are three ways you can deal with this problem:
 
- - Never mutate logged data. That's often easy to do, just don't keep references to data you log,
-   so you're not tempted. This is the way.
- - Selectively clone mutable data when you're logging it. If there's only a couple of places in your
-   application where you need to log mutable data which you expect to be mutated down the road,
-   you can clone the data before sending it to Debugr. You can use the `snapshot` helper exported
-   from `@debugr/core` for this purpose; it has two methods, `snapshot.json()` and `snapshot.v8()`,
-   which differ in the method they use for cloning data. The former uses `JSON.parse(JSON.stringify(data))`,
-   which is usually fast enough and should be relatively safe in terms of cloning objects which
-   might have methods or hidden references to vast structures (like some ORM entities do);
-   the latter uses the V8 `deserialize(serialize(data))` functions, which may be even faster and
-   supports circular references as well as some objects which JSON doesn't (like `Date`), but in
-   some rare cases might result in cloning a much larger object than you intended due to the
-   aforementioned hidden references.
- - Or you can apply a system-wide _cloning strategy_ by setting the `cloningStrategy` option when
-   creating a `Logger` instance. This will apply the `snapshot.json()` or `snapshot.v8()` function
-   under the hood to _all_ data that you log using the `logger.log()` method or one of its aliases,
-   _except_ for data which you cloned manually using either of the helper functions prior to passing
-   the data to the logger. This way the data will only be cloned once - either explicitly by your code,
-   or implicitly by the logger. This is intended as a stopgap solution for situations when you have
-   a large codebase and you wish to transition to selective cloning gradually - once you cover all
-   the places where you _need_ to clone the data, you can just turn off the global cloning strategy.
-   Cloning all data passed to Debugr by default incurs a potentially heavy performance penalty,
-   which is why we don't do this by default and don't recommend it if you can avoid it.
+- Never mutate logged data. That's often easy to do, just don't keep references to data you log,
+  so you're not tempted. This is the way.
+- Selectively clone mutable data when you're logging it. If there's only a couple of places in your
+  application where you need to log mutable data which you expect to be mutated down the road,
+  you can clone the data before sending it to Debugr. You can use the `snapshot` helper exported
+  from `@debugr/core` for this purpose; it has two methods, `snapshot.json()` and `snapshot.v8()`,
+  which differ in the method they use for cloning data. The former uses `JSON.parse(JSON.stringify(data))`,
+  which is usually fast enough and should be relatively safe in terms of cloning objects which
+  might have methods or hidden references to vast structures (like some ORM entities do);
+  the latter uses the V8 `deserialize(serialize(data))` functions, which may be even faster and
+  supports circular references as well as some objects which JSON doesn't (like `Date`), but in
+  some rare cases might result in cloning a much larger object than you intended due to the
+  aforementioned hidden references.
+- Or you can apply a system-wide _cloning strategy_ by setting the `cloningStrategy` option when
+  creating a `Logger` instance. This will apply the `snapshot.json()` or `snapshot.v8()` function
+  under the hood to _all_ data that you log using the `logger.log()` method or one of its aliases,
+  _except_ for data which you cloned manually using either of the helper functions prior to passing
+  the data to the logger. This way the data will only be cloned once - either explicitly by your code,
+  or implicitly by the logger. This is intended as a stopgap solution for situations when you have
+  a large codebase and you wish to transition to selective cloning gradually - once you cover all
+  the places where you _need_ to clone the data, you can just turn off the global cloning strategy.
+  Cloning all data passed to Debugr by default incurs a potentially heavy performance penalty,
+  which is why we don't do this by default and don't recommend it if you can avoid it.
 
 **N.B.** Just to be clear, when we say _data_ in this context, we're talking about the `data` argument
 of the `logger.log()` method and its aliases (see below). Printf-style messages using `[format, ...args]`
@@ -169,74 +169,60 @@ the task context, so that you have.. well.. _context_ when looking at log entrie
 
 The `Logger` instance has the following methods:
 
- - `log(level: number, data: Record<string, any> | Error): void`  
-   `log(level: number, message: string | [string, ...any], data?: Record<string, any>): void`  
-   `log(level: number, message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
+- `log(level: number, data: Record<string, any> | Error): void`  
+  `log(level: number, message: string | [string, ...any], data?: Record<string, any>): void`  
+  `log(level: number, message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   This method pushes an arbitrary entry onto the logger's queue. There are six default
-   log levels: `LogLevel.TRACE`, `LogLevel.DEBUG`, `LogLevel.INFO`, `LogLevel.WARNING`, `LogLevel.ERROR`
-   and `LogLevel.FATAL`. Later you'll learn how you can use your own arbitrary log levels.
+  This method pushes an arbitrary entry onto the logger's queue. There are six default
+  log levels: `LogLevel.TRACE`, `LogLevel.DEBUG`, `LogLevel.INFO`, `LogLevel.WARNING`, `LogLevel.ERROR`
+  and `LogLevel.FATAL`. Later you'll learn how you can use your own arbitrary log levels.
 
-   The `message` can either be just a string, or a `[string, ...any]` tuple; the latter is processed
-   as a `printf`-style format string using the rest of the tuple as parameters. Internally this is
-   facilitated by [`printj`], so take a look at their documentation to see what's possible.
+  The `message` can either be just a string, or a `[string, ...any]` tuple; the latter is processed
+  as a `printf`-style format string using the rest of the tuple as parameters. Internally this is
+  facilitated by [`printj`], so take a look at their documentation to see what's possible.
 
-   The `data` argument can contain any arbitrary data you wish to include in your dump.
+  The `data` argument can contain any arbitrary data you wish to include in your dump.
 
- - `trace(data: Record<string, any> | Error): void`  
-   `trace(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
-   `trace(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
+- `trace(data: Record<string, any> | Error): void`  
+  `trace(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+  `trace(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   Shortcut for `logger.log(Logger.TRACE, ...)`.
+  Shortcut for `logger.log(Logger.TRACE, ...)`.
 
- - `debug(data: Record<string, any> | Error): void`  
-   `debug(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
-   `debug(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
+- `debug(data: Record<string, any> | Error): void`  
+  `debug(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+  `debug(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   Shortcut for `logger.log(Logger.DEBUG, ...)`.
+  Shortcut for `logger.log(Logger.DEBUG, ...)`.
 
- - `info(data: Record<string, any> | Error): void`  
-   `info(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
-   `info(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
+- `info(data: Record<string, any> | Error): void`  
+  `info(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+  `info(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   Shortcut for `logger.log(Logger.INFO, ...)`.
+  Shortcut for `logger.log(Logger.INFO, ...)`.
 
- - `warning(data: Record<string, any> | Error): void`  
-   `warning(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
-   `warning(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
+- `warning(data: Record<string, any> | Error): void`  
+  `warning(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+  `warning(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   Shortcut for `logger.log(Logger.WARNING, ...)`.
+  Shortcut for `logger.log(Logger.WARNING, ...)`.
 
- - `error(data: Record<string, any> | Error): void`  
-   `error(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
-   `error(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
+- `error(data: Record<string, any> | Error): void`  
+  `error(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+  `error(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   Shortcut for `logger.log(Logger.ERROR, ...)`.
+  Shortcut for `logger.log(Logger.ERROR, ...)`.
 
- - `fatal(data: Record<string, any> | Error): void`  
-   `fatal(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
-   `fatal(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`  
+- `fatal(data: Record<string, any> | Error): void`  
+  `fatal(message: string | [string, ...any], data?: Record<string, any> | Error): void`  
+  `fatal(message: string | [string, ...any], error: Error, additionalData?: Record<string, any>): void`
 
-   Shortcut for `logger.log(Logger.FATAL, ...)`.
+  Shortcut for `logger.log(Logger.FATAL, ...)`.
 
- - `setContextProperty<T extends keyof TTaskContext>(key: T, value: NonNullable<TTaskContext>[T]): Logger<TTaskContext, TGlobalContext>`
+- `setContextProperty<T extends keyof TTaskContext>(key: T, value: NonNullable<TTaskContext>[T]): Logger<TTaskContext, TGlobalContext>`
 
-   Sets a property on the current task context, if one exists.
+  Sets a property on the current task context, if one exists.
 
-## Development
-
-To release a new version of a package, run the following command in the root directory of Debugr:
-
-```bash
-tools/upgrade-version.js <package> <major|minor|patch|premajor|preminor|prepatch|prerelease>
-```
-
-This will update the `version` key in the package's `package.json`, as well as update the version
-constraint in any other Debugr packages which depend on the affected package.
-
-Next, commit your changes and push the new commits to the repository;
-any packages with updated version in `package.json` will be automatically
-published to NPM.
 
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core

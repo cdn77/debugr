@@ -9,14 +9,13 @@ import { normalizeOptions } from './utils';
 export class ExpressCollector<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements CollectorPlugin<TTaskContext, TGlobalContext>
-{
+> implements CollectorPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'express';
   public readonly kind = PluginKind.Collector;
   public readonly entryTypes = [EntryType.HttpRequest, EntryType.HttpResponse];
 
   private readonly options: NormalizedOptions;
-  private logger: Logger<TTaskContext, TGlobalContext>;
+  private logger?: Logger<TTaskContext, TGlobalContext>;
 
   public constructor(options?: ExpressCollectorOptions) {
     this.options = normalizeOptions(options);
@@ -28,6 +27,10 @@ export class ExpressCollector<
 
   public createRequestHandler(): Handler {
     return (req, res, next) => {
+      if (!this.logger) {
+        return next();
+      }
+
       return this.logger.runTask(
         async () =>
           new Promise((resolve, reject) => {
@@ -41,7 +44,7 @@ export class ExpressCollector<
 
   public createErrorHandler(): ErrorRequestHandler {
     return (err, req, res, next) => {
-      this.logger.log(this.options.uncaughtLevel, err);
+      this.logger?.log(this.options.uncaughtLevel, err);
       next(err);
     };
   }
@@ -60,6 +63,10 @@ export class ExpressCollector<
   }
 
   private doLogRequest(request: Request, body?: string): void {
+    if (!this.logger) {
+      return;
+    }
+
     const contentLength = normalizeContentLength(request.header('content-length'));
     const bodyLength = body !== undefined ? body.length : undefined;
     const lengthMismatch =
@@ -121,8 +128,8 @@ export class ExpressCollector<
           info.bodyLength += Buffer.isBuffer(chunk) ? chunk.byteLength : chunk.length;
           capture && (info.body += chunk.toString());
         }
-      } catch (e) {
-        this.logger.warning('Failed to capture response body', e);
+      } catch (e: any) {
+        this.logger?.warning('Failed to capture response body', e);
         capture = false;
       }
     };
@@ -144,6 +151,10 @@ export class ExpressCollector<
   }
 
   private async logHttpResponse(response: Response): Promise<void> {
+    if (!this.logger) {
+      return;
+    }
+
     const { headers, contentLength, body, bodyLength } = await this.captureResponseBody(response);
 
     const lengthMismatch =

@@ -30,11 +30,11 @@ const logger = new Logger(globalContext, [
 logger.fatal('Something failed miserably!');
 ```
 
-The `SlackHandler` constructor accepts a *required* `options` object
+The `SlackHandler` constructor accepts a _required_ `options` object
 with the following keys as the first argument:
 
 | Option          | Type                                       | Default             | Description                                                                                                                                                       |
-|-----------------|--------------------------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------- | ------------------------------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `webhookUrl`    | `string`                                   | _(required)_        | A Slack webhook URL; see the [Slack API docs] on how to obtain one.                                                                                               |
 | `threshold`     | `LogLevel`                                 | `LogLevel.ERROR`    | The lowest level of entries which will be posted to the configured channel. Any entries below this level will be ignored.                                         |
 | `channel`       | `string`                                   |                     | The Slack channel ID the message should be posted to. This only works with [legacy Slack webhooks].                                                               |

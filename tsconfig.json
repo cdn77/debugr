@@ -1,21 +1,3 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "target": "es2017",
-    "lib": ["esnext"],
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "preserveConstEnums": true,
-    "skipLibCheck": true,
-    "types": ["node"]
-  },
-  "exclude": ["packages/*/dist/**"]
+  "extends": "./tsconfig.base.json"
 }

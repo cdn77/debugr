@@ -22,7 +22,7 @@ export class SmartMap<K, V> extends Map<K, V> {
       }
 
       const first = entries.next();
-      [, value] = first.value;
+      [, value] = first.value!;
     }
 
     for (const [k, v] of entries) {
@@ -32,10 +32,13 @@ export class SmartMap<K, V> extends Map<K, V> {
     return value;
   }
 
-  public reduceRight(cb: (previous: V, value: V, key: K, map: this) => V): V;
-  public reduceRight(cb: (previous: V, value: V, key: K, map: this) => V, seed: V): V;
-  public reduceRight<U>(cb: (previous: U, value: V, key: K, map: this) => U, seed: U): U;
-  public reduceRight(cb: (previous: any, value: any, key: K, map: this) => any, seed?: any): any {
+  public reduceRight(cb: (previous: V, value: V, key: K, map: SmartMap<K, V>) => V): V;
+  public reduceRight(cb: (previous: V, value: V, key: K, map: SmartMap<K, V>) => V, seed: V): V;
+  public reduceRight<U>(cb: (previous: U, value: V, key: K, map: SmartMap<K, V>) => U, seed: U): U;
+  public reduceRight(
+    cb: (previous: any, value: any, key: K, map: SmartMap<K, V>) => any,
+    seed?: any,
+  ): any {
     return new SmartMap([...this].reverse()).reduce(cb, seed);
   }
 
@@ -62,10 +65,10 @@ export class SmartMap<K, V> extends Map<K, V> {
     return key;
   }
 
-  public reduceKeysRight(cb: (previous: K, key: K, map: this) => K): K;
-  public reduceKeysRight(cb: (previous: K, key: K, map: this) => K, seed: K): K;
-  public reduceKeysRight<U>(cb: (previous: U, key: K, map: this) => U, seed: U): U;
-  public reduceKeysRight(cb: (previous: any, key: K, map: this) => any, seed?: any): any {
+  public reduceKeysRight(cb: (previous: K, key: K, map: SmartMap<K, V>) => K): K;
+  public reduceKeysRight(cb: (previous: K, key: K, map: SmartMap<K, V>) => K, seed: K): K;
+  public reduceKeysRight<U>(cb: (previous: U, key: K, map: SmartMap<K, V>) => U, seed: U): U;
+  public reduceKeysRight(cb: (previous: any, key: K, map: SmartMap<K, V>) => any, seed?: any): any {
     return new SmartMap([...this].reverse()).reduceKeys(cb, seed);
   }
 

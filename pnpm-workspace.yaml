@@ -1,0 +1,29 @@
+packages:
+  - packages/apollo
+  - packages/console
+  - packages/core
+  - packages/elastic
+  - packages/express
+  - packages/graphql-common
+  - packages/html
+  - packages/http-common
+  - packages/insaner
+  - packages/mikroorm
+  - packages/sentry
+  - packages/slack
+  - packages/sql-common
+
+catalog:
+  '@types/node': ^24.13.3
+  oxlint: ^1.78.0
+  oxfmt: ^0.63.0
+  publint: ^0.3.23
+  tsdown: ^0.22.14
+  typescript: ^7.0.2
+
+injectWorkspacePackages: true
+linkWorkspacePackages: true
+includeWorkspaceRoot: true
+
+allowBuilds:
+  '@apollo/protobufjs': true

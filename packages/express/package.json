@@ -1,52 +1,67 @@
 {
   "name": "@debugr/express",
-  "version": "3.0.0-rc.7",
+  "version": "4.0.0",
   "description": "Express.js plugin for Debugr",
-  "author": {
-    "name": "Dan Kadera",
-    "email": "dan.kadera@cdn77.com"
-  },
   "homepage": "https://github.com/cdn77/debugr",
+  "license": "MIT",
+  "author": {
+    "name": "Eliška Daniela Kaderová",
+    "email": "eliska.kaderova@cdn77.com"
+  },
   "repository": {
     "url": "https://github.com/cdn77/debugr",
     "directory": "packages/express"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "@debugr/core": "^3.0.0-rc.12",
-    "@debugr/http-common": "^3.0.0-rc.6"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.17",
-    "express": "^4.18.2"
-  },
-  "src": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "build": {
-    "src": "src/index.ts",
-    "externals": [
-      "express"
-    ]
-  },
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.mts"
+      },
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build:cleanup": "../../.run build:cleanup",
-    "build:compile": "../../.run build:compile",
-    "build:declarations": "../../.run build:declarations",
-    "build:prettify": "../../.run build:prettify",
-    "build:main": "../../.run build:main",
-    "build": "../../.run build",
-    "lint": "../../.run lint",
-    "preversion": "../../.run release"
-  }
+    "cleanup": "rm -rf dist",
+    "oxlint": "oxlint",
+    "oxlint:fix": "oxlint --fix",
+    "oxfmt": "oxfmt --check",
+    "oxfmt:fix": "oxfmt --write",
+    "lint": "pnpm run '/^(oxlint|oxfmt)$/'",
+    "format": "pnpm run --sequential '/^(oxlint|oxfmt):fix$/'",
+    "build": "tsc --noEmit && tsdown",
+    "publint": "publint"
+  },
+  "dependencies": {
+    "@debugr/core": "workspace:^",
+    "@debugr/http-common": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "catalog:",
+    "express": "^5.2.1",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "publint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "express": "^5"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "engineStrict": true
 }

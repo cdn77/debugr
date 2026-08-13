@@ -1,56 +1,68 @@
 {
   "name": "@debugr/apollo",
-  "version": "3.0.0-rc.9",
+  "version": "4.0.0",
   "description": "Apollo server plugin for Advanced application logger",
-  "author": {
-    "name": "Dan Kadera",
-    "email": "dan.kadera@cdn77.com"
-  },
   "homepage": "https://github.com/cdn77/debugr",
+  "license": "MIT",
+  "author": {
+    "name": "Eliška Daniela Kaderová",
+    "email": "eliska.kaderova@cdn77.com"
+  },
   "repository": {
     "url": "https://github.com/cdn77/debugr",
     "directory": "packages/apollo"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "@debugr/core": "^3.0.0-rc.12",
-    "@debugr/graphql-common": "^3.0.0-rc.5"
-  },
-  "devDependencies": {
-    "apollo-server-plugin-base": "^3.7.2",
-    "graphql": "^15.8.0"
-  },
-  "peerDependencies": {
-    "apollo-server-plugin-base": ">=3.7.2",
-    "graphql": ">=15.8.0"
-  },
-  "src": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "build": {
-    "src": "src/index.ts",
-    "externals": [
-      "apollo-server-plugin-base"
-    ]
-  },
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.mts"
+      },
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build:cleanup": "../../.run build:cleanup",
-    "build:compile": "../../.run build:compile",
-    "build:declarations": "../../.run build:declarations",
-    "build:prettify": "../../.run build:prettify",
-    "build:main": "../../.run build:main",
-    "build": "../../.run build",
-    "lint": "../../.run lint",
-    "preversion": "../../.run release"
-  }
+    "cleanup": "rm -rf dist",
+    "oxlint": "oxlint",
+    "oxlint:fix": "oxlint --fix",
+    "oxfmt": "oxfmt --check",
+    "oxfmt:fix": "oxfmt --write",
+    "lint": "pnpm run '/^(oxlint|oxfmt)$/'",
+    "format": "pnpm run --sequential '/^(oxlint|oxfmt):fix$/'",
+    "build": "tsc --noEmit && tsdown",
+    "publint": "publint"
+  },
+  "dependencies": {
+    "@debugr/core": "workspace:^",
+    "@debugr/graphql-common": "workspace:^"
+  },
+  "devDependencies": {
+    "@apollo/server": "^5.5.1",
+    "@types/node": "catalog:",
+    "graphql": "^16.14.2",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "publint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "@apollo/server": "^4 || ^5",
+    "graphql": "^15 || ^16"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "engineStrict": true
 }

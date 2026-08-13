@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { sprintf } from 'printj';
-import { v4 } from 'uuid';
 import { PluginManager } from './pluginManager';
 import type {
   CloningStrategy,
@@ -97,7 +96,7 @@ export class Logger<
 
     // @ts-expect-error Dont know...
     const newContext: Partial<TTaskContext> = context ? snapshot.v8(context) : { taskStack: [] };
-    newContext.taskStack?.push(v4());
+    newContext.taskStack?.push(crypto.randomUUID());
 
     const chain = this.handlers.reduceRight(
       (child, parent) => (isTaskAwareHandlerPlugin(parent) ? () => parent.runTask(child) : child),

@@ -1,6 +1,7 @@
 export * from './insanerCollector';
-export { InsanerCollectorOptions } from './types';
+export type { InsanerCollectorOptions } from './types';
 
+import type { TContextBase, TContextShape } from '@debugr/core';
 import type { InsanerCollector } from './insanerCollector';
 
 declare module '@debugr/core' {

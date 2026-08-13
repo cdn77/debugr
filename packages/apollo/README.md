@@ -32,9 +32,7 @@ const logger = new Logger(globalContext, [
 
 const server = new ApolloServer({
   // typeDefs, resolvers, ...
-  plugins: [
-    logger.getPlugin('apollo'),
-  ],
+  plugins: [logger.getPlugin('apollo')],
 });
 ```
 
@@ -64,9 +62,7 @@ const app = express();
 
 const server = new ApolloServer({
   // typeDefs, resolvers, ...
-  plugins: [
-    debug.getPlugin('apollo'),
-  ],
+  plugins: [debug.getPlugin('apollo')],
 });
 
 app.use(logger.getPlugin('express').createRequestHandler());
@@ -83,6 +79,6 @@ app.listen(8000);
 The `ApolloCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
-| Option         | Type       | Default         | Description                                                                                                          |
-|----------------|------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
-| `level`        | `LogLevel` | `LogLevel.INFO` | The level at which GraphQL queries are logged.                                                                       |
+| Option  | Type       | Default         | Description                                    |
+| ------- | ---------- | --------------- | ---------------------------------------------- |
+| `level` | `LogLevel` | `LogLevel.INFO` | The level at which GraphQL queries are logged. |

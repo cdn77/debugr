@@ -1,56 +1,62 @@
 {
   "name": "@debugr/sentry",
-  "version": "3.0.0-rc.2",
+  "version": "4.0.0",
   "description": "Sentry log handler for Debugr",
-  "author": {
-    "name": "Dan Kadera",
-    "email": "dan.kadera@cdn77.com"
-  },
   "homepage": "https://github.com/cdn77/debugr",
+  "license": "MIT",
+  "author": {
+    "name": "Eliška Daniela Kaderová",
+    "email": "eliska.kaderova@cdn77.com"
+  },
   "repository": {
     "url": "https://github.com/cdn77/debugr",
     "directory": "packages/sentry"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "@debugr/core": "^3.0.0-rc.12",
-    "error-stack-parser": "^2.1.4",
-    "node-fetch": "^2.6.12",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
-    "@types/node-fetch": "^2.6.4",
-    "@types/uuid": "^9.0.2"
-  },
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "build": {
-    "src": "src/index.ts",
-    "externals": [
-      "async_hooks",
-      "error-stack-parser",
-      "node-fetch",
-      "uuid"
-    ]
-  },
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.mts"
+      },
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build:cleanup": "../../.run build:cleanup",
-    "build:compile": "../../.run build:compile",
-    "build:declarations": "../../.run build:declarations",
-    "build:prettify": "../../.run build:prettify",
-    "build:main": "../../.run build:main",
-    "build": "../../.run build",
-    "lint": "../../.run lint",
-    "preversion": "../../.run release"
-  }
+    "cleanup": "rm -rf dist",
+    "oxlint": "oxlint",
+    "oxlint:fix": "oxlint --fix",
+    "oxfmt": "oxfmt --check",
+    "oxfmt:fix": "oxfmt --write",
+    "lint": "pnpm run '/^(oxlint|oxfmt)$/'",
+    "format": "pnpm run --sequential '/^(oxlint|oxfmt):fix$/'",
+    "build": "tsc --noEmit && tsdown",
+    "publint": "publint"
+  },
+  "dependencies": {
+    "@debugr/core": "workspace:^",
+    "error-stack-parser": "^2.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "publint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "engineStrict": true
 }

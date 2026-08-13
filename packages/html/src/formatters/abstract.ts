@@ -12,8 +12,7 @@ import type { HtmlFormatterPlugin } from './types';
 export abstract class AbstractHtmlFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements HtmlFormatterPlugin<TTaskContext, TGlobalContext>
-{
+> implements HtmlFormatterPlugin<TTaskContext, TGlobalContext> {
   public abstract readonly id: string;
   public readonly kind = PluginKind.Formatter;
   public abstract readonly entryType: EntryType;

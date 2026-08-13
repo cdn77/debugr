@@ -10,9 +10,10 @@ import { LogLevel, PluginKind } from '@debugr/core';
 import { Client } from '@elastic/elasticsearch';
 import type { ElasticHandlerOptions, ElasticOptions } from './types';
 
-export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
-  implements HandlerPlugin<TTaskContext, TGlobalContext>
-{
+export class ElasticHandler<
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> implements HandlerPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'elastic';
   public readonly kind = PluginKind.Handler;
 
@@ -61,7 +62,7 @@ export class ElasticHandler<TTaskContext extends TContextBase, TGlobalContext ex
         typeof this.options.index === 'string' ? this.options.index : this.options.index(entry);
 
       await this.elasticClient.index({ index, body });
-    } catch (error) {
+    } catch (error: any) {
       this.localErrors.add(error);
       this.logger?.log(LogLevel.INTERNAL, error);
     }

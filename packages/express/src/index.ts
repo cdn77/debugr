@@ -1,7 +1,8 @@
-import type { ExpressCollector } from './expressCollector';
-
 export * from './expressCollector';
-export { ExpressCollectorOptions } from './types';
+export type { ExpressCollectorOptions } from './types';
+
+import type { TContextBase, TContextShape } from '@debugr/core';
+import type { ExpressCollector } from './expressCollector';
 
 declare module '@debugr/core' {
   export interface Plugins<

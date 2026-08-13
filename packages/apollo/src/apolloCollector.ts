@@ -1,13 +1,13 @@
+import type { ApolloServerPlugin, GraphQLRequestListener } from '@apollo/server';
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
 import { EntryType, LogLevel, PluginKind } from '@debugr/core';
 import type { GraphqlQueryLogEntry } from '@debugr/graphql-common';
-import type { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import type { ApolloCollectorOptions } from './types';
 
 export class ApolloCollector<
-    TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = TContextShape,
-  >
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+>
   implements CollectorPlugin<TTaskContext, TGlobalContext>, ApolloServerPlugin
 {
   public readonly id = 'apollo';
@@ -15,7 +15,7 @@ export class ApolloCollector<
   public readonly entryTypes = [EntryType.GraphqlQuery];
 
   private readonly options: ApolloCollectorOptions;
-  private logger: Logger<TTaskContext, TGlobalContext>;
+  private logger?: Logger<TTaskContext, TGlobalContext>;
 
   public constructor(options: ApolloCollectorOptions = {}) {
     this.options = options;
@@ -25,21 +25,18 @@ export class ApolloCollector<
     this.logger = logger;
   }
 
-  public requestDidStart = async (): Promise<GraphQLRequestListener> => {
-    const logger = this.logger;
-    const options = this.options;
-
+  public requestDidStart = async (): Promise<GraphQLRequestListener<any>> => {
     return {
       didResolveOperation: async (ctx): Promise<void> => {
         const operation =
           [ctx.operation?.operation, ctx.operationName].filter((v) => !!v).join(' ') || undefined;
 
-        operation && logger.setContextProperty('queryName', operation);
+        operation && this.logger?.setContextProperty('queryName', operation);
 
         if (ctx.request.query) {
-          logger.add<GraphqlQueryLogEntry>({
+          this.logger?.add<GraphqlQueryLogEntry>({
             type: EntryType.GraphqlQuery,
-            level: options.level ?? LogLevel.INFO,
+            level: this.options.level ?? LogLevel.INFO,
             data: {
               query: ctx.request.query,
               variables: ctx.request.variables,
@@ -50,7 +47,7 @@ export class ApolloCollector<
       },
       didEncounterErrors: async ({ errors }): Promise<void> => {
         for (const err of errors) {
-          logger.log(options.errorLevel ?? LogLevel.ERROR, err.originalError ?? err);
+          this.logger?.log(this.options.errorLevel ?? LogLevel.ERROR, err.originalError ?? err);
         }
       },
     };

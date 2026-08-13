@@ -15,14 +15,13 @@ import { normalizeOptions } from './utils';
 export class InsanerCollector<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements CollectorPlugin<TTaskContext, TGlobalContext>
-{
+> implements CollectorPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'insaner';
   public readonly kind = PluginKind.Collector;
   public readonly entryTypes = [EntryType.HttpRequest, EntryType.HttpResponse];
 
   private readonly options: NormalizedOptions;
-  private logger: Logger<TTaskContext, TGlobalContext>;
+  private logger?: Logger<TTaskContext, TGlobalContext>;
 
   public constructor(options?: InsanerCollectorOptions) {
     this.options = normalizeOptions(options);
@@ -41,11 +40,19 @@ export class InsanerCollector<
 
   private createMiddleware(): ServerMiddlewareHandler {
     return async (next: ServerMiddlewareNext) => {
-      await this.logger.runTask(next);
+      if (this.logger) {
+        await this.logger.runTask(next);
+      } else {
+        await next();
+      }
     };
   }
 
   protected logRequest(request: HttpRequest) {
+    if (!this.logger) {
+      return;
+    }
+
     const stream = new LogStream(
       this.options.request.isCaptureEnabled(
         request.headers['content-type'],
@@ -76,7 +83,7 @@ export class InsanerCollector<
   }
 
   protected logError(request: HttpRequest, error: Error): void {
-    this.logger.log(this.options.uncaughtLevel, error);
+    this.logger?.log(this.options.uncaughtLevel, error);
   }
 
   protected logResponse(response: HttpResponse): void {
@@ -94,7 +101,7 @@ export class InsanerCollector<
         ? this.options.errorLevel
         : this.options.level;
 
-    this.logger.add<HttpResponseLogEntry>({
+    this.logger?.add<HttpResponseLogEntry>({
       type: EntryType.HttpResponse,
       level,
       data: {

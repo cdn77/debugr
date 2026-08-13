@@ -2,10 +2,10 @@ import type { SqlQueryFormatter } from './types';
 
 export function createQueryFormatter(): SqlQueryFormatter {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // oxlint-disable-next-line typescript/no-require-imports
     const { format } = require('@sqltools/formatter');
     return (query) => format(query, { language: 'sql', reservedWordCase: 'upper' });
-  } catch (e) {
+  } catch {
     return (query) => query;
   }
 }

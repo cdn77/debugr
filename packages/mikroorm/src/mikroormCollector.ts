@@ -24,9 +24,9 @@ const defaultLevelMap: MikroORMLevelMap = {
 };
 
 export class MikroORMCollector<
-    TTaskContext extends TContextBase = TContextBase,
-    TGlobalContext extends TContextShape = TContextShape,
-  >
+  TTaskContext extends TContextBase = TContextBase,
+  TGlobalContext extends TContextShape = TContextShape,
+>
   implements CollectorPlugin<TTaskContext, TGlobalContext>, MikroORMLoggerInterface
 {
   public readonly id = 'mikroorm';
@@ -35,7 +35,7 @@ export class MikroORMCollector<
 
   private readonly namespaceMap: MikroORMNamespaceMap;
   private readonly levelMap: MikroORMLevelMap;
-  private logger: Logger;
+  private logger?: Logger;
 
   public constructor({ namespaces = {}, levels = {} }: MikroORMPluginOptions = {}) {
     this.namespaceMap = { ...defaultNamespaceMap, ...namespaces };
@@ -51,20 +51,20 @@ export class MikroORMCollector<
   }
 
   public log(namespace: LoggerNamespace, message: string, context?: LogContext): void {
-    this.logger.log(this.namespaceMap[namespace], message, context);
+    this.logger?.log(this.namespaceMap[namespace], message, context);
   }
 
   public warn(namespace: LoggerNamespace, message: string, context?: LogContext): void {
-    this.logger.log(LogLevel.WARNING, message, context);
+    this.logger?.log(LogLevel.WARNING, message, context);
   }
 
   public error(namespace: LoggerNamespace, message: string, context?: LogContext): void {
-    this.logger.log(LogLevel.ERROR, message, context);
+    this.logger?.log(LogLevel.ERROR, message, context);
   }
 
   public logQuery(context: LogContext): void {
     if (context.query) {
-      this.logger.add<SqlQueryLogEntry>({
+      this.logger?.add<SqlQueryLogEntry>({
         type: EntryType.SqlQuery,
         level: this.levelMap[context.level ?? 'info'],
         data: {

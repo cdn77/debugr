@@ -7,12 +7,12 @@ import type {
   TContextShape,
 } from '@debugr/core';
 import { LogLevel, PluginKind } from '@debugr/core';
-import fetch from 'node-fetch';
 import type { SlackHandlerOptions } from './types';
 
-export class SlackHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
-  implements HandlerPlugin<TTaskContext>
-{
+export class SlackHandler<
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> implements HandlerPlugin<TTaskContext> {
   public readonly id = 'slack';
   public readonly kind = PluginKind.Handler;
 
@@ -61,7 +61,7 @@ export class SlackHandler<TTaskContext extends TContextBase, TGlobalContext exte
           ...body,
         }),
       });
-    } catch (error) {
+    } catch (error: any) {
       this.localErrors.add(error);
       this.logger?.log(LogLevel.INTERNAL, error);
     }

@@ -18,8 +18,7 @@ import { computeTaskHash } from './utils';
 export class HtmlHandler<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext>
-{
+> implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'html';
   public readonly kind = PluginKind.Handler;
 

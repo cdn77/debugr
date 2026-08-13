@@ -5,6 +5,7 @@ export * from './htmlRenderer';
 export { escapeHtml, renderCode, renderDetails } from './templates';
 export * from './types';
 
+import type { TContextBase, TContextShape } from '@debugr/core';
 import type { HtmlHandler } from './htmlHandler';
 
 declare module '@debugr/core' {

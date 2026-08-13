@@ -13,9 +13,9 @@ The package exports the following type definitions:
 
 ```typescript
 export interface GraphqlQueryData {
-  query: string;                   // the complete GraphQL query as a string
+  query: string; // the complete GraphQL query as a string
   variables?: Record<string, any>; // any variables passed along with the request
-  operation?: string;              // the extracted operation name, e.g. 'query getAllUsers'
+  operation?: string; // the extracted operation name, e.g. 'query getAllUsers'
 }
 
 export interface GraphqlQueryLogEntry<

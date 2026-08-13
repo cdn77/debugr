@@ -7,10 +7,8 @@ import type {
   TContextShape,
 } from '@debugr/core';
 import { levelToValue, LogLevel, normalizeMap, PluginKind } from '@debugr/core';
-import { wrapPossiblePromise } from '@debugr/core/src';
+import { wrapPossiblePromise } from '@debugr/core';
 import { AsyncLocalStorage } from 'async_hooks';
-import fetch from 'node-fetch';
-import { v4 } from 'uuid';
 import { defaultLevelMap } from './maps';
 import type {
   SentryDsn,
@@ -25,9 +23,10 @@ type TaskLog<TTaskContext extends TContextBase, TGlobalContext extends TContextS
   lastCaptured?: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>;
 };
 
-export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext extends TContextShape>
-  implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext>
-{
+export class SentryHandler<
+  TTaskContext extends TContextBase,
+  TGlobalContext extends TContextShape,
+> implements TaskAwareHandlerPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'sentry';
   public readonly kind = PluginKind.Handler;
 
@@ -36,7 +35,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
   private readonly captureThreshold: LogLevel;
   private readonly captureProbability: number;
   private readonly captureWholeTasks: boolean;
-  private readonly extractMessage: SentryMessageExtractor;
+  private readonly extractMessage: SentryMessageExtractor<TTaskContext, TGlobalContext>;
   private readonly levelMap: Map<LogLevel, SentryLogLevel>;
   private readonly taskLog: AsyncLocalStorage<TaskLog<TTaskContext, TGlobalContext>>;
   private readonly localErrors: WeakSet<Error>;
@@ -56,7 +55,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     this.captureThreshold = captureThreshold;
     this.captureProbability = captureProbability;
     this.captureWholeTasks = captureWholeTasks;
-    this.extractMessage = extractMessage ?? this.defaultExtractMessage.bind(this);
+    this.extractMessage = extractMessage ?? this.defaultExtractMessage;
     this.levelMap = normalizeMap({ ...defaultLevelMap, ...levelMap });
     this.taskLog = new AsyncLocalStorage();
     this.localErrors = new WeakSet();
@@ -108,7 +107,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
       } else {
         try {
           await this.capture(entry, log?.entries);
-        } catch (error) {
+        } catch (error: any) {
           this.localErrors.add(error);
           this.logger?.log(LogLevel.INTERNAL, error);
         }
@@ -128,7 +127,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     idx > -1 && (breadcrumbs = breadcrumbs.slice(0, idx));
 
     await this.sendRequest('store', {
-      event_id: v4().replace(/-/g, ''),
+      event_id: crypto.randomUUID().replace(/-/g, ''),
       timestamp: entry.ts.toISOString(),
       platform: typeof process !== 'undefined' ? 'node' : 'javascript',
       level: levelToValue(this.levelMap, entry.level),
@@ -180,9 +179,9 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     };
   }
 
-  private defaultExtractMessage(
-    entry: ReadonlyRecursive<LogEntry<TTaskContext, TGlobalContext>>,
-  ): string {
+  private readonly defaultExtractMessage: SentryMessageExtractor<TTaskContext, TGlobalContext> = (
+    entry,
+  ) => {
     if (entry.error) {
       return entry.error.message;
     }
@@ -192,7 +191,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     }
 
     return `Unknown ${entry.type ?? 'generic'} entry`;
-  }
+  };
 
   private extractTags(
     context: Readonly<Partial<TTaskContext>>,
@@ -228,7 +227,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
 
     const sentryAuth = [
       'Sentry sentry_version=7',
-      'sentry_client=debugr-sentry-handler/3.0',
+      'sentry_client=debugr-sentry-handler/4.0',
       `sentry_key=${this.dsn.publicKey}`,
     ];
 
@@ -239,7 +238,7 @@ export class SentryHandler<TTaskContext extends TContextBase, TGlobalContext ext
     await fetch(`${this.dsn.baseUri}/${endpoint}/`, {
       method: 'post',
       headers: {
-        'User-Agent': 'debugr-sentry-handler/3.0',
+        'User-Agent': 'debugr-sentry-handler/4.0',
         'X-Sentry-Auth': sentryAuth.join(',\n'),
         'Content-Type': 'application/json',
       },

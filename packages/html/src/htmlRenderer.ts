@@ -72,7 +72,7 @@ export class HtmlRenderer<
     for (const [entry, task] of entries) {
       if (isTaskBoundary(entry)) {
         const prev = previous.get(
-          entry.type === 'task:start' ? task.parent?.index ?? -1 : task.index,
+          entry.type === 'task:start' ? (task.parent?.index ?? -1) : task.index,
         );
         const boundary = this.renderTaskBoundary(entry, task, taskRenderer, prev);
         boundary && chunks.push(boundary);
@@ -94,7 +94,7 @@ export class HtmlRenderer<
     if (formatter) {
       try {
         return formatter.getEntryTitle(entry);
-      } catch (e) {
+      } catch {
         /* noop */
       }
     }
@@ -136,12 +136,12 @@ export class HtmlRenderer<
   ): Generator<string> {
     try {
       yield this.renderEntry(task, entry, previousTs, taskRenderer);
-    } catch (e) {
+    } catch (e: any) {
       try {
         const content = this.renderEntry(task, entry, previousTs, taskRenderer, true);
         yield this.renderError(e, task.index, taskRenderer);
         yield content;
-      } catch (e2) {
+      } catch {
         yield this.renderError(e, task.index, taskRenderer);
       }
     }

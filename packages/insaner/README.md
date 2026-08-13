@@ -9,7 +9,6 @@ will be automatically logged. If the HTTP response code is >= 500
 (or >= 400 if the `e4xx` option is set) the response will be logged
 with the configured error level.
 
-
 ## Installation
 
 ```bash
@@ -41,7 +40,7 @@ const server = new HttpServer();
 logger.getPlugin('insaner').install(server);
 
 // apply your routes etc
-server.router.post('/my-api', function(req, res) {
+server.router.post('/my-api', function (req, res) {
   // ...
 });
 
@@ -54,7 +53,7 @@ The `InsanerCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
 | Option                    | Type       | Default                       | Description                                                                                             |
-|---------------------------|------------|-------------------------------|---------------------------------------------------------------------------------------------------------|
+| ------------------------- | ---------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `level`                   | `LogLevel` | `Logger.INFO`                 | The level at which the request and response will be logged                                              |
 | `errorLevel`              | `LogLevel` | `Logger.ERROR`                | The level at which error responses will be logged                                                       |
 | `uncaughtLevel`           | `LogLevel` | `options.errorLevel`          | The level at which uncaught errors which reach Insaner will be logged                                   |

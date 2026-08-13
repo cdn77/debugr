@@ -59,19 +59,19 @@ types. It is currently unclear how this can be worked around in Debugr context.
 
 The predefined log levels and their loose semantics in Debugr are:
 
- - `LogLevel.TRACE` (numeric value `10`) - occasionally potentially useful noise
- - `LogLevel.DEBUG` (numeric value `20`) - detailed debugging data, e.g. SQL queries, requests to external APIs etc.
- - `LogLevel.INFO` (numeric value `30`) - noteworthy events in regular application flow, e.g. user logged in
- - `LogLevel.WARNING` (numeric value `40`) - events somebody should check out eventually, but nothing too serious
- - `LogLevel.ERROR` (numeric value `50`) - serious recoverable errors (e.g. failure to handle a specific request), needs attention soon
- - `LogLevel.FATAL` (numeric value `60`) - unrecoverable errors which bring down the entire application, needs attention now
+- `LogLevel.TRACE` (numeric value `10`) - occasionally potentially useful noise
+- `LogLevel.DEBUG` (numeric value `20`) - detailed debugging data, e.g. SQL queries, requests to external APIs etc.
+- `LogLevel.INFO` (numeric value `30`) - noteworthy events in regular application flow, e.g. user logged in
+- `LogLevel.WARNING` (numeric value `40`) - events somebody should check out eventually, but nothing too serious
+- `LogLevel.ERROR` (numeric value `50`) - serious recoverable errors (e.g. failure to handle a specific request), needs attention soon
+- `LogLevel.FATAL` (numeric value `60`) - unrecoverable errors which bring down the entire application, needs attention now
 
 There are also two special log levels which typically aren't used from userland code:
 
- - `LogLevel.INTERNAL` (numeric value `-1`) - used for entries generated from errors
-   thrown inside Debugr or its plugins
- - `LogLevel.ALL` (numeric value `0`) - used in conjunction with filters which discard
-   entries below a specified level; means "all non-internal entries should pass"
+- `LogLevel.INTERNAL` (numeric value `-1`) - used for entries generated from errors
+  thrown inside Debugr or its plugins
+- `LogLevel.ALL` (numeric value `0`) - used in conjunction with filters which discard
+  entries below a specified level; means "all non-internal entries should pass"
 
 ## Entry types
 
@@ -81,14 +81,14 @@ predefined in this manner in the `@debugr/*-common` packages. An entry type
 is associated with an overloaded `LogEntry` type; each such overload specifies
 a concrete shape for the `data` property. The currently defined entry types are:
 
- - `EntryType.HttpRequest` - used to denote a `HttpRequestLogEntry`, see
-   [`@debugr/http-common`]
- - `EntryType.HttpResponse` - used to denote a `HttpResponseLogEntry`, see
-   [`@debugr/http-common`]
- - `EntryType.GraphqlQuery` - used to denote a `GraphqlQueryLogEntry`, see
-   [`@debugr/graphql-common`]
- - `EntryType.SqlQuery` - used to denote a `SqlQueryLogEntry`, see
-   [`@debugr/sql-common`]
+- `EntryType.HttpRequest` - used to denote a `HttpRequestLogEntry`, see
+  [`@debugr/http-common`]
+- `EntryType.HttpResponse` - used to denote a `HttpResponseLogEntry`, see
+  [`@debugr/http-common`]
+- `EntryType.GraphqlQuery` - used to denote a `GraphqlQueryLogEntry`, see
+  [`@debugr/graphql-common`]
+- `EntryType.SqlQuery` - used to denote a `SqlQueryLogEntry`, see
+  [`@debugr/sql-common`]
 
 If you're writing a plugin which produces or consumes any of these entry types,
 you should add a dependency on the appropriate `@debugr/*-common` package
@@ -100,31 +100,31 @@ Plugins in Debugr must conform to the `Plugin` interface exported from `@debugr/
 or (more probably) one of its descendants. The base `Plugin` interface defines only
 three things:
 
- - `public readonly id: string`: An identifier of the plugin. This must be unique
-   to your plugin, otherwise it may lead to conflicts between plugin packages.
- - `public readonly kind: PluginKind`: A discriminator property denoting the plugin type.
-   The `PluginKind` enum is a `const enum`, meaning you can define your own custom plugin
-   types similarly to how you can define custom log levels and entry types. Like with
-   entry types, a `PluginKind` value is associated with an interface derived from the
-   generic `Plugin` interface, by convention named `<Type>Plugin` (e.g. `CollectorPlugin`).
-   The built-in plugin types also provide type guards following the `is<Type>Plugin()` convention.
-   If you want to define your own plugin type, it is highly recommended you stick to this
-   convention.
- - `public injectLogger(logger: Logger, pluginManager: PluginManager): void`: This method
-   will be called during Debugr initialisation. It allows plugins to get an instance of
-   the `Logger`, as well as check which other plugins are registered in the plugin manager
-   and optionally register more plugins they may require to work. More on this later.
+- `public readonly id: string`: An identifier of the plugin. This must be unique
+  to your plugin, otherwise it may lead to conflicts between plugin packages.
+- `public readonly kind: PluginKind`: A discriminator property denoting the plugin type.
+  The `PluginKind` enum is a `const enum`, meaning you can define your own custom plugin
+  types similarly to how you can define custom log levels and entry types. Like with
+  entry types, a `PluginKind` value is associated with an interface derived from the
+  generic `Plugin` interface, by convention named `<Type>Plugin` (e.g. `CollectorPlugin`).
+  The built-in plugin types also provide type guards following the `is<Type>Plugin()` convention.
+  If you want to define your own plugin type, it is highly recommended you stick to this
+  convention.
+- `public injectLogger(logger: Logger, pluginManager: PluginManager): void`: This method
+  will be called during Debugr initialisation. It allows plugins to get an instance of
+  the `Logger`, as well as check which other plugins are registered in the plugin manager
+  and optionally register more plugins they may require to work. More on this later.
 
 There are three predefined plugin types at this time:
 
- - [**Collectors**]: Plugins which integrate Debugr with some kind of third party library
-   or framework. They collect any relevant log entries from the 3rd party code and if applicable
-   they may also start Debugr tasks for anything the library does which might be considered
-   a task from Debugr's point of view.
- - [**Handlers**]: Plugins which consume log entries and persist them to some kind of storage.
-   They may optionally employ Formatter plugins to convert entries to the storage format.
- - [**Formatters**]: These plugins convert log entries of a given type to a format expected
-   by a given Handler.
+- [**Collectors**]: Plugins which integrate Debugr with some kind of third party library
+  or framework. They collect any relevant log entries from the 3rd party code and if applicable
+  they may also start Debugr tasks for anything the library does which might be considered
+  a task from Debugr's point of view.
+- [**Handlers**]: Plugins which consume log entries and persist them to some kind of storage.
+  They may optionally employ Formatter plugins to convert entries to the storage format.
+- [**Formatters**]: These plugins convert log entries of a given type to a format expected
+  by a given Handler.
 
 ## Data flow
 
@@ -149,7 +149,6 @@ a generic `LogEntry` and passes it to the `Logger.add()` method, which passes it
 configured handlers. Plugins will typically use a combination of `Logger.log()` for generic
 entries and `Logger.add()` for specialised entries, but in the end, all entries must pass
 through the `Logger.add()` method.
-
 
 [`@debugr/http-common`]: ../packages/http-common
 [`@debugr/graphql-common`]: ../packages/graphql-common

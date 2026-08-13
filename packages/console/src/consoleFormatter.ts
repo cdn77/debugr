@@ -56,12 +56,12 @@ export class ConsoleFormatter<
   protected *tryFormatEntry(entry: LogEntry<TTaskContext, TGlobalContext>): Generator<string> {
     try {
       yield this.formatEntry(entry);
-    } catch (e) {
+    } catch (e: any) {
       try {
         const content = this.formatEntry(entry, true);
         yield this.formatError(e);
         yield content;
-      } catch (e2) {
+      } catch {
         yield this.formatError(e);
       }
     }

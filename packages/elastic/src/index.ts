@@ -1,6 +1,7 @@
 export * from './elasticHandler';
 export * from './types';
 
+import type { TContextBase, TContextShape } from '@debugr/core';
 import type { ElasticHandler } from './elasticHandler';
 
 declare module '@debugr/core' {

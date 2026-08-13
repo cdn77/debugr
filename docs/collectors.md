@@ -11,9 +11,9 @@ logic to wrap the execution in a Debugr task.
 Each Collector plugin must implement the `CollectorPlugin` interface, which
 extends the generic [`Plugin` interface] and adds the following methods and properties:
 
- - `public readonly entryTypes: readonly EntryType[]`: This property lists any _specialised_
-   entry types that the Collector produces. It is perfectly okay for a Collector plugin to produce
-   _generic_ entry types as well; these don't need to be listed here.
+- `public readonly entryTypes: readonly EntryType[]`: This property lists any _specialised_
+  entry types that the Collector produces. It is perfectly okay for a Collector plugin to produce
+  _generic_ entry types as well; these don't need to be listed here.
 
 Typically, a Collector plugin will implement the `injectLogger()` method from the base `Plugin`
 interface to store a reference to the `Logger` instance, and then use that instance to log _generic_
@@ -48,14 +48,16 @@ the way you need:
 ```typescript
 export declare class Scheduler {
   // middlewares will be called first, before any job lifecycle hooks
-  public addMiddleware(mw: (job: string, cb: () => Promise<void> | void) => Promise<void> | void): void;
-  
+  public addMiddleware(
+    mw: (job: string, cb: () => Promise<void> | void) => Promise<void> | void,
+  ): void;
+
   // called at the start of a job after all middlewares run, but before the job itself runs
   public onJobStart(job: string, cb: () => void): void;
-  
+
   // called at the end of a job after the job returns, but before returning to middlewares
   public onJobEnd(job: string, cb: (err?: Error) => void): void;
-  
+
   // schedules a callback to be called every N seconds
   public schedule(job: string, cb: () => Promise<void> | void, interval: number): void;
 }
@@ -96,7 +98,7 @@ export class SchedulerCollector implements CollectorPlugin {
   /**
    * We'll use this method when creating the Scheduler instance
    * to install the integration, e.g.:
-   * 
+   *
    * const scheduler = new Scheduler();
    * logger.getPlugin('scheduler').install(scheduler);
    * return scheduler;
@@ -104,25 +106,26 @@ export class SchedulerCollector implements CollectorPlugin {
   public install(scheduler: Scheduler): void {
     // Debugr Tasks integration
     if (this.wrapTasks) {
-      scheduler.addMiddleware((job, cb) => this.logger.runTask(() => {
-        // Collectors can provide additional metadata about the current task
-        // via the task context:
-        this.logger.setContextProperty('jobName', job);
+      scheduler.addMiddleware((job, cb) =>
+        this.logger.runTask(() => {
+          // Collectors can provide additional metadata about the current task
+          // via the task context:
+          this.logger.setContextProperty('jobName', job);
 
-        return cb();
-      }));
+          return cb();
+        }),
+      );
     }
 
     scheduler.onJobStart((job) => this.logger.info(['Cron job "%s" started', job]));
     scheduler.onJobEnd((job, err) =>
       err
         ? this.logger.error(['Cron job "%s" ended with error', job], err)
-        : this.logger.info(['Cron job "%s" ended successfully', job])
+        : this.logger.info(['Cron job "%s" ended successfully', job]),
     );
   }
 }
 ```
-
 
 [`Plugin` interface]: ./general.md#plugin-types
 [main readme]: ../README.md#logging-mutable-data

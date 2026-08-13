@@ -40,7 +40,7 @@ const app = express();
 app.use(logger.getPlugin('express').createRequestHandler());
 
 // apply your other middlewares like body parser and your routes
-app.post('/my-api', function(req, res) {
+app.post('/my-api', function (req, res) {
   // ...
 });
 
@@ -57,7 +57,7 @@ The `ExpressCollector` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
 | Option                    | Type       | Default                       | Description                                                                                             |
-|---------------------------|------------|-------------------------------|---------------------------------------------------------------------------------------------------------|
+| ------------------------- | ---------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `level`                   | `LogLevel` | `Logger.INFO`                 | The level at which the request and response will be logged                                              |
 | `errorLevel`              | `LogLevel` | `Logger.ERROR`                | The level at which error responses will be logged                                                       |
 | `uncaughtLevel`           | `LogLevel` | `options.errorLevel`          | The level at which uncaught errors which reach the collector's error handler middleware will be logged  |
@@ -76,19 +76,20 @@ with the following keys as the first argument:
 The `captureBody` option controls whether the request or response body
 will be captured in the debug log. It can be set in many ways, so it bears
 explaining in more detail:
- - A `boolean` simply means what `boolean` usually means - `captureBody: true`
-   will capture the body *always*. This is probably slightly overkill. Typically,
-   you'll use this to *disable* capturing the raw request body if you're sure
-   you don't ever care about it - e.g. if you log the decoded body by another plugin.
- - A `number` means "max size in bytes" - the body will be captured if its size
-   is at most this value.
- - A (comma-separated) `string` or `string[]` means "content type". The body will
-   be captured if it matches the given content type. You can use `*` as a simple
-   placeholder for one or more characters, so you can use e.g. `text/*`.
- - An `object` with `string` keys and `number` values combines content type and
-   content length conditions, so you can use e.g. `{ 'text/*': 2e6 }` to allow
-   capturing any text body up to 2MB in size. Note that you can still use
-   comma-separated types in the keys.
+
+- A `boolean` simply means what `boolean` usually means - `captureBody: true`
+  will capture the body _always_. This is probably slightly overkill. Typically,
+  you'll use this to _disable_ capturing the raw request body if you're sure
+  you don't ever care about it - e.g. if you log the decoded body by another plugin.
+- A `number` means "max size in bytes" - the body will be captured if its size
+  is at most this value.
+- A (comma-separated) `string` or `string[]` means "content type". The body will
+  be captured if it matches the given content type. You can use `*` as a simple
+  placeholder for one or more characters, so you can use e.g. `text/*`.
+- An `object` with `string` keys and `number` values combines content type and
+  content length conditions, so you can use e.g. `{ 'text/*': 2e6 }` to allow
+  capturing any text body up to 2MB in size. Note that you can still use
+  comma-separated types in the keys.
 
 The default value for the `captureBody` option, for both request and response, is
 `{ 'text/*, application/json': 2e6 }`. What this means for capturing a given

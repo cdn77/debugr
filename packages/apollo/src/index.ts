@@ -1,6 +1,7 @@
 export * from './apolloCollector';
 export * from './types';
 
+import type { TContextBase, TContextShape } from '@debugr/core';
 import type { ApolloCollector } from './apolloCollector';
 
 declare module '@debugr/core' {

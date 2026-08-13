@@ -23,7 +23,7 @@ export function levelToValue<V>(map: Map<LogLevel, V>, level: LogLevel, fallback
     }
   }
 
-  return fallback ?? map.values().next().value;
+  return fallback ?? map.values().next().value!;
 }
 
 export function isEmpty(o: Record<string, any> | undefined): boolean {

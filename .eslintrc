@@ -1,8 +1,0 @@
-{
-  "extends": [
-    "./.eslint.build.rc"
-  ],
-  "parserOptions": {
-    "project": "./tsconfig.json"
-  }
-}

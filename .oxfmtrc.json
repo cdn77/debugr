@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    "node_modules",
+    "packages/*/dist",
+    "packages/*/node_modules",
+    "pnpm-lock.yaml"
+  ],
+  "sortImports": {
+    "ignoreCase": false,
+    "newlinesBetween": false,
+    "groups": [
+      ["type-builtin", "builtin", "type-external", "external"],
+      ["type-parent", "parent"],
+      ["type-sibling", "type-index", "sibling", "index"],
+      "unknown"
+    ]
+  }
+}

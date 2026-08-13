@@ -1,29 +1,37 @@
 name: ci
+
 on:
   push:
     branches:
       - main
+
 permissions:
   id-token: write
   contents: read
+
 jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Upgrade NPM
-        run: npm i -g npm
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
+          run_install: false
       - name: Checkout repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
+      - name: Lint code
+        run: pnpm -r lint
       - name: Build packages
-        run: npm run build
+        run: pnpm -r build
       - name: Lint packages
-        run: npm run lint
+        run: pnpm -r publint
       - name: Publish packages to NPM
-        run: npm run release -- --yes
+        run: pnpm -r publish --provenance

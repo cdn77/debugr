@@ -19,9 +19,7 @@ const globalContext = {
   applicationName: 'example',
 };
 
-const logger = new Logger(globalContext, [
-  new ConsoleHandler(),
-]);
+const logger = new Logger(globalContext, [new ConsoleHandler()]);
 
 logger.info('Application started.');
 
@@ -35,7 +33,7 @@ The `ConsoleHandler` constructor accepts an optional `options` object
 with the following keys as the first argument:
 
 | Option      | Type                                       | Default         | Description                                                                                     |
-|-------------|--------------------------------------------|-----------------|-------------------------------------------------------------------------------------------------|
+| ----------- | ------------------------------------------ | --------------- | ----------------------------------------------------------------------------------------------- |
 | `threshold` | `LogLevel`                                 | `LogLevel.INFO` | The lowest level of entries which will be logged. Any entries below this level will be ignored. |
 | `levelMap`  | `Record<number, string>`                   |                 | A map of custom log levels to their string representation.                                      |
 | `colorMap`  | `Record<number, (v: string) => string>`    |                 | A map of custom log levels to callbacks applying ANSI colors. See [`ansi-colors`].              |

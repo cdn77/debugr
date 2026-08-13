@@ -138,8 +138,8 @@ export function isFormatterPlugin<
   return plugin.kind === PluginKind.Formatter;
 }
 
-export type FormatterPluginTypeGuard<TFormatter extends FormatterPlugin<any, any>> = {
-  (plugin: FormatterPlugin): plugin is TFormatter;
+export type FormatterPluginTypeGuard<TFormatter extends FormatterPlugin> = {
+  (plugin: Plugin): plugin is TFormatter;
 };
 
 export interface HandlerPlugin<

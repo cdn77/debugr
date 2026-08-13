@@ -12,8 +12,7 @@ import type { ConsoleFormatterPlugin } from './types';
 export abstract class AbstractConsoleFormatter<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
-> implements ConsoleFormatterPlugin<TTaskContext, TGlobalContext>
-{
+> implements ConsoleFormatterPlugin<TTaskContext, TGlobalContext> {
   public abstract readonly id: string;
   public readonly kind = PluginKind.Formatter;
   public abstract readonly entryType: EntryType;

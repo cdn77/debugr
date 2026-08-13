@@ -1,53 +1,66 @@
 {
   "name": "@debugr/mikroorm",
-  "version": "3.0.0-rc.8",
+  "version": "4.0.0",
   "description": "MikroORM plugin for Advanced application logger",
-  "author": {
-    "name": "Dan Kadera",
-    "email": "dan.kadera@cdn77.com"
-  },
   "homepage": "https://github.com/cdn77/debugr",
+  "license": "MIT",
+  "author": {
+    "name": "Eliška Daniela Kaderová",
+    "email": "eliska.kaderova@cdn77.com"
+  },
   "repository": {
     "url": "https://github.com/cdn77/debugr",
     "directory": "packages/mikroorm"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "@debugr/core": "^3.0.0-rc.12",
-    "@debugr/sql-common": "^3.0.0-rc.6"
-  },
-  "devDependencies": {
-    "@mikro-orm/core": "^5 || ^6"
-  },
-  "peerDependencies": {
-    "@mikro-orm/core": "^5 || ^6"
-  },
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "build": {
-    "src": "src/index.ts",
-    "externals": [
-      "@mikro-orm/core"
-    ]
-  },
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.mts"
+      },
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build:cleanup": "../../.run build:cleanup",
-    "build:compile": "../../.run build:compile",
-    "build:declarations": "../../.run build:declarations",
-    "build:prettify": "../../.run build:prettify",
-    "build:main": "../../.run build:main",
-    "build": "../../.run build",
-    "lint": "../../.run lint",
-    "preversion": "../../.run release"
-  }
+    "cleanup": "rm -rf dist",
+    "oxlint": "oxlint",
+    "oxlint:fix": "oxlint --fix",
+    "oxfmt": "oxfmt --check",
+    "oxfmt:fix": "oxfmt --write",
+    "lint": "pnpm run '/^(oxlint|oxfmt)$/'",
+    "format": "pnpm run --sequential '/^(oxlint|oxfmt):fix$/'",
+    "build": "tsc --noEmit && tsdown",
+    "publint": "publint"
+  },
+  "dependencies": {
+    "@debugr/core": "workspace:^",
+    "@debugr/sql-common": "workspace:^"
+  },
+  "devDependencies": {
+    "@mikro-orm/core": "^6.6.16",
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "publint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "@mikro-orm/core": "^5 || ^6"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "engineStrict": true
 }
