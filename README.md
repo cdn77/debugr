@@ -223,7 +223,6 @@ The `Logger` instance has the following methods:
 
   Sets a property on the current task context, if one exists.
 
-
 [Tracy]: https://tracy.nette.org
 [`@debugr/core`]: ./packages/core
 [`@debugr/console`]: ./packages/console
