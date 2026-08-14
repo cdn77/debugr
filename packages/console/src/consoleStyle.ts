@@ -1,16 +1,16 @@
-import { blue, dim, magenta, red, unstyle, yellow } from 'ansi-colors';
+import colors from 'ansi-colors';
 import type { ConsoleColor, ConsoleStyle } from './types';
 
 const noColor: ConsoleColor = (value) => value;
 
 export const ansi: ConsoleStyle = {
-  blue,
-  dim,
-  magenta,
+  blue: colors.blue,
+  dim: colors.dim,
+  magenta: colors.magenta,
   none: noColor,
-  red,
-  yellow,
-  unstyle,
+  red: colors.red,
+  yellow: colors.yellow,
+  unstyle: colors.unstyle,
 };
 
 export const none: ConsoleStyle = {
