@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { sprintf } from 'printj';
+import printj from 'printj';
 import { PluginManager } from './pluginManager';
 import type {
   CloningStrategy,
@@ -172,7 +172,7 @@ export class Logger<
 
     if (typeof messageOrDataOrError === 'string' || Array.isArray(messageOrDataOrError)) {
       if (Array.isArray(messageOrDataOrError) && messageOrDataOrError.length > 0) {
-        message = sprintf(...(messageOrDataOrError as [string, ...any[]]));
+        message = printj.sprintf(...(messageOrDataOrError as [string, ...any[]]));
       } else if (typeof messageOrDataOrError === 'string') {
         message = messageOrDataOrError;
       }
