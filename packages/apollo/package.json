@@ -1,6 +1,6 @@
 {
   "name": "@debugr/apollo",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Apollo server plugin for Advanced application logger",
   "homepage": "https://github.com/cdn77/debugr",
   "license": "MIT",

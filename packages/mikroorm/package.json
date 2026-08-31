@@ -1,6 +1,6 @@
 {
   "name": "@debugr/mikroorm",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "MikroORM plugin for Advanced application logger",
   "homepage": "https://github.com/cdn77/debugr",
   "license": "MIT",

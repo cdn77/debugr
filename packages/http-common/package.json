@@ -1,6 +1,6 @@
 {
   "name": "@debugr/http-common",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Common interfaces and utility functions for HTTP plugins",
   "homepage": "https://github.com/cdn77/debugr",
   "license": "MIT",
