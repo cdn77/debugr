@@ -1,5 +1,5 @@
 import type { MappedRecord } from '@debugr/core';
-import { EntryType, LogLevel } from '@debugr/core';
+import { type EntryType, LogLevel } from '@debugr/core';
 import type { ConsoleFormatterPlugin } from './formatters';
 import {
   GraphqlQueryConsoleFormatter,
@@ -30,8 +30,8 @@ export const defaultColorMap: MappedRecord<LogLevel, ConsoleStyleName> = {
 };
 
 export const defaultFormatters: MappedRecord<EntryType, () => ConsoleFormatterPlugin> = {
-  [EntryType.GraphqlQuery]: () => new GraphqlQueryConsoleFormatter(),
-  [EntryType.HttpRequest]: () => new HttpRequestConsoleFormatter(),
-  [EntryType.HttpResponse]: () => new HttpResponseConsoleFormatter(),
-  [EntryType.SqlQuery]: () => new SqlQueryConsoleFormatter(),
+  'graphql.query': () => new GraphqlQueryConsoleFormatter(),
+  'http.request': () => new HttpRequestConsoleFormatter(),
+  'http.response': () => new HttpResponseConsoleFormatter(),
+  'sql.query': () => new SqlQueryConsoleFormatter(),
 };

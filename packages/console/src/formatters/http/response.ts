@@ -1,5 +1,4 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { EntryType } from '@debugr/core';
 import type { HttpResponseLogEntry } from '@debugr/http-common';
 import { getHttpStatusMessage } from '@debugr/http-common';
 import type { ConsoleStyle } from '../../types';
@@ -10,7 +9,7 @@ export class HttpResponseConsoleFormatter<
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHttpConsoleFormatter<TTaskContext, TGlobalContext> {
   public readonly id = 'debugr-http-response-console-formatter';
-  public readonly entryType = EntryType.HttpResponse;
+  public readonly entryType = 'http.response';
 
   public formatEntry(
     { data, error }: HttpResponseLogEntry<TTaskContext, TGlobalContext>,

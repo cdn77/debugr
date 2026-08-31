@@ -1,5 +1,5 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, formatData, isEmpty } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
 import type { SqlQueryFormatter, SqlQueryLogEntry } from '@debugr/sql-common';
 import { createQueryFormatter, formatQueryTime } from '@debugr/sql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
@@ -10,7 +10,7 @@ export class SqlQueryHtmlFormatter<
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   public readonly id = 'debugr-sql-query-html-formatter';
-  public readonly entryType = EntryType.SqlQuery;
+  public readonly entryType = 'sql.query';
 
   private readonly formatQuery: SqlQueryFormatter;
 

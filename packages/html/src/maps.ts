@@ -1,5 +1,5 @@
 import type { MappedRecord } from '@debugr/core';
-import { EntryType, LogLevel } from '@debugr/core';
+import { type EntryType, LogLevel } from '@debugr/core';
 import type { HtmlFormatterPlugin } from './formatters';
 import {
   GraphqlQueryHtmlFormatter,
@@ -29,8 +29,8 @@ export const defaultColorMap: MappedRecord<LogLevel, string> = {
 };
 
 export const defaultFormatters: MappedRecord<EntryType, () => HtmlFormatterPlugin> = {
-  [EntryType.GraphqlQuery]: () => new GraphqlQueryHtmlFormatter(),
-  [EntryType.HttpRequest]: () => new HttpRequestHtmlFormatter(),
-  [EntryType.HttpResponse]: () => new HttpResponseHtmlFormatter(),
-  [EntryType.SqlQuery]: () => new SqlQueryHtmlFormatter(),
+  'graphql.query': () => new GraphqlQueryHtmlFormatter(),
+  'http.request': () => new HttpRequestHtmlFormatter(),
+  'http.response': () => new HttpResponseHtmlFormatter(),
+  'sql.query': () => new SqlQueryHtmlFormatter(),
 };

@@ -1,5 +1,5 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, formatData, isEmpty } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
 import type { GraphqlQueryLogEntry } from '@debugr/graphql-common';
 import { getGraphqlOperation } from '@debugr/graphql-common';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
@@ -10,7 +10,7 @@ export class GraphqlQueryHtmlFormatter<
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   public readonly id = 'debugr-graphql-query-html-formatter';
-  public readonly entryType = EntryType.GraphqlQuery;
+  public readonly entryType = 'graphql.query';
 
   public getEntryLabel(): string {
     return 'GraphQL query';

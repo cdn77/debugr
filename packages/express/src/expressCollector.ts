@@ -1,5 +1,5 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, PluginKind } from '@debugr/core';
+import { PluginKind } from '@debugr/core';
 import type { HttpRequestLogEntry, HttpResponseLogEntry } from '@debugr/http-common';
 import { normalizeContentLength } from '@debugr/http-common';
 import type { ErrorRequestHandler, Handler, Request, Response } from 'express';
@@ -12,7 +12,7 @@ export class ExpressCollector<
 > implements CollectorPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'express';
   public readonly kind = PluginKind.Collector;
-  public readonly entryTypes = [EntryType.HttpRequest, EntryType.HttpResponse];
+  public readonly entryTypes = ['http.request', 'http.response'];
 
   private readonly options: NormalizedOptions;
   private logger?: Logger<TTaskContext, TGlobalContext>;
@@ -75,7 +75,7 @@ export class ExpressCollector<
         : undefined;
 
     this.logger.add<HttpRequestLogEntry>({
-      type: EntryType.HttpRequest,
+      type: 'http.request',
       level: this.options.level,
       data: {
         method: request.method,
@@ -165,7 +165,7 @@ export class ExpressCollector<
         : this.options.level;
 
     this.logger.add<HttpResponseLogEntry>({
-      type: EntryType.HttpResponse,
+      type: 'http.response',
       level,
       data: {
         status: response.statusCode,

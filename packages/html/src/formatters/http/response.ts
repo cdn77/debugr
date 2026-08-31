@@ -1,5 +1,4 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { EntryType } from '@debugr/core';
 import type { HttpResponseLogEntry } from '@debugr/http-common';
 import { getHttpStatusMessage } from '@debugr/http-common';
 import { escapeHtml } from '../../templates';
@@ -10,7 +9,7 @@ export class HttpResponseHtmlFormatter<
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHttpHtmlFormatter<TTaskContext, TGlobalContext> {
   public readonly id = 'debugr-http-response-html-formatter';
-  public readonly entryType = EntryType.HttpResponse;
+  public readonly entryType = 'http.response';
 
   public getEntryLabel(): string {
     return 'HTTP response';

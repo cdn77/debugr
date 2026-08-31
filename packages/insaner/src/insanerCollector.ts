@@ -1,5 +1,5 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, PluginKind } from '@debugr/core';
+import { PluginKind } from '@debugr/core';
 import type { HttpRequestLogEntry, HttpResponseLogEntry } from '@debugr/http-common';
 import type {
   HttpRequest,
@@ -18,7 +18,7 @@ export class InsanerCollector<
 > implements CollectorPlugin<TTaskContext, TGlobalContext> {
   public readonly id = 'insaner';
   public readonly kind = PluginKind.Collector;
-  public readonly entryTypes = [EntryType.HttpRequest, EntryType.HttpResponse];
+  public readonly entryTypes = ['http.request', 'http.response'];
 
   private readonly options: NormalizedOptions;
   private logger?: Logger<TTaskContext, TGlobalContext>;
@@ -65,7 +65,7 @@ export class InsanerCollector<
     const ip = request.headers['x-forwarded-for'] ?? request.raw.socket.remoteAddress;
 
     this.logger.add<HttpRequestLogEntry>({
-      type: EntryType.HttpRequest,
+      type: 'http.request',
       level: this.options.level,
       data: {
         method: request.method,
@@ -102,7 +102,7 @@ export class InsanerCollector<
         : this.options.level;
 
     this.logger?.add<HttpResponseLogEntry>({
-      type: EntryType.HttpResponse,
+      type: 'http.response',
       level,
       data: {
         status: response.status,

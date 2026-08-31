@@ -1,6 +1,6 @@
 import type { ApolloServerPlugin, GraphQLRequestListener } from '@apollo/server';
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, LogLevel, PluginKind } from '@debugr/core';
+import { LogLevel, PluginKind } from '@debugr/core';
 import type { GraphqlQueryLogEntry } from '@debugr/graphql-common';
 import type { ApolloCollectorOptions } from './types';
 
@@ -12,7 +12,7 @@ export class ApolloCollector<
 {
   public readonly id = 'apollo';
   public readonly kind = PluginKind.Collector;
-  public readonly entryTypes = [EntryType.GraphqlQuery];
+  public readonly entryTypes = ['graphql.query'];
 
   private readonly options: ApolloCollectorOptions;
   private logger?: Logger<TTaskContext, TGlobalContext>;
@@ -28,14 +28,18 @@ export class ApolloCollector<
   public requestDidStart = async (): Promise<GraphQLRequestListener<any>> => {
     return {
       didResolveOperation: async (ctx): Promise<void> => {
+        if (!this.logger) {
+          return;
+        }
+
         const operation =
           [ctx.operation?.operation, ctx.operationName].filter((v) => !!v).join(' ') || undefined;
 
-        operation && this.logger?.setContextProperty('queryName', operation);
+        operation && this.logger.setContextProperty('queryName', operation);
 
         if (ctx.request.query) {
-          this.logger?.add<GraphqlQueryLogEntry>({
-            type: EntryType.GraphqlQuery,
+          this.logger.add<GraphqlQueryLogEntry>({
+            type: 'graphql.query',
             level: this.options.level ?? LogLevel.INFO,
             data: {
               query: ctx.request.query,
@@ -46,8 +50,12 @@ export class ApolloCollector<
         }
       },
       didEncounterErrors: async ({ errors }): Promise<void> => {
+        if (!this.logger) {
+          return;
+        }
+
         for (const err of errors) {
-          this.logger?.log(this.options.errorLevel ?? LogLevel.ERROR, err.originalError ?? err);
+          this.logger.log(this.options.errorLevel ?? LogLevel.ERROR, err.originalError ?? err);
         }
       },
     };

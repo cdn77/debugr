@@ -67,6 +67,13 @@ export type ImmutableDate = Omit<
   | 'setUTCFullYear'
 >;
 
+export interface EntryTypes {
+  [type: string]: Record<string, any>;
+  '*': Record<string, any>;
+}
+
+export type EntryType = string & keyof EntryTypes;
+
 export type LogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
@@ -85,10 +92,6 @@ export const enum PluginKind {
   Collector = 'collector',
   Formatter = 'formatter',
   Handler = 'handler',
-}
-
-export const enum EntryType {
-  Any = '*',
 }
 
 export interface Plugin<
@@ -182,4 +185,4 @@ export interface Plugins<
   [id: string]: Plugin<TTaskContext, TGlobalContext>;
 }
 
-export type PluginId = Exclude<keyof Plugins, number | symbol>;
+export type PluginId = string & keyof Plugins;

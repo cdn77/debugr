@@ -1,9 +1,8 @@
 import type { LogEntry, TContextBase, TContextShape } from '@debugr/core';
-import type { EntryType } from '@debugr/core';
 
 declare module '@debugr/core' {
-  export const enum EntryType {
-    SqlQuery = 'sql.query',
+  export interface EntryTypes {
+    'sql.query': SqlQueryData;
   }
 }
 
@@ -21,7 +20,7 @@ export interface SqlQueryLogEntry<
   TTaskContext extends TContextBase = TContextBase,
   TGlobalContext extends TContextShape = TContextShape,
 > extends LogEntry<TTaskContext, TGlobalContext> {
-  type: EntryType.SqlQuery;
+  type: 'sql.query';
   data: SqlQueryData;
 }
 

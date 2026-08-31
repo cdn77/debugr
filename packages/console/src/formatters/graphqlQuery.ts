@@ -1,5 +1,5 @@
 import type { TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, formatData, isEmpty } from '@debugr/core';
+import { formatData, isEmpty } from '@debugr/core';
 import type { GraphqlQueryLogEntry } from '@debugr/graphql-common';
 import { AbstractConsoleFormatter } from './abstract';
 
@@ -8,7 +8,7 @@ export class GraphqlQueryConsoleFormatter<
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractConsoleFormatter<TTaskContext, TGlobalContext> {
   public readonly id = 'debugr-graphql-query-console-formatter';
-  public readonly entryType = EntryType.GraphqlQuery;
+  public readonly entryType = 'graphql.query';
 
   public formatEntry(entry: GraphqlQueryLogEntry<TTaskContext, TGlobalContext>): string {
     if (!entry.data || !entry.data.query) {

@@ -5,7 +5,7 @@ import type {
   TContextBase,
   TContextShape,
 } from '@debugr/core';
-import { EntryType, formatData, isEmpty, levelToValue } from '@debugr/core';
+import { formatData, isEmpty, levelToValue } from '@debugr/core';
 import { escapeHtml, renderCode, renderDetails } from '../templates';
 import { AbstractHtmlFormatter } from './abstract';
 
@@ -14,7 +14,7 @@ export class DefaultHtmlFormatter<
   TGlobalContext extends TContextShape = TContextShape,
 > extends AbstractHtmlFormatter<TTaskContext, TGlobalContext> {
   public readonly id = 'debugr-default-html-formatter';
-  public readonly entryType = EntryType.Any;
+  public readonly entryType = '*';
   public readonly targetHandler = 'html';
 
   private readonly levelMap: Map<LogLevel, string>;

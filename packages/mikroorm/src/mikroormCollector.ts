@@ -1,5 +1,5 @@
 import type { CollectorPlugin, Logger, TContextBase, TContextShape } from '@debugr/core';
-import { EntryType, LogLevel, PluginKind } from '@debugr/core';
+import { LogLevel, PluginKind } from '@debugr/core';
 import type { SqlQueryLogEntry } from '@debugr/sql-common';
 import type {
   LogContext,
@@ -31,7 +31,7 @@ export class MikroORMCollector<
 {
   public readonly id = 'mikroorm';
   public readonly kind = PluginKind.Collector;
-  public readonly entryTypes = [EntryType.SqlQuery];
+  public readonly entryTypes = ['sql.query'];
 
   private readonly namespaceMap: MikroORMNamespaceMap;
   private readonly levelMap: MikroORMLevelMap;
@@ -63,9 +63,9 @@ export class MikroORMCollector<
   }
 
   public logQuery(context: LogContext): void {
-    if (context.query) {
-      this.logger?.add<SqlQueryLogEntry>({
-        type: EntryType.SqlQuery,
+    if (this.logger && context.query) {
+      this.logger.add<SqlQueryLogEntry>({
+        type: 'sql.query',
         level: this.levelMap[context.level ?? 'info'],
         data: {
           query: context.query,

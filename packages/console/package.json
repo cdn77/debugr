@@ -1,6 +1,6 @@
 {
   "name": "@debugr/console",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Console log handler for Debugr",
   "homepage": "https://github.com/cdn77/debugr",
   "license": "MIT",
