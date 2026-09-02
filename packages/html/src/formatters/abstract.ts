@@ -31,13 +31,33 @@ export abstract class AbstractHtmlFormatter<
   ): string;
 
   public renderError(e: Error, compact: boolean = true): string {
-    const text = `<strong>${escapeHtml(e.name)}</strong>: ${escapeHtml(e.message)}`;
+    const parts: string[] = [];
+    const visited: WeakSet<Error> = new WeakSet();
+    let err: Error | undefined = e;
+    let prefix: string = '';
 
-    if (compact) {
-      return e.stack ? this.renderStackTrace(e.stack, text) : `<p>${text}</p>`;
+    while (err) {
+      if (visited.has(err)) {
+        parts.push('<p><em>(**recursion**)</em></p>');
+        break;
+      }
+
+      visited.add(err);
+      const text = `${prefix}<strong>${escapeHtml(err.name)}</strong>: ${escapeHtml(err.message)}`;
+
+      parts.push(
+        compact
+          ? err.stack
+            ? this.renderStackTrace(err.stack, text)
+            : `<p>${text}</p>`
+          : this.renderParts(`<p>${text}</p>`, err.stack && this.renderStackTrace(err.stack)),
+      );
+
+      err = 'cause' in err && err.cause instanceof Error ? err.cause : undefined;
+      prefix = '⤷ Caused by: ';
     }
 
-    return this.renderParts(`<p>${text}</p>`, e.stack && this.renderStackTrace(e.stack));
+    return this.renderParts(...parts);
   }
 
   public renderStackTrace(trace: string, label: string = 'Stack trace:'): string {
